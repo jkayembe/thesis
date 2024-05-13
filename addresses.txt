@@ -1,0 +1,5 @@
+address,disposition,confidentialite
+martin.dupon.ulb.test,'boite aux lettres','refuser tout'
+felix.horta.ulb.test,'boite aux lettres','accepter tout'
+marie.hupin.ulb.test,'banniere','refuser tout
+zelie.hoelart.ulb.test,'banniere','accepter tout'

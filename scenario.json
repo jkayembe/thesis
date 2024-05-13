@@ -1,0 +1,30 @@
+{
+  "scenario 2": {
+    "USER": "Jason Kayembe",
+    "USER_PASSWORD": "Azerty123",
+    "DOMAIN": ".ulb.test3@outlook.com",
+    "CONTACTS": [
+      "jason.kayembe.ulb.test4@proton.me"
+    ],
+    "PROVIDER": "outlook",
+    "BROWSER": "chrome",
+    "TIME_LIMIT": 5,
+    "N_MAIL_SENT": 9,
+    "N_MAIL_READ": 5,
+    "N_MAIL_ANSWERED": 2
+  },
+  "scenario 3": {
+    "USER": "Jason Kayembe",
+    "USER_PASSWORD": "Azerty123",
+    "DOMAIN": ".ulb.test4@proton.me",
+    "CONTACTS": [
+      "jason.kayembe.ulb.test3@outlook.com"
+    ],
+    "PROVIDER": "proton",
+    "BROWSER": "chrome",
+    "TIME_LIMIT": 5,
+    "N_MAIL_SENT": 10,
+    "N_MAIL_READ": 6,
+    "N_MAIL_ANSWERED": 1
+  }
+}

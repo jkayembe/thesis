@@ -1,0 +1,28 @@
+name: Email Session Test
+author: Jason Kayembe
+description: This test launches an email session scenario
+
+services:
+    automated-session:
+        image: jkayembe/automated-session:latest
+        build: .
+        ports:
+            - 5900:5900
+        shell: "bash"
+        setup-commands:
+            - Xvfb :0 -screen 0 1296x736x16 &
+            - x11vnc -forever -create -display :0 -rfbport 5900 -bg -nopw
+        folder-destination: "/app"
+        command: "bash"
+
+flow:
+    - name: Run the scenario
+      container: automated-session
+      commands:
+        - type: console
+          command: python src/scenario.py
+          note: Starting the Python script
+          log-stdout: true
+        - type: console
+          command: sleep 10
+          note: Idling

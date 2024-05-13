@@ -1,0 +1,47 @@
+I created 4 email addresses. For each of them I want to create a dataset of emails organised in 2 CSV files:
+
+	1st file : Emails (UNIQUE_ID,SUBJECT,CONTENT)
+
+	2nd file : Answers to those Emails (UNIQUE_ID, ANSWER_CONTENT)
+
+Instructions:
+
+	1) Files :
+
+i) Each line i in both files has UNIQUE_ID = i and we have ANSWERS[i] is the answer to the email EMAILS[i]
+ii) Each CONTENT and ANSWER must be exactly 300 characters long
+iii) Each file contains 100 lines (so 100 emails or 100 answers).
+
+	2) CONTENT and ANSWER_CONTENT :
+
+i) Each user (email address) has 5 areas of interest and has 20 EMAIL/ANSWER pairs concerning each interest:
+
+	Martin Dupon :
+1) is a fan of English Soccer
+2) loves to travel around the world
+3) is a volunteer in an NGO helping migrants
+4) is a rock album collector
+5) loves to read comics
+
+	Felix Horta :
+1) is into investing, especially in cryptocurrency.
+2) enjoys luxury travel and experiences.
+3) keeps up with the latest trends in digital assets.
+4) is a fan of video games
+5) is a passionate of automobile
+
+	Marie Hupin :
+1) enjoys reading novels and poetry
+2) is fascinated by human behavior and mental processes.
+3) regularly visits museums and cultural events.
+4) writes short stories and personal reflections.
+5) is active in mental health awareness
+
+	Zelie Hoelaert :
+1) is a medical researcher focusing in infectious diseases
+2) prioritizes fitness and healthy living.
+3) makes medical concepts accessible to the public
+4) volunteers in underserved communities and international missions.
+5) supports sustainability and conservation efforts.
+
+API Key : sk-proj-YArK0aQ6VGd9R9tUXxFCT3BlbkFJnQtgCXNwdeUW7wtyrLHa
