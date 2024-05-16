@@ -173,7 +173,7 @@ class Session:
                 print(f"[ERROR] : ", str(e))
         return wrapper
     def pause(self, delay=None):
-        if not delay is None:
+        if delay is None:
             time.sleep(TIME_BETWEEN_ACTIONS)
         else: time.sleep(delay)
     def close_browser(self):
@@ -215,11 +215,12 @@ class ProtonSession(Session):
         
             # Click on the login button
             self.driver.find_element(By.CSS_SELECTOR, ".button-large").click()
-            
-            # Wait for the page to load
-            self.pause(15)
-            
             print("[INFO] : Logged in.")
+
+            # Wait for the page to load
+            self.pause(10)
+            
+            
         except Exception as e:
             raise e
     
@@ -554,7 +555,7 @@ class OutlookSession(Session):
             print("[INFO] : Logged in.")
 
             # Wait for the page to load
-            self.pause(15)
+            self.pause(10)
             
         except Exception as e:
             self.home_page(force=True)
@@ -799,8 +800,8 @@ class OutlookSession(Session):
         Opens the the first mail in the list
         '''
         try:
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div[2]")))
-            self.driver.find_element(By.XPATH, "//div[2]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div[2]").click()
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div/div[2]/div/div/div[@draggable='true']/div/div[2]/div[2]/div/div/span")))
+            self.driver.find_element(By.XPATH, "//div/div[2]/div/div/div[@draggable='true']/div/div[2]/div[2]/div/div/span").click()
             self.stats["read_mails"] += 1
             print("[INFO] : Read first email.")
             self.pause(15)

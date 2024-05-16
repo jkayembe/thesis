@@ -8,9 +8,9 @@
     ],
     "PROVIDER": "outlook",
     "BROWSER": "chrome",
-    "TIME_LIMIT": 5,
-    "N_MAIL_SENT": 3,
-    "N_MAIL_READ": 3,
-    "N_MAIL_ANSWERED": 2
+    "TIME_LIMIT": 1,
+    "N_MAIL_SENT": 0,
+    "N_MAIL_READ": 1,
+    "N_MAIL_ANSWERED": 0
   }
 }

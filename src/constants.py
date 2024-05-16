@@ -18,7 +18,7 @@ MAX_ATTEMPTS = 2
 DELAY = 5  
 
 # Determine interval between each action: lower value to fast the session
-TIME_BETWEEN_ACTIONS = 5
+TIME_BETWEEN_ACTIONS = 1
 
 # Keys for the Default arguments dictionnary :
 USER = "USER"
@@ -35,34 +35,34 @@ DOMAIN = "DOMAIN"
 # Default arguments dicionnary for the scenarios :
 SCENARIOS = {
     
-    "scenario 1": {
-        USER: "Jason Kayembe",
-        USER_PASSWORD: "Azerty123",
-        DOMAIN : ".ulb.test4@proton.me",
-        CONTACTS: [ 
-            "jason.kayembe.ulb.test3@outlook.com",
-        ],
+    # "scenario 1": {
+    #     USER: "Jason Kayembe",
+    #     USER_PASSWORD: "Azerty123",
+    #     DOMAIN : ".ulb.test4@proton.me",
+    #     CONTACTS: [ 
+    #         "jason.kayembe.ulb.test3@outlook.com",
+    #     ],
                   
-        PROVIDER: PROTON,
-        BROWSER: CHROME,
-        TIME_LIMIT: 5,
-        N_MAIL_SENT: 2,
-        N_MAIL_READ: 2,
-        N_MAIL_ANSWERED: 1,
-    },
+    #     PROVIDER: PROTON,
+    #     BROWSER: CHROME,
+    #     TIME_LIMIT: 5,
+    #     N_MAIL_SENT: 2,
+    #     N_MAIL_READ: 2,
+    #     N_MAIL_ANSWERED: 1,
+    # },
     
     "scenario 2": {
         USER: "Jason Kayembe",
         USER_PASSWORD: "Azerty123",
         DOMAIN : ".ulb.test3@outlook.com",
         CONTACTS: [
-            "jason.kayembe.ulb.test4@proton.me",
+            "ajason.kayembe.ulb.test4@proton.me",
         ],   
         PROVIDER: OUTLOOK,
         BROWSER: CHROME,
-        TIME_LIMIT: 5,
-        N_MAIL_SENT: 2,
-        N_MAIL_READ: 2,
+        TIME_LIMIT: 2,
+        N_MAIL_SENT: 0,
+        N_MAIL_READ: 1,
         N_MAIL_ANSWERED: 1
     }
 }

@@ -1,0 +1,10 @@
+Timestamp,Event,Description
+2024-05-16 23:12:09.164144,login,"
+        Log in to the Outlook user account
+        "
+2024-05-16 23:12:17.519118,delete_drafts,"
+        This function remove drafts as it perturbs the answering email function
+        "
+2024-05-16 23:12:20.752429,filter,"
+        Show only unread emails
+        "
