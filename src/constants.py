@@ -1,6 +1,10 @@
 # Standard imports :
 import os
 
+# Set seed for reproducibility
+SEED = int(os.environ.get("SEED", "321"))
+
+
 # General constants :
 PROTON = "proton"
 OUTLOOK = "outlook"
@@ -62,7 +66,15 @@ SCENARIOS = {
 }
 
 # Check if the script is run from a container :
-IS_CONTAINER = os.environ.get("IS_CONTAINER", "").lower() == "true"
+IS_CONTAINER = os.environ.get("IS_CONTAINER", "false").lower() == "true"
+
+# Check if the script is being measured by the Green Metric Tool
+#       - Used for logging : while measured with GMT, volumes mounted are read only.
+#         Since the current directory is mounted in the container, it is not possible to log
+#         into files contained in this directory.
+#       - Instead we can format the stdout messages (ie: timestamp message) so that the GMT
+#         uses those timestamp to map the messages occurences in the metrics timeseries.
+IS_MEASURED = os.environ.get("IS_MEASURED", "false").lower() == "true"
 
 # Files :
 LOG_FOLDER = "../logs/"

@@ -1,0 +1,16 @@
+Timestamp,Event,Description
+2024-05-16 10:08:33.774121,login,"
+        Log in to the mail provider website
+        "
+2024-05-16 10:09:12.935263,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-16 10:09:13.050165,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-16 10:09:24.536120,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-16 10:09:24.629971,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "

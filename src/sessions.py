@@ -44,8 +44,8 @@ class WebDriver():
                 
                 if IS_CONTAINER:
                     # Set options and service for running in a container (e.g., using Chromium)
-                    #options.add_argument('--headless') # Required for running in Docker
-                    #options.add_argument('--disable-gpu')  # Required for running in Docker
+                    options.add_argument('--headless') # Required for running in Docker
+                    options.add_argument('--disable-gpu')  # Required for running in Docker
                     options.add_argument('--no-sandbox')  # Required for running in Docker
                     options.add_argument('--disable-dev-shm-usage')  # Required for running in Docker
                 
@@ -121,13 +121,15 @@ class Session:
         def wrapper(self, *args, **kwargs):
             try:
                 output = func(self, *args, **kwargs)
-                # If function didn't raise error we assume everything went fine and log execution timing
-                with open(self.log_file_path + ".log", 'a', newline='', encoding='utf-8') as log:
-                    log_writer = csv.writer(log)
-                    if self.first:
-                        self.first = False
-                        log_writer.writerow(["Timestamp", "Event", "Description"])
-                    log_writer.writerow([datetime.now(), func.__name__, func.__doc__])
+                if not IS_MEASURED : 
+                    # We deactivate this function when measurement are performed since mounted volumes (in containers used by GMT) are read only.
+                    # If function didn't raise error we assume everything went fine and log execution timing
+                    with open(self.log_file_path + ".log", 'a', newline='', encoding='utf-8') as log:
+                        log_writer = csv.writer(log)
+                        if self.first:
+                            self.first = False
+                            log_writer.writerow(["Timestamp", "Event", "Description"])
+                        log_writer.writerow([datetime.now(), func.__name__, func.__doc__])
                 return output
             except Exception as e:
                 print(f"[WARNING] : Function {func.__name__} didn't end. --> NO LOG.")
@@ -212,7 +214,7 @@ class ProtonSession(Session):
             self.driver.find_element(By.CSS_SELECTOR, ".button-large").click()
             
             # Wait for the page to load
-            time.sleep(10)
+            time.sleep(15)
             
             print("[INFO] : Logged in.")
         except Exception as e:
@@ -402,8 +404,8 @@ class ProtonSession(Session):
             # Click on the email
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".item-container-wrapper:nth-child(1) .item-senders .inline-block > span")))
             self.driver.find_element(By.CSS_SELECTOR, ".item-container-wrapper:nth-child(1) .item-senders .inline-block > span").click()
-            time.sleep(3)
             print("[INFO] : Read first email.")
+            time.sleep(20)
             self.stats["read_mails"] += 1
         except Exception as e:
             self.home_page(force=True)
@@ -519,6 +521,9 @@ class OutlookSession(Session):
             self.driver.find_element(By.ID, "declineButton").click()
             
             print("[INFO] : Logged in.")
+
+            # Wait for the page to load
+            time.sleep(15)
             
         except Exception as e:
             self.home_page(force=True)
@@ -747,7 +752,7 @@ class OutlookSession(Session):
             self.driver.find_element(By.XPATH, "//div[2]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div[2]").click()
             print("[INFO] : Read first email.")
             self.stats["read_mails"] += 1
-            time.sleep(3)
+            time.sleep(20)
         
         except Exception as e:
             self.home_page(force=True)

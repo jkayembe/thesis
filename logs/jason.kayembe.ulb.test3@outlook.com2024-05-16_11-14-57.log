@@ -1,0 +1,50 @@
+Timestamp,Event,Description
+2024-05-16 11:15:04.736397,login,"
+        Log in to the Outlook user account
+        "
+2024-05-16 11:15:42.471030,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-16 11:15:43.596963,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-16 11:17:47.484508,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-16 11:17:48.582741,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-16 11:18:08.407087,delete_drafts,"
+        This function remove drafts as it perturbs the answering email function
+        "
+2024-05-16 11:18:08.694140,filter,"
+        Show only unread emails
+        "
+2024-05-16 11:18:15.866967,read_first,"
+        Opens the the first mail in the list
+        "
+2024-05-16 11:18:21.243829,reply,"
+        Answer to an opened email
+        "
+2024-05-16 11:18:22.516224,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-16 11:18:22.952865,filter,"
+        Show only unread emails
+        "
+2024-05-16 11:18:30.103037,read_first,"
+        Opens the the first mail in the list
+        "
+2024-05-16 11:18:30.478039,delete_first,"
+        delete the first mail in the list
+        "
+2024-05-16 11:18:31.729581,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-16 11:18:32.588723,logout,"
+        Logout of the connected account
+        "

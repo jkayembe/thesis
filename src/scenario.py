@@ -1,4 +1,5 @@
 # standard libraries
+import math
 import random
 import threading
 import time
@@ -169,7 +170,9 @@ class Scenario:
 
         # Prepare the session schedule
         n_operations = self.n_mail_to_send + self.n_mail_to_read + self.n_mail_to_answer
-        self.seconds = round(self.time_limit*60)
+        self.seconds = self.time_limit*60
+        print(self.seconds)
+        print("operation : ", n_operations)
         moments = select_random_moments(0, self.seconds, n_operations)
     
         # Log in on the mail provider website
@@ -222,16 +225,21 @@ class Scenario:
         self.duration = self.end - self.start
         self.finished = True
         print(self)
+
         # Save summary
-        summary_file_path = session.log_file_path + ".summary"
-        os.makedirs(os.path.dirname(summary_file_path), exist_ok=True)
-        with open(summary_file_path, 'a') as summary_file:
-            print(self, file=summary_file)
-        
+        # We deactivate this function when measurement are performed since mounted volumes (in containers used by GMT) are read only.
+        if not IS_MEASURED:
+            summary_file_path = session.log_file_path + ".summary"
+            os.makedirs(os.path.dirname(summary_file_path), exist_ok=True)
+            with open(summary_file_path, 'a') as summary_file:
+                print(self, file=summary_file)
+            
         return 0
 
 
 def main():
+
+    random.seed(SEED)
     
     threads = []
     scenarios_parameters = handle_arguments()

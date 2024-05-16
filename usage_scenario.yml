@@ -4,14 +4,16 @@ description: This test launches an email session scenario
 
 services:
     automated-session:
-        image: jkayembe/automated-session:latest
-        build: .
+        image: jkayembe/automated-session
         ports:
             - 5900:5900
+        environment:
+          IS_MEASURED: "true"
+          SEED: 123
         shell: "bash"
-        setup-commands:
-            - Xvfb :0 -screen 0 1296x736x16 &
-            - x11vnc -forever -create -display :0 -rfbport 5900 -bg -nopw
+        #setup-commands:
+        #    - Xvfb :0 -screen 0 1296x736x16 &
+        #    - x11vnc -forever -create -display :0 -rfbport 5900 -bg -nopw
         folder-destination: "/app"
         command: "bash"
 
@@ -23,6 +25,8 @@ flow:
           command: python src/scenario.py scenario.json
           note: Starting the Python script
           log-stdout: true
+          read-notes-stdout: true
+          log-stderr: true
         - type: console
           command: sleep 10
           note: Idling

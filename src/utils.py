@@ -1,5 +1,7 @@
 # standard libraries
+import math
 import random
+import time
 import sys
 import re
 import builtins
@@ -20,7 +22,8 @@ from constants import (
     USER_PASSWORD,
     USER,
     SCENARIOS,
-    CONTACTS
+    CONTACTS,
+    IS_MEASURED
     )
 # ******************************************************************************************************
 # *****                                                                                            *****
@@ -47,7 +50,11 @@ def print_colored(*objects, sep=' ', end='\n', file=None, flush=False):
     
     # Build the message with the appropriate color
     text = sep.join(map(str, objects))
-    message =  color + '[THREAD ' + name + '] :: ' + text + "\033[0m"
+    timestamp_str = ""
+    if IS_MEASURED :
+        current_time = int(time.time()*1000000)
+        timestamp_str = f"{current_time} "
+    message =  timestamp_str + color + '[THREAD ' + name + '] :: ' + text + "\033[0m"
     
     # Write the message directly to stdout
     if file is None:
@@ -130,7 +137,7 @@ def handle_arguments():
         
         # Validate input
         try:
-            time_limit = int(time_limit)
+            time_limit = math.ceil(time_limit)
             n_mail_to_send = int(n_mail_to_send)
             n_mail_to_read = int(n_mail_to_read)
             n_mail_to_answer = int(n_mail_to_answer)
