@@ -172,7 +172,10 @@ class Session:
                 traceback.print_exc()
                 print(f"[ERROR] : ", str(e))
         return wrapper
-    
+    def pause(self, delay=None):
+        if not delay is None:
+            time.sleep(TIME_BETWEEN_ACTIONS)
+        else: time.sleep(delay)
     def close_browser(self):
     #     Session.drivers.remove(self.driver)
         self.driver.quit()
@@ -195,26 +198,26 @@ class ProtonSession(Session):
             
             # Open the login page
             self.driver.get("https://account.proton.me/fr/mail")
-        
-            # Wait for the username field to be clickable
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "username")))
+            self.pause()
         
             # Enter username
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "username")))
             self.driver.find_element(By.ID, "username").click()
             self.driver.find_element(By.ID, "username").send_keys(self.user_address)
-        
-            # Wait for the password field to be clickable
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "password")))
-        
+            self.pause()
+            self.pause()
+
             # Enter password
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "password")))
             self.driver.find_element(By.ID, "password").click()
             self.driver.find_element(By.ID, "password").send_keys(self.psw)
+            self.pause()
         
             # Click on the login button
             self.driver.find_element(By.CSS_SELECTOR, ".button-large").click()
             
             # Wait for the page to load
-            time.sleep(15)
+            self.pause(15)
             
             print("[INFO] : Logged in.")
         except Exception as e:
@@ -232,11 +235,13 @@ class ProtonSession(Session):
             # Click on user avatar
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".my-auto > .m-auto")))
             self.driver.find_element(By.CSS_SELECTOR, ".my-auto > .m-auto").click()
-            time.sleep(1)
+            self.pause()
         
             # Click on logout button
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".pb-4 > .button")))
             self.driver.find_element(By.CSS_SELECTOR, ".pb-4 > .button").click()
+            self.pause()
+
             print("[INFO] : Logged out.")
             
         except Exception as e:
@@ -255,40 +260,70 @@ class ProtonSession(Session):
             # Click to compose a new mail
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/button")))
             self.driver.find_element(By.XPATH, "//div[2]/button").click()
-            
-            time.sleep(5)
+            self.pause()
         
             # Wait for recipient field to be visible and input the recipient
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div/div/div/div/div/div/input")))
             self.driver.find_element(By.XPATH, "//div/div/div/div/div/div/input").send_keys(to)
             self.driver.find_element(By.XPATH, "//div/div/div/div/div/div/input").send_keys(Keys.ENTER)
+            self.pause()
         
             # Wait for subject field to be visible and input the subject
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//input[contains(@id, \'subject-composer\')]")))
             self.driver.find_element(By.XPATH, "//input[contains(@id, \'subject-composer\')]").send_keys(mail_object)
+            self.pause()
         
             # Switch to the email content iframe
             self.driver.switch_to.frame(0)
+            self.pause()
             
             # Input the email content
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[1]/div/div[@id=\'rooster-editor\']")))
             element = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[@id=\'rooster-editor\']")
             self.driver.execute_script("if(arguments[0].contentEditable === 'true') {arguments[0].innerText = arguments[1]}", element, mail_body)
+            self.pause()
         
             # Switch back to default content
             self.driver.switch_to.default_content()
+            self.pause()
         
             # Click the send button
             self.driver.find_element(By.XPATH, "//footer/div/div/button/span").click()
-            time.sleep(5)
+            self.pause()
             
-            print("[INFO] : Mail Sent.")
             self.stats["sent_mails"] += 1
+            print("[INFO] : Mail Sent.")
             
         except Exception as e:
             self.home_page(force=True)
             raise e
-     
+        
+    @Session.time_limited_execution
+    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.log_event
+    def filter(self):
+        '''
+        Show only unread emails
+        '''
+        try:
+            # Refresh the mailbox
+            self.driver.find_element(By.XPATH, "//span/span/span").click()
+            print("[INFO] : Refreshed mailbox")
+            self.pause()
+            
+            # Click on the filter button
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//main/div/div/div/div/div/div/div/nav/div[2]/div/button"))).click()
+            self.pause()
+            
+            # Click on the unread filter option
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".dropdown-item:nth-child(4) > .dropdown-item-button"))).click()
+            print("[INFO] : Filtered emails, showing unread only.")
+            self.pause()
+            
+        except Exception as e:
+            self.home_page(force=True)
+            raise e
+    
     
     @Session.time_limited_execution
     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
@@ -299,10 +334,14 @@ class ProtonSession(Session):
         '''
         if force:
             self.driver.get("https://account.proton.me/fr/mail")
+            self.pause()
             try:
-                WebDriverWait(self.driver, 3).until(EC.alert_is_present(),'Timed out waiting for popup to appear.')
+                WebDriverWait(self.driver, 10).until(EC.alert_is_present(),'Timed out waiting for popup to appear.')
                 alert = self.driver.switch_to.alert
                 alert.accept()
+                self.pause()
+
+                self.stats["refresh"] += 1
             except TimeoutException:
                 temp = "no alert"
         else:
@@ -310,48 +349,32 @@ class ProtonSession(Session):
             try:
                 WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//span/span/span")))
                 self.driver.find_element(By.XPATH, "//span/span/span").click()
+                self.pause()
+
+                self.stats["refresh"] += 1
             except Exception as e:
                 print("[DEBUG] : Couldn't click on mailbox link. Trying to force refreshing to homepage")
                 try:
                     self.home_page(force=True)
+
+                    self.stats["refresh"] += 1
                 except Exception as e:
                     print("[ERROR] : Unable to load home page. Program will exit")
                     #sys.exit(1)
         
-        self.stats["refresh"] += 1
+        
     
     def delete_drafts(self):
         '''
         Not implemented in this class becauses presence of drafts causes no trouble.
         Just defined for common interface with OutlookSession.
         '''
+        self.pause()
+        self.pause()
+        self.pause()
+        self.pause()
+        self.pause()
         pass
-    
-    
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event
-    def filter(self):
-        '''
-        Show only unread emails
-        '''
-        try:
-            # Refresh the mailbox
-            time.sleep(3)
-            self.driver.find_element(By.XPATH, "//span/span/span").click()
-            print("[INFO] : Refreshed mailbox")
-            
-            # Click on the filter button
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//main/div/div/div/div/div/div/div/nav/div[2]/div/button"))).click()
-            time.sleep(5)
-            # Click on the unread filter option
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".dropdown-item:nth-child(4) > .dropdown-item-button"))).click()
-            print("[INFO] : Filtered emails")  
-            time.sleep(1)
-            
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
     
     @Session.time_limited_execution
     @Session.time_limited_execution
@@ -362,10 +385,10 @@ class ProtonSession(Session):
         '''
         try:
             # Get the sender's address 
-            time.sleep(3)
             sender = self.driver.find_element(By.CSS_SELECTOR, ".message-recipient-item-address").text # <sender@domain>
             sender = sender[1:-1]
             print("[INFO] : Sender's address= {}.".format(sender))
+            self.pause()
             return sender
         except Exception as e:
             self.home_page(force=True)
@@ -382,9 +405,9 @@ class ProtonSession(Session):
         '''
         try:
             # Get the sender's address from the span included in the banner
-            time.sleep(3)
             subject = self.driver.find_element(By.XPATH, "//section/div/div[3]/div/header/div/h1/span").text
             print("[INFO] : Found subject = {}".format(subject))
+            self.pause()
             return subject
         except Exception as e:
             self.home_page(force=True)
@@ -405,8 +428,9 @@ class ProtonSession(Session):
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".item-container-wrapper:nth-child(1) .item-senders .inline-block > span")))
             self.driver.find_element(By.CSS_SELECTOR, ".item-container-wrapper:nth-child(1) .item-senders .inline-block > span").click()
             print("[INFO] : Read first email.")
-            time.sleep(20)
             self.stats["read_mails"] += 1
+            self.pause(15)
+           
         except Exception as e:
             self.home_page(force=True)
             self.filer()
@@ -424,11 +448,14 @@ class ProtonSession(Session):
            
             # Delete it
             element = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".flex-1 > div > .toolbar .flex:nth-child(4)")))
-            time.sleep(1)
             element.click()
-            print("[INFO] : Deleted the email.")
             self.stats["deleted_mails"] += 1
-            time.sleep(10)
+            print("[INFO] : Deleted the email.")
+            self.pause()
+            self.pause()
+            
+            
+            
         except Exception as e:
             self.home_page(force=True)
             self.filter()
@@ -447,30 +474,33 @@ class ProtonSession(Session):
             # Click on Reply
                 WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".button-for-icon:nth-child(1) > .rtl\\3Amirror")))
                 self.driver.find_element(By.CSS_SELECTOR, ".button-for-icon:nth-child(1) > .rtl\\3Amirror").click()
-                time.sleep(3)
                 print("[DEBUG] : Clicked on Reply")
+                self.pause()
 
                 # Switch to the email content frame
                 self.driver.switch_to.frame(1)
                 WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, "rooster-editor")))
                 element = self.driver.find_element(By.ID, "rooster-editor")
-                time.sleep(3)
                 print("[DEBUG] : Switched to email content frame")
-
+                self.pause()
+                
                 # Set the email response
                 self.driver.execute_script("if(arguments[0].contentEditable === 'true') {arguments[0].innerText = arguments[1]}", element, answer)
-                time.sleep(3)
                 print("[DEBUG] : Set email response")
+                self.pause()
+                
 
                 # Click the send button
                 self.driver.switch_to.default_content()
                 WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//footer/div/div/button/span")))
                 self.driver.find_element(By.XPATH, "//footer/div/div/button/span").click()
-                time.sleep(3)
                 print("[DEBUG] : Clicked the send button")
                 
-                print("[INFO] : Answer Sent.")
                 self.stats["answered_mails"] += 1
+                print("[INFO] : Answer Sent.")
+                self.pause()
+                self.pause()
+                
         except Exception as e:
             self.home_page(force=True)
             self.filter()
@@ -498,32 +528,33 @@ class OutlookSession(Session):
         try:
             # Open the Outlook login page
             self.driver.get("https://outlook.office.com/mail/")
-        
+            self.pause()
             
             # Enter user email
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, "i0116")))
             self.driver.find_element(By.ID, "i0116").send_keys(self.user_address)
-   
+            self.pause()
+
             # Click on the next button
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "idSIButton9")))
             self.driver.find_element(By.ID, "idSIButton9").click()
-            
+            self.pause()
+
             # Enter user password
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "i0118")))
             self.driver.find_element(By.ID, "i0118").click()
             self.driver.find_element(By.ID, "i0118").send_keys(self.psw)
             self.driver.find_element(By.ID, "i0118").send_keys(Keys.ENTER)
-        
-            # Wait for the decline button to be clickable
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "declineButton")))
-        
+            self.pause()
+
             # Click on the decline button
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "declineButton")))
             self.driver.find_element(By.ID, "declineButton").click()
-            
+
             print("[INFO] : Logged in.")
 
             # Wait for the page to load
-            time.sleep(15)
+            self.pause(15)
             
         except Exception as e:
             self.home_page(force=True)
@@ -537,18 +568,16 @@ class OutlookSession(Session):
         Logout of the connected account
         '''
         try:
-            # Wait for the logo to be clickable
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".\\_8ZYZKvxC8bvw1xgQGSkvvA\\=\\= > img")))
-        
             # Click on the user logo
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".\\_8ZYZKvxC8bvw1xgQGSkvvA\\=\\= > img")))
             self.driver.find_element(By.CSS_SELECTOR, ".\\_8ZYZKvxC8bvw1xgQGSkvvA\\=\\= > img").click()
-        
-            # Wait for the logout link to be clickable
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "mectrl_body_signOut")))
-        
+            self.pause()
+
             # Click on the logout link
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "mectrl_body_signOut")))
             self.driver.find_element(By.ID, "mectrl_body_signOut").click()
-            
+            self.pause()
+
             print("[INFO] : Logged out.")
         
         except Exception as e:
@@ -567,29 +596,35 @@ class OutlookSession(Session):
             # Click to start composing an email
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//span/button/span/span/span")))
             self.driver.find_element(By.XPATH, "//span/button/span/span/span").click()
+            self.pause()
         
             # Input the recipient address
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".\\___1mtnehv")))
             recipient_field = self.driver.find_element(By.CSS_SELECTOR, ".\\___1mtnehv")
             self.driver.execute_script("if(arguments[0].contentEditable === 'true') {arguments[0].innerText = '" + to + "'}", recipient_field)
+            self.pause()
         
             # Type the subject
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div[2]/div/div/div/input")))
             self.driver.find_element(By.XPATH, "//div[2]/div[2]/div/div/div/input").send_keys(subject)
+            self.pause()
         
             # Input the mail body
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div[3]/div/div/div/div/div[4]/div/div/div")))
             mail_body_element = self.driver.find_element(By.XPATH, "//div[3]/div/div/div/div/div[4]/div/div/div")
             self.driver.execute_script("arguments[0].innerText = arguments[1]", mail_body_element, content)
+            self.pause()
         
             # Click the send button
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".ms-Button--primary")))
             self.driver.find_element(By.CSS_SELECTOR, ".ms-Button--primary").click()
-            time.sleep(2)
-            
-            print("[INFO] : Mail Sent.")
+            self.pause()
+            self.pause()
+            self.pause()
+
             self.stats["sent_mails"] += 1
-   
+            print("[INFO] : Mail Sent.")
+            
         except Exception as e:
             self.home_page(force=True)
             raise e
@@ -606,12 +641,14 @@ class OutlookSession(Session):
             # Click on the filter button
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".\\___1j0t24r")))
             self.driver.find_element(By.CSS_SELECTOR, ".\\___1j0t24r").click()
+            self.pause()
         
             # Click on the "Unread" option
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".fui-MenuItem:nth-child(3) .UagSo")))
             self.driver.find_element(By.CSS_SELECTOR, ".fui-MenuItem:nth-child(3) .UagSo").click()
-            
             print("[INFO] : Filtered emails, showing unread only.")
+            self.pause()
+            self.pause()
         
         except Exception as e:
             self.home_page(force=True)
@@ -627,14 +664,17 @@ class OutlookSession(Session):
         If force is enable or if it fails then tries to refresh the page with the "Outlook" link
         '''
         # Wait for 1 seconds then refresh
-        time.sleep(1)
         if force:
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[@id='O365_AppName']/span"))).click()
+            self.pause()
             try:
-                WebDriverWait(self.driver, 3).until(EC.alert_is_present(),'Timed out waiting for popup to appear.')
+                WebDriverWait(self.driver, 10).until(EC.alert_is_present(),'Timed out waiting for popup to appear.')
                 alert = self.driver.switch_to.alert
                 alert.accept()
+                self.stats["refresh"] += 1
                 print("[DEBUG] : Alert accepted")
+                self.pause()
+
             except TimeoutException:
                 temp = "no alert"
             
@@ -642,6 +682,9 @@ class OutlookSession(Session):
         else:
             try:
                 WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div/span"))).click()
+                self.pause()
+                self.stats["refresh"] += 1
+
             except Exception as e:
                 print(f"[ERROR] : An error occurred while clicking 'mailbox' link. Trying to force refreshing to homepage")
                 try:
@@ -649,7 +692,7 @@ class OutlookSession(Session):
                 except Exception as e:
                     print("[ERROR] : Unable to reload home page. Program will exit.")
                     sys.exit(1)
-        self.stats["refresh"] += 1
+        
                     
           
     @Session.time_limited_execution
@@ -664,29 +707,35 @@ class OutlookSession(Session):
             n_drafts = self.driver.find_element(By.XPATH, "//*[@id=\"folderPaneDroppableContainer\"]/div/div[3]/div/div/div[3]/div/span[2]/span/span[1]").text
             n_drafts = int(n_drafts)
             print(f"[INFO] : There is(are) : {n_drafts} draft(s).")
+
         except Exception as e:
             print(f"[INFO] : There is no drafts")
             return
         try:
             # Click on folder Drafts
-            time.sleep(2)
+            self.pause()
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[3]/div/div/div[2]/div/span")))
             self.driver.find_element(By.XPATH, "//div[3]/div/div/div[3]/div/span").click()
             print(f"[DEBUG] : Clicked on folder Draft")
+            self.pause()
+
             # Click on Empty Folder
-            time.sleep(2)
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "(//button[@type='button'])[24]")))
             self.driver.find_element(By.XPATH, "(//button[@type='button'])[24]").click()
             print(f"[DEBUG] : Clicked on empty folder")
+            self.pause()
+
             # Click on Confirm
-            time.sleep(2)
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/span/button/span/span/span")))
             self.driver.find_element(By.XPATH, "//div[2]/div/span/button/span/span/span").click()
             print(f"[DEBUG] : Clicked on Confirmed")
+            self.pause()
+
             # Come back to home page (So that it takes effect)
-            time.sleep(2)
             self.home_page(force=True)
             print("[INFO] : Drafts deleted.")
+            self.pause()
+            
         except Exception as e:
             self.home_page(force=True)
             raise e
@@ -703,13 +752,16 @@ class OutlookSession(Session):
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div[2]/div[2]/div/div/span")))
             sender = self.driver.find_element(By.XPATH, "//div[2]/div[2]/div/div/span").get_attribute("title")
             print("[DEBUG] : Looked in the First Span for the sendor address")
-        
+            self.pause()
+
             # If the sender is not found in the first span, check the second span (this is because "brouillon" tag appears)
             if sender is None or sender == "":
                 print("[DEBUG] : Look in the second Span (Likely because of Brouillon)")
                 sender = self.driver.find_element(By.XPATH, "//div[2]/div/div/div/div/div[2]/div[2]/div/div/span[2]").get_attribute("title")
                 print("[DEBUG] : Found in second Span")
-        
+                self.pause()
+                
+
             print("[INFO] : Sender = {}.".format(sender))
             return sender
         
@@ -727,9 +779,9 @@ class OutlookSession(Session):
         Returns the subject of an opened mail
         '''
         try:
-            #time.sleep(10000)
             element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//*[@id='ConversationReadingPaneContainer']/div/div/div[1]/div/div/div/div/div/div/div/div/span[1]")))
             print(f"[INFO] : Founded the email subject : {element.text}.")
+            self.pause()
             return element.text
         except Exception as e:
             self.home_page(force=True)
@@ -747,12 +799,11 @@ class OutlookSession(Session):
         Opens the the first mail in the list
         '''
         try:
-            time.sleep(4)
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div[2]")))
             self.driver.find_element(By.XPATH, "//div[2]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div[2]").click()
-            print("[INFO] : Read first email.")
             self.stats["read_mails"] += 1
-            time.sleep(20)
+            print("[INFO] : Read first email.")
+            self.pause(15)
         
         except Exception as e:
             self.home_page(force=True)
@@ -773,10 +824,13 @@ class OutlookSession(Session):
             actions = ActionChains(self.driver)
             actions.move_to_element(element).perform()
             print("[DEBUG] : Moved Mouse on First Mail")
+            self.pause()
+
             # Click on delete icon
             self.driver.find_element(By.XPATH, "//div/div/div/div/div/div[2]/div/div/div/div/div[3]/div").click()
-            print("[INFO] : Deleted the first email.")
             self.stats["deleted_mails"] += 1
+            print("[INFO] : Deleted the first email.")
+            self.pause()
         
         except Exception as e:
             self.home_page(force=True)
@@ -797,29 +851,34 @@ class OutlookSession(Session):
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".Yk9K4 .Q0K3G")))
             self.driver.find_element(By.CSS_SELECTOR, ".Yk9K4 .Q0K3G").click()
             print("[DEBUG] : Clicked on reply")
-            
+            self.pause()
+
             # Write answer in the editor
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div[2]/div/div/div[4]/div/div/div")))
             element = self.driver.find_element(By.XPATH, "//div[2]/div/div/div[4]/div/div/div")
-            print("[DEBUG] : Waited on Editor")
             self.driver.execute_script("if(arguments[0].contentEditable === 'true') {arguments[0].innerText = arguments[1]}", element, answer)
-            time.sleep(1)
             print("[DEBUG] : Edited Editor Content")
+            self.pause()
                 
             # Click the send button
             self.driver.find_element(By.CSS_SELECTOR, ".ms-Button--primary").click()
             print("[DEBUG] : Clicked the send button")
-            time.sleep(3)
-                
+            self.pause()
+
             # Mark as read
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div[3]/div/button/span/i/span/i")))
             self.driver.find_element(By.XPATH, "//div[2]/div/div/div[3]/div/button/span/i/span/i").click()
             print("[DEBUG] : Clicked the ... button")
+            self.pause()
+
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//li[6]/button/div/span")))
             self.driver.find_element(By.XPATH, "//li[6]/button/div/span").click()
             print("[DEBUG] : Clicked the mark_as_read button")
-            print("[INFO] : Response sent.")
+            
             self.stats["answered_mails"] += 1
+            print("[INFO] : Response sent.")
+            self.pause()
+            
             
         except Exception as e:
             self.home_page(force=True)

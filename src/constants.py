@@ -17,6 +17,8 @@ BROWSERS = [CHROME,]
 MAX_ATTEMPTS = 2
 DELAY = 5  
 
+# Determine interval between each action: lower value to fast the session
+TIME_BETWEEN_ACTIONS = 5
 
 # Keys for the Default arguments dictionnary :
 USER = "USER"
