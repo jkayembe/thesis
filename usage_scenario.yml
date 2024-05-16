@@ -20,7 +20,7 @@ flow:
       container: automated-session
       commands:
         - type: console
-          command: python src/scenario.py
+          command: python src/scenario.py scenario.json
           note: Starting the Python script
           log-stdout: true
         - type: console
