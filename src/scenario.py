@@ -216,6 +216,10 @@ class Scenario:
             session.home_page()
         
         # Logout, close browser and collect final stats and print summary
+
+        rest = round(self.seconds - (time.time() - self.start) - 5)
+        if (rest > 0):
+            time.sleep(rest)
         session.logout()
         session.close_browser()
         self.stats = session.stats

@@ -64,38 +64,13 @@ class WebDriver():
       
 #========================================================================================================================
 class Session:
-    
-    '''
-    drivers = []
-    first = True
-    def switch_window():
-        idx = 0
-        while True:
-            if len(Session.drivers) > 1:
-                driver = Session.drivers[idx]
-                driver.switch_to.window(driver.window_handles[0])
-                time.sleep(6)  # Sleep to allow the window to gain focus
-                print(f"Switched to window with title: {driver.title}")
-                idx = (idx + 1)%len(Session.drivers)
-            elif len(Session.drivers) == 1:
-                time.sleep(10)
-            else: break
-    '''            
+              
     def __init__(self, user_address, psw, browser_name, time_limit=TIME_LIMIT):
         self.user_address = user_address
         self.psw = psw
         self.driver = WebDriver(browser_name).driver
         self.start = time.time()
         self.time_limit = time_limit
-        
-        '''
-        # Launch a thread that ensures rotation between windows for the focus.
-        Session.drivers.append(self.driver)
-        if Session.first == True:
-            Session.first = False
-            Session.switch_thread = threading.Thread(target=Session.switch_window)
-            Session.switch_thread.start()
-        '''
         
         # Prepare log file name and directories : 
         timestamp = str(datetime.today().replace(microsecond=0)).replace(" ","_").replace(":", "-")
@@ -377,7 +352,7 @@ class ProtonSession(Session):
         self.pause()
         pass
     
-    @Session.time_limited_execution
+
     @Session.time_limited_execution
     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
     def get_sender_address(self):
@@ -396,7 +371,7 @@ class ProtonSession(Session):
             self.read_first()
             raise e
         
-    @Session.time_limited_execution
+
     @Session.time_limited_execution
     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
     def get_subject(self):
@@ -740,7 +715,7 @@ class OutlookSession(Session):
             self.home_page(force=True)
             raise e
     
-    @Session.time_limited_execution
+
     @Session.time_limited_execution
     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
     def get_sender_address(self):
@@ -771,7 +746,7 @@ class OutlookSession(Session):
             self.read_first()
             raise e
         
-    @Session.time_limited_execution
+
     @Session.time_limited_execution
     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
     def get_subject(self):

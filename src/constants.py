@@ -60,8 +60,8 @@ SCENARIOS = {
         ],   
         PROVIDER: OUTLOOK,
         BROWSER: CHROME,
-        TIME_LIMIT: 2,
-        N_MAIL_SENT: 0,
+        TIME_LIMIT: 10,
+        N_MAIL_SENT: 15,
         N_MAIL_READ: 1,
         N_MAIL_ANSWERED: 1
     }

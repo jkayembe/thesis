@@ -4,7 +4,7 @@ description: This test launches an email session scenario with adblock
 
 services:
     automated-session:
-        image: jkayembe/automated-session-ublock
+        image: jkayembe/automated-session
         ports:
             - 5900:5900
         environment:
@@ -13,7 +13,7 @@ services:
         shell: "bash"
         setup-commands:
             - Xvfb :0 -screen 0 1296x736x16 & # X Server : simulate graphic card in memory. (The html pages are unpredictable in headless mode)
-            - x11vnc -forever -create -display :0 -rfbport 5900 -bg -nopw # VNC server : It connects to the X server and send the GUI on port 5900. Use for Debbugging
+            #- x11vnc -forever -create -display :0 -rfbport 5900 -bg -nopw # VNC server : It connects to the X server and send the GUI on port 5900. Use for Debbugging
         folder-destination: "/app"
         command: "bash"
 
@@ -22,7 +22,7 @@ flow:
       container: automated-session
       commands:
         - type: console
-          command: python src/scenario.py scenario.json
+          command: python src/scenario.py scenarios/outlook_heavy.json
           note: Starting the Python Scenario Script
           log-stdout: true
           read-notes-stdout: true
