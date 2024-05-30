@@ -171,8 +171,6 @@ class Scenario:
         # Prepare the session schedule
         n_operations = self.n_mail_to_send + self.n_mail_to_read + self.n_mail_to_answer
         self.seconds = self.time_limit*60
-        print(self.seconds)
-        print("operation : ", n_operations)
         moments = select_random_moments(0, self.seconds, n_operations)
     
         # Log in on the mail provider website

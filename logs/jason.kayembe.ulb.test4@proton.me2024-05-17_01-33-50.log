@@ -1,0 +1,97 @@
+Timestamp,Event,Description
+2024-05-17 01:34:06.554352,login,"
+        Log in to the mail provider website
+        "
+2024-05-17 01:34:15.098353,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:34:16.207873,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:35:00.937941,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:35:02.074447,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:35:51.318243,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:35:52.420712,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:36:02.260168,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:36:03.340779,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:36:11.575992,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:36:12.740701,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:36:20.907595,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:36:21.999556,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:36:51.283904,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:36:52.380258,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:37:08.018627,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:37:09.105893,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:37:17.433006,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:37:18.516679,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:37:33.149212,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:37:34.238320,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:37:42.504813,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:37:43.584293,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:37:52.068997,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:37:53.150784,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:38:01.549264,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:38:02.630791,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:38:17.813590,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:38:18.896418,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:38:44.001674,send_mail,"
+        Compose and send an email with specified recipient, subject, and content
+        "
+2024-05-17 01:38:45.123376,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:38:47.511992,logout,"
+        This function logs out of the proton website
+        "

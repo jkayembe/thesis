@@ -1,0 +1,16 @@
+Timestamp,Event,Description
+2024-05-17 02:01:55.534117,login,"
+        Log in to the mail provider website
+        "
+2024-05-17 02:02:21.657468,filter,"
+        Show only unread emails
+        "
+2024-05-17 02:02:37.092283,read_first,"
+        Opens the first email in the list
+        "
+2024-05-17 02:03:04.638825,delete_first,"
+        Delete the first email in the list
+        "
+2024-05-17 02:03:05.728764,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "

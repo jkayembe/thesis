@@ -18,7 +18,7 @@ MAX_ATTEMPTS = 2
 DELAY = 5  
 
 # Determine interval between each action: lower value to fast the session
-TIME_BETWEEN_ACTIONS = 1
+TIME_BETWEEN_ACTIONS = 2
 
 # Keys for the Default arguments dictionnary :
 USER = "USER"
@@ -45,9 +45,9 @@ SCENARIOS = {
                   
     #     PROVIDER: PROTON,
     #     BROWSER: CHROME,
-    #     TIME_LIMIT: 5,
-    #     N_MAIL_SENT: 2,
-    #     N_MAIL_READ: 2,
+    #     TIME_LIMIT: 2,
+    #     N_MAIL_SENT: 0,
+    #     N_MAIL_READ: 1,
     #     N_MAIL_ANSWERED: 1,
     # },
     
@@ -56,7 +56,7 @@ SCENARIOS = {
         USER_PASSWORD: "Azerty123",
         DOMAIN : ".ulb.test3@outlook.com",
         CONTACTS: [
-            "ajason.kayembe.ulb.test4@proton.me",
+            "jason.kayembe.ulb.test4@proton.me",
         ],   
         PROVIDER: OUTLOOK,
         BROWSER: CHROME,

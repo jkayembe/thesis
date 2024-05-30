@@ -1,0 +1,23 @@
+Timestamp,Event,Description
+2024-05-16 22:12:40.384160,login,"
+        Log in to the Outlook user account
+        "
+2024-05-16 22:12:40.423583,delete_drafts,"
+        This function remove drafts as it perturbs the answering email function
+        "
+2024-05-16 22:12:43.687615,filter,"
+        Show only unread emails
+        "
+2024-05-16 22:12:58.860986,read_first,"
+        Opens the the first mail in the list
+        "
+2024-05-16 22:13:07.609072,reply,"
+        Answer to an opened email
+        "
+2024-05-16 22:13:08.983455,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-16 22:13:11.218663,logout,"
+        Logout of the connected account
+        "

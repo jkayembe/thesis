@@ -1,0 +1,28 @@
+Timestamp,Event,Description
+2024-05-17 01:47:21.656878,login,"
+        Log in to the mail provider website
+        "
+2024-05-17 01:47:47.092785,filter,"
+        Show only unread emails
+        "
+2024-05-17 01:48:02.534467,read_first,"
+        Opens the first email in the list
+        "
+2024-05-17 01:48:13.916354,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:48:17.629185,filter,"
+        Show only unread emails
+        "
+2024-05-17 01:48:33.087553,read_first,"
+        Opens the first email in the list
+        "
+2024-05-17 01:48:45.766671,reply,"
+        Replies to an opened email
+        "
+2024-05-17 01:48:47.465227,home_page,"
+        This function click on the link to home page (i.e.: mailbx)
+        "
+2024-05-17 01:48:49.700615,logout,"
+        This function logs out of the proton website
+        "

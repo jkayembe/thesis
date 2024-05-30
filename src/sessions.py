@@ -28,8 +28,8 @@ class WebDriver():
             case CHROME:
                 try:
                     # Find binaries path for chrome and chrome-driver
-                    chrome_binary_path = os.environ.get("CHROMIUM_PATH", "")
-                    chromedriver_binary_path = os.environ.get("CHROMIUM_DRIVER_PATH", "")
+                    chrome_binary_path = os.environ.get("CHROMIUM_PATH", "/usr/bin/chromium-browser")
+                    chromedriver_binary_path = os.environ.get("CHROMIUM_DRIVER_PATH", "/usr/bin/chromedriver")
                     if chromedriver_binary_path == "" or chrome_binary_path == "":
                         raise Exception
                 except:
@@ -44,8 +44,8 @@ class WebDriver():
                 
                 if IS_CONTAINER:
                     # Set options and service for running in a container (e.g., using Chromium)
-                    options.add_argument('--headless') # Required for running in Docker
-                    options.add_argument('--disable-gpu')  # Required for running in Docker
+                    #options.add_argument('--headless') # Required for running in Docker
+                    #options.add_argument('--disable-gpu')  # Required for running in Docker
                     options.add_argument('--no-sandbox')  # Required for running in Docker
                     options.add_argument('--disable-dev-shm-usage')  # Required for running in Docker
                 
@@ -308,7 +308,7 @@ class ProtonSession(Session):
         '''
         try:
             # Refresh the mailbox
-            self.driver.find_element(By.XPATH, "//span/span/span").click()
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span/span/span"))).click()
             print("[INFO] : Refreshed mailbox")
             self.pause()
             
@@ -385,9 +385,8 @@ class ProtonSession(Session):
         Retrieve the sender's address of an opened mail
         '''
         try:
-            # Get the sender's address 
-            sender = self.driver.find_element(By.CSS_SELECTOR, ".message-recipient-item-address").text # <sender@domain>
-            sender = sender[1:-1]
+            # Get the sender's address
+            sender = self.driver.find_element(By.XPATH, "//span[@data-testid='recipients:sender']").get_attribute("title") # <sender@domain>
             print("[INFO] : Sender's address= {}.".format(sender))
             self.pause()
             return sender

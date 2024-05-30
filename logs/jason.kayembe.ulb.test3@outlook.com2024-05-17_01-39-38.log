@@ -1,0 +1,112 @@
+Timestamp,Event,Description
+2024-05-17 01:39:58.631826,login,"
+        Log in to the Outlook user account
+        "
+2024-05-17 01:40:06.518819,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:40:07.669861,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:40:48.930779,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:40:50.029050,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:41:39.007761,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:41:40.122153,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:41:50.153089,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:41:51.248348,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:41:59.077965,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:42:00.197071,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:42:08.103528,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:42:09.237574,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:42:39.138043,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:42:40.256662,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:42:56.004739,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:42:57.130982,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:43:05.137342,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:43:06.250659,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:43:20.967568,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:43:22.103423,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:43:30.027053,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:43:31.135460,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:43:39.019874,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:43:40.154211,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:43:48.015275,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:43:49.121866,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:44:05.891442,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:44:07.014751,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:44:31.966807,send_mail,"
+        Send a mail to the specified recipient with the given subject and content
+        "
+2024-05-17 01:44:33.074758,home_page,"
+        This function clicks on the homepage link (i.e. : mailbox)
+        If force is enable or if it fails then tries to refresh the page with the ""Outlook"" link
+        "
+2024-05-17 01:44:35.301892,logout,"
+        Logout of the connected account
+        "
