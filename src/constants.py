@@ -8,7 +8,8 @@ SEED = int(os.environ.get("SEED", "321"))
 # General constants :
 PROTON = "proton"
 OUTLOOK = "outlook"
-PROVIDERS = [PROTON, OUTLOOK]
+GMAIL = "gmail"
+PROVIDERS = [PROTON, OUTLOOK, GMAIL]
 CHROME = "chrome"
 BROWSERS = [CHROME,]
 
@@ -51,19 +52,33 @@ SCENARIOS = {
     #     N_MAIL_ANSWERED: 1,
     # },
     
-    "scenario 2": {
+    # "scenario 2": {
+    #     USER: "Jason Kayembe",
+    #     USER_PASSWORD: "Azerty123",
+    #     DOMAIN : ".ulb.test3@outlook.com",
+    #     CONTACTS: [
+    #         "jason.kayembe.ulb.test4@proton.me",
+    #     ],   
+    #     PROVIDER: OUTLOOK,
+    #     BROWSER: CHROME,
+    #     TIME_LIMIT: 10,
+    #     N_MAIL_SENT: 15,
+    #     N_MAIL_READ: 1,
+    #     N_MAIL_ANSWERED: 1
+    # }
+    "scenario 3": {
         USER: "Jason Kayembe",
-        USER_PASSWORD: "Azerty123",
-        DOMAIN : ".ulb.test3@outlook.com",
+        USER_PASSWORD: "Azerty.123",
+        DOMAIN : ".ulb.test@gmail.com",
         CONTACTS: [
             "jason.kayembe.ulb.test4@proton.me",
         ],   
-        PROVIDER: OUTLOOK,
+        PROVIDER: GMAIL,
         BROWSER: CHROME,
-        TIME_LIMIT: 10,
-        N_MAIL_SENT: 15,
-        N_MAIL_READ: 1,
-        N_MAIL_ANSWERED: 1
+        TIME_LIMIT: 2,
+        N_MAIL_SENT: 1,
+        N_MAIL_READ: 0,
+        N_MAIL_ANSWERED: 0
     }
 }
 

@@ -9,7 +9,7 @@ import csv
 
 # local import
 from constants import *
-from sessions import OutlookSession, ProtonSession
+from sessions import OutlookSession, ProtonSession, GmailSession
 import utils
 from utils import (
     select_random_moments,
@@ -82,6 +82,8 @@ class Scenario:
             session = OutlookSession(self.user_address, self.user_psw, self.browser, self.seconds)
         elif self.provider == PROTON:
             session = ProtonSession(self.user_address, self.user_psw, self.browser, self.seconds)
+        elif self.provider == GMAIL:
+            session = GmailSession(self.user_address, self.user_psw, self.browser, self.seconds)
         return session
     
     def get_email_file_path(self, firstname=None, surname=None):
