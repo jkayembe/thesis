@@ -42,7 +42,7 @@ THREAD_LOCAL_STORAGE = threading.local()
 # Defines a per-thread customised print function
 def print_colored(*objects, sep=' ', end='\n', file=None, flush=False):
     '''
-    This variant of print use different colors for each hread
+    This variant of print use different colors for each thread
     '''
     # Get the thread name and color (default : color = white, name = "[MAIN THREAD])
     color = THREAD_LOCAL_STORAGE.color if hasattr(THREAD_LOCAL_STORAGE, 'color') else "\033[97m"  # White
@@ -137,7 +137,7 @@ def handle_arguments():
         
         # Validate input
         try:
-            time_limit = math.ceil(time_limit)
+            #time_limit = math.ceil(time_limit)
             n_mail_to_send = int(n_mail_to_send)
             n_mail_to_read = int(n_mail_to_read)
             n_mail_to_answer = int(n_mail_to_answer)
@@ -178,7 +178,7 @@ def extract_unique_id(text):
     # Use re.findall to find all matches of the pattern in the text
     matches = re.findall(pattern, text)
     
-    # Return the last match (if any) (last because in conversation the number of msg is also beween brackets)
+    # Return the last match (if any) (last because in conversations, the number of msg is also beween brackets)
     if matches:
         return int(matches[-1])
     else:

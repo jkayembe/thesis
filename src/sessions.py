@@ -158,7 +158,9 @@ class Session:
     #     Session.drivers.remove(self.driver)
         self.driver.quit()
     
-# ================================================================================================================================   
+# ===================================================================================================================================
+# =============== Proton Session =====================================================================================================        
+# ===================================================================================================================================
 
 class ProtonSession(Session):
 
@@ -346,7 +348,7 @@ class ProtonSession(Session):
     def delete_drafts(self):
         '''
         Not implemented in this class becauses presence of drafts causes no trouble.
-        Just defined for common interface with OutlookSession.
+        Just defined for common interface with OutlookSession and GmailSession.
         '''
         self.pause()
         self.pause()
@@ -360,18 +362,17 @@ class ProtonSession(Session):
     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
     def get_sender_address(self):
         '''
-        Retrieve the sender's address of an opened mail
+        Retrieve the sender's address of an first email in the list
         '''
         try:
             # Get the sender's address
-            sender = self.driver.find_element(By.XPATH, "//span[@data-testid='recipients:sender']").get_attribute("title") # <sender@domain>
+            sender = self.driver.find_element(By.XPATH, "//span[2]/span[span]").get_attribute("title") # <sender@domain>
             print("[INFO] : Sender's address= {}.".format(sender))
             self.pause()
             return sender
         except Exception as e:
             self.home_page(force=True)
             self.filter()
-            self.read_first()
             raise e
         
 
@@ -411,7 +412,7 @@ class ProtonSession(Session):
            
         except Exception as e:
             self.home_page(force=True)
-            self.filer()
+            self.filter()
             raise e
         
     
@@ -618,8 +619,7 @@ class OutlookSession(Session):
         '''
         try:    
             # Click on the filter button
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".\\___1j0t24r")))
-            self.driver.find_element(By.CSS_SELECTOR, ".\\___1j0t24r").click()
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[@id='mailListFilterMenu']/span/i"))).click()
             self.pause()
         
             # Click on the "Unread" option
@@ -747,7 +747,6 @@ class OutlookSession(Session):
         except Exception as e:
             self.home_page(force=True)
             self.filter()
-            self.read_first()
             raise e
         
 
@@ -950,16 +949,6 @@ class GmailSession(Session):
         '''
         try:
 
-            self.delete_drafts()
-            self.filter()
-            self.get_sender_address()
-            self.read_first()
-            self.get_subject()
-            self.home_page()
-            self.filter()
-            self.delete_first()
-            
-
             # Click to start composing an email
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".T-I-KE")))
             self.driver.find_element(By.CSS_SELECTOR, ".T-I-KE").click()
@@ -1103,19 +1092,18 @@ class GmailSession(Session):
             # Click on Select All
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div[2]/div/div/div/div/div/div/span")))
             self.driver.find_element(By.XPATH, "//div[2]/div[2]/div/div/div/div/div/div/span").click()
-            print(f"[DEBUG] : Clicked on empty folder")
+            print(f"[DEBUG] : Clicked on select All")
             self.pause()
 
             try:
                 # Click on Delete
                 WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div/div[2]/div/div")))
                 self.driver.find_element(By.XPATH, "//div[2]/div/div/div/div[2]/div/div").click()
-                print(f"[DEBUG] : Clicked on Confirmed")
+                print(f"[DEBUG] : Clicked on Delete")
                 self.pause()
                 
             except Exception as e:
-                print(e)
-                print(f"[INFO] : There is no drafts")
+                print(f"[INFO] : There is no draft")
                 self.home_page(force=True)
                 return
 
@@ -1133,18 +1121,18 @@ class GmailSession(Session):
     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
     def get_sender_address(self):
         '''
-        Retrieves the sender's address of an opened mail
+        Retrieves the sender's address the first mail in the list
         '''
         try:
             # Get the sender address
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div[6]/div/div/table/tbody/tr/td[5]/div[2]/span/span")))
             sender = self.driver.find_element(By.XPATH, "//div[6]/div/div/table/tbody/tr/td[5]/div[2]/span/span").get_attribute("email")
-            print("[DEBUG] : Looked the email of the sender")
+            print("[DEBUG] : Got the address of the sender")
             self.pause()
 
             # If the sender the user_address check the second span (this is because it's a reply to a mail that we sent)
             if sender == self.user_address:
-                print("[DEBUG] : Look in the second Span. Address found is mine")
+                print("[DEBUG] : Look in the second Span. Address found is the user's")
                 sender = self.driver.find_element(By.XPATH, "//div[6]/div/div/table/tbody/tr/td[5]/div[2]/span/span[3]").get_attribute("email")
                 print("[DEBUG] : Found in second Span")
                 self.pause()
@@ -1156,7 +1144,6 @@ class GmailSession(Session):
         except Exception as e:
             self.home_page(force=True)
             self.filter()
-            self.read_first()
             raise e
         
 
@@ -1210,10 +1197,10 @@ class GmailSession(Session):
             # # Select first Mail
             # self.driver.find_element(By.XPATH, "//div[6]/div/div/table/tbody/tr/td[2]/div").click()
             # print("[DEBUG] : Selected First Mail")
-            # self.pause()
+            #self.pause(3000)
 
             # Click on delete icon
-            self.driver.find_element(By.XPATH, "//div[2]/div/div/div[2]/div[3]/div").click()
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@id=':4']/div[3]/div[1]/div/div[2]/div[3]/div"))).click()
             self.stats["deleted_mails"] += 1
             print("[INFO] : Deleted the first email.")
             self.pause()
@@ -1222,7 +1209,7 @@ class GmailSession(Session):
             self.home_page(force=True)
             self.filter()
             self.read_first()
-            raise e  
+            raise e
 
     
     @Session.time_limited_execution

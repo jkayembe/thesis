@@ -29,17 +29,19 @@ class Scenario:
         self.id == Scenario.id
         Scenario.id += 1
         self.name = str(self.id) + " " + user_address
-        # Initial objective of the session
+        
+        # Initial objectives of the session
         self.user = user
         self.user_address = user_address
         self.user_psw = user_psw
         self.contacts = contacts
         self.provider = provider
         self.browser = browser
-        self.time_limit = time_limit
+        self.time_limit = time_limit # in minutes
         self.n_mail_to_send = n_mail_to_send
         self.n_mail_to_read = n_mail_to_read
         self.n_mail_to_answer = n_mail_to_answer
+        
         # Final stat of the session
         self.sent_mails = 0
         self.read_mails = 0
@@ -107,6 +109,7 @@ class Scenario:
         '''
         This function fetches the predefined answer to a given email recieved
         '''
+        # Assuming addresses of the type firstname.surname.ulb.test@domain.com
         sender = sender.split("@")[0]
         firstname, surname = sender.split(".")[0:2]
         answers_csv_file_path = self.get_email_file_path(firstname=firstname, surname=surname)[1]
@@ -119,10 +122,7 @@ class Scenario:
         
     def read_and_delete(self, session):
         '''
-        Read the first unread email:
-            - Check if the sender is in the list of contacts
-            - If it is, then open mail and send the predefined answer
-            - If not, delete the email
+        Read the first unread email and delete it
         '''
         session.filter()
         session.read_first()
@@ -132,13 +132,13 @@ class Scenario:
         '''
         Read the first unread email:
             - Check if the sender is in the list of contacts
-            - If it is, then open mail and send the predefined answer
-            - If not, delete the email
+            - If it is, open the email and send the predefined answer
+            - If not, open the email then delete the it
         '''
         session.delete_drafts()
         session.filter()
-        session.read_first()
         sender = session.get_sender_address()
+        session.read_first()
         if sender in self.contacts:
             subject = session.get_subject()
             unique_id = None
@@ -172,7 +172,7 @@ class Scenario:
 
         # Prepare the session schedule
         n_operations = self.n_mail_to_send + self.n_mail_to_read + self.n_mail_to_answer
-        self.seconds = self.time_limit*60
+        self.seconds = math.ceil(self.time_limit*60)
         moments = select_random_moments(0, self.seconds, n_operations)
     
         # Log in on the mail provider website
@@ -185,7 +185,7 @@ class Scenario:
             reader = csv.DictReader(csvfile)
             mails = list(reader)
         
-            # Send the specified number of mails
+            # Send the specified number of emails
             for idx in range(self.n_mail_to_send):
         
                 wait = moments[idx] + self.start - time.time()
@@ -201,7 +201,7 @@ class Scenario:
                 session.send_mail(self.contacts[0], subject, content)
                 session.home_page()
         
-        # Read and Answer the specified number of mails
+        # Read and Answer the specified number of emails
         self.remaining_answers = self.n_mail_to_answer        
         for idx in range(self.n_mail_to_send, self.n_mail_to_send + self.n_mail_to_read):
             
@@ -217,8 +217,7 @@ class Scenario:
                 self.read_and_delete(session)
             session.home_page()
         
-        # Logout, close browser and collect final stats and print summary
-
+        # Logout, close browser, collect final stats and print summary
         rest = round(self.seconds - (time.time() - self.start) - 5)
         if (rest > 0):
             time.sleep(rest)
@@ -231,7 +230,7 @@ class Scenario:
         print(self)
 
         # Save summary
-        # We deactivate this function when measurement are performed since mounted volumes (in containers used by GMT) are read only.
+        # We deactivate this function when measurements are performed since mounted volumes (in containers used by GMT) are read only.
         if not IS_MEASURED:
             summary_file_path = session.log_file_path + ".summary"
             os.makedirs(os.path.dirname(summary_file_path), exist_ok=True)
