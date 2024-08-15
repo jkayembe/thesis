@@ -1,0 +1,56 @@
+[56554:56554:0815/215101.959812:WARNING:chrome_main_delegate.cc(744)] This is Chrome version 127.0.6533.99 (not a warning)
+[56554:56554:0815/215102.198047:WARNING:account_consistency_mode_manager.cc(77)] Desktop Identity Consistency cannot be enabled as no OAuth client ID and client secret have been configured.
+[56554:56554:0815/215102.205073:WARNING:browser_management_service.cc(128)] EnterpriseLogoUrl fetch failed with error code -1 and MIME type 
+[56554:56554:0815/215102.445462:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot set Floss enable/disable.
+[56554:56554:0815/215102.569915:ERROR:object_proxy.cc(576)] Failed to call method: org.freedesktop.ScreenSaver.GetActive: object_path= /org/freedesktop/ScreenSaver: org.freedesktop.DBus.Error.NotSupported: This method is not implemented
+[56602:56602:0815/215103.588490:WARNING:sandbox_linux.cc(430)] InitializeSandbox() called with multiple threads in process gpu-process.
+[56554:56554:0815/215105.211488:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'run-ad-auction'.", source:  (0)
+[56554:56554:0815/215105.211565:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'join-ad-interest-group'.", source:  (0)
+[56554:56554:0815/215105.468357:INFO:CONSOLE(0)] "[DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o", source: https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fmail.google.com%2Fmail%2Fu%2F0%2F&emr=1&followup=https%3A%2F%2Fmail.google.com%2Fmail%2Fu%2F0%2F&ifkv=Ab5oB3pSDq1rdX4JA2xjxJ_V5b__-Qh_gX7mDzJqc7E9UEtQEi0wDwoIuSKtH5lXILjYDBaJ2p4n&osid=1&passive=1209600&service=mail&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-433696263%3A1723751465106225&ddm=0#inbox (0)
+[56554:56554:0815/215105.478634:INFO:CONSOLE(334)] "%c%s color: red; background: yellow; font-size: 24px; AVERTISSEMENT !", source: https://www.gstatic.com/_/mss/boq-identity/_/js/k=boq-identity.AccountsSignInUi.fr.yD0TfeCcnho.es5.O/am=gKxgGAzTAALxcA70gKJAyAAAAAAAAAIAgA0AAGIG/d=1/excm=_b,_tp,identifierview/ed=1/dg=0/wt=2/ujg=1/rs=AOaEmlEuPSpeCSPIX92OH-ABHysELynTow/m=_b,_tp (334)
+[56554:56554:0815/215105.478740:INFO:CONSOLE(334)] "%c%s font-size: 18px; En utilisant cette console, vous vous exposez au risque que des personnes malveillantes usurpent votre identité et volent vos informations grâce à une attaque appelée Self-XSS.
+Ne saisissez pas et ne copiez pas du code que vous ne comprenez pas.", source: https://www.gstatic.com/_/mss/boq-identity/_/js/k=boq-identity.AccountsSignInUi.fr.yD0TfeCcnho.es5.O/am=gKxgGAzTAALxcA70gKJAyAAAAAAAAAIAgA0AAGIG/d=1/excm=_b,_tp,identifierview/ed=1/dg=0/wt=2/ujg=1/rs=AOaEmlEuPSpeCSPIX92OH-ABHysELynTow/m=_b,_tp (334)
+[56554:56554:0815/215105.804187:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'run-ad-auction'.", source:  (0)
+[56554:56554:0815/215105.804233:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'join-ad-interest-group'.", source:  (0)
+[56554:56554:0815/215105.841043:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'run-ad-auction'.", source:  (0)
+[56554:56554:0815/215105.841125:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'join-ad-interest-group'.", source:  (0)
+[56554:56554:0815/215106.103834:WARNING:capture_device_ranking.h(255)] Can't initialize the value of media.audio_input.user_preference_ranking because media.default_audio_capture_device isn't registered or is empty
+[56554:56554:0815/215106.103898:WARNING:capture_device_ranking.h(255)] Can't initialize the value of media.video_input.user_preference_ranking because media.default_video_capture_Device isn't registered or is empty
+[56554:56554:0815/215106.103930:WARNING:capture_device_ranking.h(255)] Can't initialize the value of media.audio_input.user_preference_ranking because media.default_audio_capture_device isn't registered or is empty
+[56554:56554:0815/215106.103963:WARNING:capture_device_ranking.h(255)] Can't initialize the value of media.video_input.user_preference_ranking because media.default_video_capture_Device isn't registered or is empty
+[56602:56602:0815/215108.518328:ERROR:gl_surface_presentation_helper.cc(260)] GetVSyncParametersIfAvailable() failed for 1 times!
+[56554:56554:0815/215112.707900:WARNING:capture_device_ranking.h(255)] Can't initialize the value of media.audio_input.user_preference_ranking because media.default_audio_capture_device isn't registered or is empty
+[56554:56554:0815/215112.707963:WARNING:capture_device_ranking.h(255)] Can't initialize the value of media.video_input.user_preference_ranking because media.default_video_capture_Device isn't registered or is empty
+[56554:56554:0815/215115.515536:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'run-ad-auction'.", source:  (0)
+[56554:56554:0815/215115.515631:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'join-ad-interest-group'.", source:  (0)
+[56554:56554:0815/215115.843102:INFO:CONSOLE(968)] "Deprecated API for given entry type.", source: https://mail.google.com/_/scs/mail-static/_/js/k=gmail.main.en.s13_2ifruaQ.es5.O/am=TBgAAAAE9H_P-SuMNSgEACBgfT3wz7i0DYMEBpx4SBAJSAJod4CMFOCrq9f3g07k8wMSABDA0TxqXs8DhL0cAgAAAgCwYnAZDgAAAAAAAAAAAAAAAAAAAHC1BAQ/d=1/exm=b/ed=1/im=1/dg=0/br=1/wt=1/rs=AHGWq9BBtY8UMJND1N_CYhPnrDTTfqc5Rw/cb=loaded_1/m=a (968)
+[56554:56554:0815/215117.679492:WARNING:capture_device_ranking.h(255)] Can't initialize the value of media.audio_input.user_preference_ranking because media.default_audio_capture_device isn't registered or is empty
+[56554:56554:0815/215117.679549:WARNING:capture_device_ranking.h(255)] Can't initialize the value of media.video_input.user_preference_ranking because media.default_video_capture_Device isn't registered or is empty
+[56554:56554:0815/215117.933604:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'run-ad-auction'.", source:  (0)
+[56554:56554:0815/215117.933649:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'join-ad-interest-group'.", source:  (0)
+[56554:56554:0815/215118.779016:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'run-ad-auction'.", source:  (0)
+[56554:56554:0815/215118.779124:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'join-ad-interest-group'.", source:  (0)
+[56602:56602:0815/215119.525475:ERROR:gl_surface_presentation_helper.cc(260)] GetVSyncParametersIfAvailable() failed for 2 times!
+[56602:56602:0815/215119.532372:ERROR:gl_surface_presentation_helper.cc(260)] GetVSyncParametersIfAvailable() failed for 3 times!
+[56554:56554:0815/215121.098078:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'run-ad-auction'.", source:  (0)
+[56554:56554:0815/215121.098195:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'join-ad-interest-group'.", source:  (0)
+[56554:56554:0815/215134.162266:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'run-ad-auction'.", source:  (0)
+[56554:56554:0815/215134.162366:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'join-ad-interest-group'.", source:  (0)
+[56554:56554:0815/215134.440102:WARNING:capture_device_ranking.h(255)] Can't initialize the value of media.audio_input.user_preference_ranking because media.default_audio_capture_device isn't registered or is empty
+[56554:56554:0815/215134.440160:WARNING:capture_device_ranking.h(255)] Can't initialize the value of media.video_input.user_preference_ranking because media.default_video_capture_Device isn't registered or is empty
+[56554:56569:0815/215135.023602:ERROR:mime_util_xdg.cc(119)] Failed reading in mime.cache file: /home/jason/snap/code/166/.local/share/mime/mime.cache
+[56554:56554:0815/215157.048473:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'run-ad-auction'.", source:  (0)
+[56554:56554:0815/215157.048542:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'join-ad-interest-group'.", source:  (0)
+[56554:56554:0815/215159.240817:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'run-ad-auction'.", source:  (0)
+[56554:56554:0815/215159.240924:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'join-ad-interest-group'.", source:  (0)
+[56554:56554:0815/215159.726733:INFO:CONSOLE(968)] "Deprecated API for given entry type.", source: https://mail.google.com/_/scs/mail-static/_/js/k=gmail.main.en.s13_2ifruaQ.es5.O/am=TBgAAAAE9H_P-SuMNSgEACBgfT3wz7i0DYMEBpx4SBAJSAJod4CMFOCrq9f3g07k8wMSABDA0TxqXs8DhL0cAgAAAgCwYnAZDgAAAAAAAAAAAAAAAAAAAHC1BAQ/d=1/exm=b/ed=1/im=1/dg=0/br=1/wt=1/rs=AHGWq9BBtY8UMJND1N_CYhPnrDTTfqc5Rw/cb=loaded_1/m=a (968)
+[56554:56554:0815/215159.733750:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'run-ad-auction'.", source:  (0)
+[56554:56554:0815/215159.733831:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'join-ad-interest-group'.", source:  (0)
+[56554:56554:0815/215200.218349:INFO:CONSOLE(35)] "TypeError: Failed to fetch", source: https://www.gstatic.com/glue/cookienotificationbar/cookienotificationbar.min.js (35)
+[56554:56554:0815/215200.221049:INFO:CONSOLE(137)] "[Report Only] This document requires 'TrustedScriptURL' assignment.", source: https://www.google.com/intl/fr/gmail/about/ (137)
+[56554:56554:0815/215200.373542:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'run-ad-auction'.", source:  (0)
+[56554:56554:0815/215200.373688:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'join-ad-interest-group'.", source:  (0)
+[56554:56554:0815/215200.900181:INFO:CONSOLE(137)] "[Report Only] This document requires 'TrustedScriptURL' assignment.", source: https://www.google.com/intl/fr/gmail/about/ (137)
+[56614:56636:0815/215201.323828:WARNING:sqlite_persistent_store_backend_base.cc(198)] Failed to post task from FlushAndNotifyInBackground@net/extras/sqlite/sqlite_persistent_store_backend_base.cc:248 to client_task_runner_.
+[56614:56636:0815/215201.323935:WARNING:sqlite_persistent_store_backend_base.cc(198)] Failed to post task from FlushAndNotifyInBackground@net/extras/sqlite/sqlite_persistent_store_backend_base.cc:248 to client_task_runner_.
+[56554:56554:0815/215202.682208:WARNING:pref_notifier_impl.cc(41)] Pref observer for media_router.cast_allow_all_ips found at shutdown.

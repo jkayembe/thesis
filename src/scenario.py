@@ -23,8 +23,8 @@ class Scenario:
     
     id = 0
     
-    def __init__(self, user, user_address, user_psw, contacts, provider, browser, 
-                 time_limit, n_mail_to_send, n_mail_to_read, n_mail_to_answer):
+    def __init__(self, user, user_address, user_psw, contacts, provider, browser, adblock, untracked,
+                 attached_file_size, time_limit, n_mail_to_send, n_mail_to_read, n_mail_to_answer):
         # Identifier
         self.id == Scenario.id
         Scenario.id += 1
@@ -37,6 +37,9 @@ class Scenario:
         self.contacts = contacts
         self.provider = provider
         self.browser = browser
+        self.adblock = adblock
+        self.untracked = untracked
+        self.attached_file_size = attached_file_size
         self.time_limit = time_limit # in minutes
         self.n_mail_to_send = n_mail_to_send
         self.n_mail_to_read = n_mail_to_read
@@ -59,17 +62,20 @@ class Scenario:
             f"Contacts: {', '.join(self.contacts)}\n\n\n"
             "**** Objective of the Session ****\n\n"
             f"Browser: {self.browser}\n"
+            f"Tracking: {"limited" if self.untracked else "allowed"}\n"
+            f"Adblock: {"activated" if self.adblock else "not used"}\n"
             f"Duration: {self.time_limit} minutes\n"
-            f"Number of mails to send: {self.n_mail_to_send}\n"
-            f"Number of mails to read: {self.n_mail_to_read}\n"
-            f"Number of mails to answer: {self.n_mail_to_answer}\n\n\n"
+            f"Size of attachment: {self.attached_file_size}"
+            f"Number of emails to send: {self.n_mail_to_send}\n"
+            f"Number of emails to read: {self.n_mail_to_read}\n"
+            f"Number of emails to answer: {self.n_mail_to_answer}\n\n\n"
         )
         if self.finished:
             output += (
                 "**** Final Stat of the Session ****\n\n"
-                f"Sent mails: {self.stats["sent_mails"]}\n"
-                f"Read mails: {self.stats["read_mails"]}\n"
-                f"Answered mails: {self.stats["answered_mails"]}\n"
+                f"Sent emails: {self.stats["sent_mails"]}\n"
+                f"Read emails: {self.stats["read_mails"]}\n"
+                f"Answered emails: {self.stats["answered_mails"]}\n"
                 f"Start time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.start))}\n"
                 f"End time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.end))}\n"
                 f"Duration: {str(timedelta(seconds=self.duration))}\n\n\n"
@@ -81,11 +87,11 @@ class Scenario:
         This function opens a session on the email service provider's website
         '''
         if self.provider == OUTLOOK:
-            session = OutlookSession(self.user_address, self.user_psw, self.browser, self.seconds)
+            session = OutlookSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.seconds)
         elif self.provider == PROTON:
-            session = ProtonSession(self.user_address, self.user_psw, self.browser, self.seconds)
+            session = ProtonSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.seconds)
         elif self.provider == GMAIL:
-            session = GmailSession(self.user_address, self.user_psw, self.browser, self.seconds)
+            session = GmailSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.seconds)
         return session
     
     def get_email_file_path(self, firstname=None, surname=None):
@@ -198,7 +204,7 @@ class Scenario:
                 mail = random.choice(mails)
                 subject = mail[SUBJECT_COL]
                 content = mail[CONTENT_COL]
-                session.send_mail(self.contacts[0], subject, content)
+                session.send_mail(self.contacts[0], subject, content, self.attached_file_size)
                 session.home_page()
         
         # Read and Answer the specified number of emails

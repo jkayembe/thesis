@@ -1,0 +1,6 @@
+2024/08/15-20:40:23.094 4 Reusing MANIFEST /home/jason/memoire/chrome_profiles/tracked_profile/Local Storage/leveldb/MANIFEST-000001
+2024/08/15-20:40:23.102 4 Recovering log #23
+2024/08/15-20:40:23.104 4 Reusing old log /home/jason/memoire/chrome_profiles/tracked_profile/Local Storage/leveldb/000023.log 
+2024/08/15-20:41:34.528 6 Level-0 table #28: started
+2024/08/15-20:41:34.535 6 Level-0 table #28: 74162 bytes OK
+2024/08/15-20:41:34.541 6 Delete type=0 #23

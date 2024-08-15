@@ -1,0 +1,37 @@
+2024/08/15-16:36:19.943 68bf Reusing MANIFEST /home/jason/snap/chromium/common/chromium/Default/Local Extension Settings/cjpalhdlnbpafiamejdnhcphjbkeiagm/MANIFEST-000001
+2024/08/15-16:36:19.943 68bf Recovering log #10
+2024/08/15-16:36:19.944 68bf Reusing old log /home/jason/snap/chromium/common/chromium/Default/Local Extension Settings/cjpalhdlnbpafiamejdnhcphjbkeiagm/000010.log 
+2024/08/15-16:36:25.567 68bf Level-0 table #14: started
+2024/08/15-16:36:25.589 68bf Level-0 table #14: 5049085 bytes OK
+2024/08/15-16:36:25.592 68bf Delete type=0 #10
+2024/08/15-16:37:24.364 68c0 Level-0 table #16: started
+2024/08/15-16:37:24.454 68c0 Level-0 table #16: 9265150 bytes OK
+2024/08/15-16:37:24.459 68c0 Delete type=0 #13
+2024/08/15-16:37:24.461 68c0 Compacting 4@0 + 1@1 files
+2024/08/15-16:37:24.481 68c0 Generated table #17@0: 6 keys, 2489266 bytes
+2024/08/15-16:37:24.504 68c0 Generated table #18@0: 8 keys, 2760704 bytes
+2024/08/15-16:37:24.520 68c0 Generated table #19@0: 3 keys, 2502839 bytes
+2024/08/15-16:37:24.584 68c0 Generated table #20@0: 2 keys, 5605510 bytes
+2024/08/15-16:37:24.593 68c0 Generated table #21@0: 8 keys, 1070292 bytes
+2024/08/15-16:37:24.593 68c0 Compacted 4@0 + 1@1 files => 14428611 bytes
+2024/08/15-16:37:24.596 68c0 compacted to: files[ 0 5 1 0 0 0 0 ]
+2024/08/15-16:37:24.596 68c0 Delete type=2 #9
+2024/08/15-16:37:24.596 68c0 Delete type=2 #7
+2024/08/15-16:37:24.597 68c0 Delete type=2 #16
+2024/08/15-16:37:24.597 68c0 Delete type=2 #11
+2024/08/15-16:37:24.597 68c0 Delete type=2 #14
+2024/08/15-16:37:24.601 68c0 Expanding@1 1+1 (2489266+4433009 bytes) to 5+1 (14428611+4433009 bytes)
+2024/08/15-16:37:24.601 68c0 Compacting 5@1 + 1@2 files
+2024/08/15-16:37:24.617 68c0 Generated table #22@1: 7 keys, 2556567 bytes
+2024/08/15-16:37:24.632 68c0 Generated table #23@1: 4 keys, 2158147 bytes
+2024/08/15-16:37:24.648 68c0 Generated table #24@1: 6 keys, 2376234 bytes
+2024/08/15-16:37:24.724 68c0 Generated table #25@1: 7 keys, 7668195 bytes
+2024/08/15-16:37:24.734 68c0 Generated table #26@1: 15 keys, 1072236 bytes
+2024/08/15-16:37:24.734 68c0 Compacted 5@1 + 1@2 files => 15831379 bytes
+2024/08/15-16:37:24.737 68c0 compacted to: files[ 0 0 5 0 0 0 0 ]
+2024/08/15-16:37:24.737 68c0 Delete type=2 #20
+2024/08/15-16:37:24.737 68c0 Delete type=2 #21
+2024/08/15-16:37:24.738 68c0 Delete type=2 #5
+2024/08/15-16:37:24.738 68c0 Delete type=2 #18
+2024/08/15-16:37:24.738 68c0 Delete type=2 #19
+2024/08/15-16:37:24.738 68c0 Delete type=2 #17
