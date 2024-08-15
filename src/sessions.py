@@ -48,10 +48,33 @@ class WebDriver():
                     #options.add_argument('--disable-gpu')  # Required for running in Docker
                     options.add_argument('--no-sandbox')  # Required for running in Docker
                     options.add_argument('--disable-dev-shm-usage')  # Required for running in Docker
+
+                    
+                # Check if the ADDBLOCK environment variable is set to 'true' and add the option
+                if ADBLOCK:
+                    if IS_CONTAINER:
+                        adblock_extension_path = "/app/ublock/"
+                    else: adblock_extension_path = os.path.join(os.path.dirname(__file__), "../ublock/")
+                    options.add_argument(f"--load-extension={adblock_extension_path}")
+
+                    # Control third-party cookies
+                    block_third_party_cookies = os.getenv('BLOCK_THIRD_PARTY_COOKIES', 'false').lower() == 'true'
+                    prefs = {
+                        "profile.default_content_setting_values.cookies": 0 if block_third_party_cookies else 1
+                    }
+                    options.add_experimental_option("prefs", prefs)
+                    
+                    
                 
                 # Initialize WebDriver with Chrome binary path and options
                 #self.driver = webdriver.Chrome(options=options, service=service)
-                self.driver = webdriver.Chrome(options=options) 
+                self.driver = webdriver.Chrome(options=options)
+
+                # Add delay to allow the extension to fully load and close any unwanted pop-ups or tabs
+                time.sleep(15)
+                self._close_unwanted_tabs()
+                self._handle_data_url()
+                print("AdBlock extension is loaded.")
                
         # set Window Size
         self.driver.set_window_size(width=1296, height=736)
@@ -62,16 +85,34 @@ class WebDriver():
         print("Width:", width)
         print("Height:", height)
       
-      
+
+    def _close_unwanted_tabs(self):
+        # Switch to the original tab if there are multiple tabs
+        original_window = self.driver.current_window_handle
+        for handle in self.driver.window_handles:
+            if handle != original_window:
+                self.driver.switch_to.window(handle)
+                self.driver.close()
+        self.driver.switch_to.window(original_window)
+
+    def _handle_data_url(self):
+        # Get the current URL and check if it's 'data:,'
+        current_url = self.driver.current_url
+        if current_url.startswith("data:,"):
+            print("[INFO]: Detected 'data:,' URL, simulating Enter key press.")
+            self.driver.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.RETURN)
+            time.sleep(2)  # Give some time for the browser to react to the Enter key press
+
+
 #========================================================================================================================
 class Session:
               
     def __init__(self, user_address, psw, browser_name, time_limit=TIME_LIMIT):
         self.user_address = user_address
         self.psw = psw
-        self.driver = WebDriver(browser_name).driver
         self.start = time.time()
         self.time_limit = time_limit
+        self.driver = WebDriver(browser_name).driver
         
         # Prepare log file name and directories : 
         timestamp = str(datetime.today().replace(microsecond=0)).replace(" ","_").replace(":", "-")
@@ -233,7 +274,7 @@ class ProtonSession(Session):
     @Session.time_limited_execution
     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
     @Session.log_event
-    def send_mail(self, to, mail_object, mail_body):
+    def send_mail(self, to, mail_object, mail_body, attached_file_size=0):
         '''
         Compose and send an email with specified recipient, subject, and content
         '''
@@ -263,6 +304,14 @@ class ProtonSession(Session):
             element = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[@id=\'rooster-editor\']")
             self.driver.execute_script("if(arguments[0].contentEditable === 'true') {arguments[0].innerText = arguments[1]}", element, mail_body)
             self.pause()
+
+            # Attach a file
+            if attached_file_size:
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
+                attached_file_path = os.path.join(script_dir, relative_path)
+                self.driver.find_element(By.XPATH, "//div[2]/div/div/label/input").send_keys(attached_file_path)
+                self.pause(10)
         
             # Switch back to default content
             self.driver.switch_to.default_content()
@@ -568,7 +617,7 @@ class OutlookSession(Session):
     @Session.time_limited_execution
     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
     @Session.log_event      
-    def send_mail(self, to, subject, content):
+    def send_mail(self, to, subject, content, attached_file_size):
         '''
         Send a mail to the specified recipient with the given subject and content
         '''
@@ -594,6 +643,14 @@ class OutlookSession(Session):
             mail_body_element = self.driver.find_element(By.XPATH, "//div[3]/div/div/div/div/div[4]/div/div/div")
             self.driver.execute_script("arguments[0].innerText = arguments[1]", mail_body_element, content)
             self.pause()
+
+            # Attach a file
+            if attached_file_size:
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
+                attached_file_path = os.path.join(script_dir, relative_path)
+                self.driver.find_element(By.XPATH, "//*[@id=\"mainApp\"]/div[2]/div[1]/input[2]").send_keys(attached_file_path)
+                self.pause(10)
         
             # Click the send button
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".ms-Button--primary")))
@@ -943,7 +1000,7 @@ class GmailSession(Session):
     @Session.time_limited_execution
     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
     @Session.log_event      
-    def send_mail(self, to, subject, content):
+    def send_mail(self, to, subject, content, attached_file_size):
         '''
         Send a mail to the specified recipient with the given subject and content
         '''
@@ -974,6 +1031,14 @@ class GmailSession(Session):
             mail_body_element = self.driver.find_element(By.XPATH, "//td[2]/div[2]/div/div")
             self.driver.execute_script("arguments[0].innerText = arguments[1]", mail_body_element, content)
             self.pause()
+
+            # Attach a file
+            if attached_file_size:
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
+                attached_file_path = os.path.join(script_dir, relative_path)
+                self.driver.find_element(By.NAME, "Filedata").send_keys(attached_file_path)
+                self.pause(10)
         
             # Click the send button
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[4]/table/tbody/tr/td/div/div[2]/div")))

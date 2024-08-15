@@ -26,6 +26,9 @@ USER = "USER"
 USER_PASSWORD = "USER_PASSWORD"
 PROVIDER = "PROVIDER"
 BROWSER = "BROWSER"
+ADBLOCK = "ADBLOCK"
+UNTRACKED = "UNTRACKED"
+ATTACHED_FILE_SIZE = "ATTACHED_FILE_SIZE"
 TIME_LIMIT =  "TIME_LIMIT"
 N_MAIL_SENT = "N_MAIL_SENT"
 N_MAIL_READ = "N_MAIL_READ"
@@ -46,6 +49,9 @@ SCENARIOS = {
                   
     #     PROVIDER: PROTON,
     #     BROWSER: CHROME,
+    #     ADBLOCK:"true",
+    #     UNTRACKED:"true",   
+    #     ATTACHED_FILE_SIZE:10,
     #     TIME_LIMIT: 3,
     #     N_MAIL_SENT: 1,
     #     N_MAIL_READ: 2,
@@ -61,8 +67,11 @@ SCENARIOS = {
     #     ],   
     #     PROVIDER: OUTLOOK,
     #     BROWSER: CHROME,
-    #     TIME_LIMIT: 2,
-    #     N_MAIL_SENT: 3,
+    #     ADBLOCK:"false",
+    #     UNTRACKED:"false",
+    #     ATTACHED_FILE_SIZE:5,
+    #     TIME_LIMIT: 100,
+    #     N_MAIL_SENT: 0,
     #     N_MAIL_READ: 0,
     #     N_MAIL_ANSWERED: 0
     # }
@@ -76,10 +85,13 @@ SCENARIOS = {
         ],   
         PROVIDER: GMAIL,
         BROWSER: CHROME,
-        TIME_LIMIT: 3,
+        ADBLOCK:"true",
+        UNTRACKED:"true",   
+        ATTACHED_FILE_SIZE:5,
+        TIME_LIMIT: 1,
         N_MAIL_SENT: 1,
-        N_MAIL_READ: 2,
-        N_MAIL_ANSWERED: 1
+        N_MAIL_READ: 0,
+        N_MAIL_ANSWERED: 0
     }
 }
 
@@ -97,6 +109,11 @@ IS_MEASURED = os.environ.get("IS_MEASURED", "false").lower() == "true"
 # Files :
 LOG_FOLDER = "../logs/"
 EMAILS_FOLDER = "../emails_answers/"
+ATTACHED_FILES = "../attached_files/"
+ADBLOCK_FOLDER = "../ublock/"
+CHROME_PROFILES = "../chrome_profiles/"
+UNTRACKED_PROFILE = "untracked_profile"
+TRACKED_PROFILE = "tracked_profile"
 EMAILS_CSV = "_emails.csv"
 ANSWERS_CSV = "_answers.csv"
 UNIQUE_ID_COL = "UNIQUE_ID"

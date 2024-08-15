@@ -9,22 +9,7 @@ import threading
 import json
 
 # local imports
-from constants import (
-    PROVIDER,
-    BROWSER,
-    DOMAIN,
-    TIME_LIMIT,
-    N_MAIL_SENT,
-    N_MAIL_READ,
-    N_MAIL_ANSWERED,
-    PROVIDERS,
-    BROWSERS,
-    USER_PASSWORD,
-    USER,
-    SCENARIOS,
-    CONTACTS,
-    IS_MEASURED
-    )
+from constants import *
 # ******************************************************************************************************
 # *****                                                                                            *****
 # *****   This section overrides the builtins.print function. This is done so that each thread     *****
@@ -86,6 +71,9 @@ def handle_arguments():
             ],
             'PROVIDER': PROTON,
             'BROWSER': CHROME,
+            'ADBLOCK':"true",
+            'UNTRACKED':"true",
+            'ATTACHED_FILE_SIZE':5,
             'TIME_LIMIT': 3,
             'N_MAIL_SENT': 1,
             'N_MAIL_READ': 3,
@@ -101,6 +89,9 @@ def handle_arguments():
             ],   
             'PROVIDER': OUTLOOK,
             'BROWSER': CHROME,
+            'ADBLOCK':"false",
+            'UNTRACKED':"false",
+            'ATTACHED_FILE_SIZE':25,
             'TIME_LIMIT': 4, 
             'N_MAIL_SENT': 1,
             'N_MAIL_READ': 3,
@@ -130,6 +121,9 @@ def handle_arguments():
         contacts = scenario_data[CONTACTS]
         provider = scenario_data[PROVIDER]
         browser = scenario_data[BROWSER]
+        adblock = scenario_data[ADBLOCK]
+        untracked = scenario_data[UNTRACKED]
+        attached_file_size = scenario_data[ATTACHED_FILE_SIZE]
         time_limit = scenario_data[TIME_LIMIT]
         n_mail_to_send = scenario_data[N_MAIL_SENT]
         n_mail_to_read = scenario_data[N_MAIL_READ]
@@ -141,11 +135,17 @@ def handle_arguments():
             n_mail_to_send = int(n_mail_to_send)
             n_mail_to_read = int(n_mail_to_read)
             n_mail_to_answer = int(n_mail_to_answer)
-            if time_limit < 0 or n_mail_to_send < 0 or n_mail_to_read < 0 or n_mail_to_answer < 0 or n_mail_to_answer > n_mail_to_read:
+            attached_file_size = int(attached_file_size)
+            if  time_limit < 0 or \
+                n_mail_to_send < 0 or\
+                n_mail_to_read < 0 or \
+                n_mail_to_answer < 0 or \
+                n_mail_to_answer > n_mail_to_read or \
+                attached_file_size not in [5,10,15,20,25]:
                 raise ValueError
         except ValueError:
             print("Invalid scenario parameters : TIME_LIMIT, N_MAIL_SENT, N_MAIL_READ and \
-                  N_MAIL_ANSWERED must be integers >= 0 and N_MAIL_READ >= N_MAIL_ANSWERED.")
+                  N_MAIL_ANSWERED must be integers >= 0 and N_MAIL_READ >= N_MAIL_ANSWERED. ATTACHED_FILE_SIZE must be 5,10,15,20 or 25")
             sys.exit(1)
 
         if provider not in PROVIDERS:
@@ -154,9 +154,17 @@ def handle_arguments():
         if browser not in BROWSERS:
             print(f"Invalid scenario parameter BROWSER : Only {' or '.join([b for b in BROWSERS])} is supported.")
             sys.exit(1)
+        if adblock not in ['true', 'false']:
+            print(f"Invalid scenario parameter ADBLOCK: Must be 'true' or 'false.")
+            sys.exit(1)
+        
+        if untracked not in ['true', 'false']:
+            print(f"Invalid scenario parameter UNTRACKED: Must be 'true' or 'false.")
+            sys.exit(1)
 
-        scenario_params = (user, user_address, user_psw, contacts, provider, browser, 
-                           time_limit, n_mail_to_send, n_mail_to_read, n_mail_to_answer)
+
+        scenario_params = (user, user_address, user_psw, contacts, provider, browser, adblock=='true', untracked=='true',
+                           attached_file_size, time_limit, n_mail_to_send, n_mail_to_read, n_mail_to_answer)
         scenarios_parameters.append(scenario_params)
 
     return scenarios_parameters
