@@ -62,7 +62,10 @@ class WebDriver():
                     profile = UNTRACKED_PROFILE
                 else:
                     profile = TRACKED_PROFILE
-                profiles_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), CHROME_PROFILES))
+                if IS_MEASURED:
+                    profiles_dir = "/chrome_profiles/"
+                else : 
+                    profiles_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), CHROME_PROFILES))
                 options.add_argument(f"user-data-dir={profiles_dir}")
                 options.add_argument(f'profile-directory={profile}')
 
@@ -96,7 +99,14 @@ class Session:
         os.makedirs(os.path.dirname(self.log_file_path), exist_ok=True)
 
         self.first = True
-        self.stats = {"sent_mails" : 0,
+        self.stats = {"sent_mails" : {
+                                0: 0,
+                                5: 0,
+                                10: 0,
+                                15: 0,
+                                20: 0,
+                                25: 0
+                            },
                       "read_mails" : 0,
                       "answered_mails" : 0,
                       "deleted_mails" : 0,
@@ -110,9 +120,11 @@ class Session:
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs):
             try:
-                output = func(self, *args, **kwargs)
-                if not IS_MEASURED : 
-                    # We deactivate this function when measurement are performed since mounted volumes (in containers used by GMT) are read only.
+                # We deactivate this function when measurement are performed since mounted volumes (in containers used by GMT) are read only.
+                if not IS_MEASURED :
+
+                    output = func(self, *args, **kwargs)
+                    
                     # If function didn't raise error we assume everything went fine and log execution timing
                     with open(self.log_file_path + ".log", 'a', newline='', encoding='utf-8') as log:
                         log_writer = csv.writer(log)
@@ -120,10 +132,20 @@ class Session:
                             self.first = False
                             log_writer.writerow(["Timestamp", "Event", "Description"])
                         log_writer.writerow([datetime.now(), func.__name__, func.__doc__])
+
+                # Here we print the exact time when the function is called and when it ends so we can extract the energy associated with each function
+                # With the Green Metric Tool
+                else:
+                    print(f"START: {func.__name__}")
+                    output = func(self, *args, **kwargs)
+                    print(f"END: {func.__name__}")
+
                 return output
+            
             except Exception as e:
                 print(f"[WARNING] : Function {func.__name__} didn't end. --> NO LOG.")
                 raise e
+            
         return wrapper
                 
     def retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY):
@@ -253,10 +275,10 @@ class ProtonSession(Session):
         '''
         try:
             # Click to compose a new mail
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/button")))
-            self.driver.find_element(By.XPATH, "//div[2]/button").click()
+            WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//div[3]/div/div/div/div[1]/div[2]/button")))
+            self.driver.find_element(By.XPATH, "//div[3]/div/div/div/div[1]/div[2]/button").click()
             self.pause()
-        
+     
             # Wait for recipient field to be visible and input the recipient
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div/div/div/div/div/div/input")))
             self.driver.find_element(By.XPATH, "//div/div/div/div/div/div/input").send_keys(to)
@@ -288,13 +310,13 @@ class ProtonSession(Session):
                 relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
                 attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
                 self.driver.find_element(By.XPATH, "//div[2]/div/div/label/input").send_keys(attached_file_path)
-                self.pause(attached_file_size)
+                self.pause(2*attached_file_size)
         
             # Click the send button
             self.driver.find_element(By.XPATH, "//footer/div/div/button/span").click()
             self.pause()
             
-            self.stats["sent_mails"] += 1
+            self.stats["sent_mails"][attached_file_size] += 1
             print("[INFO] : Mail Sent.")
             
         except Exception as e:
@@ -430,7 +452,7 @@ class ProtonSession(Session):
             self.driver.find_element(By.CSS_SELECTOR, ".item-container-wrapper:nth-child(1) .item-senders .inline-block > span").click()
             print("[INFO] : Read first email.")
             self.stats["read_mails"] += 1
-            self.pause(15)
+            self.pause(5)
            
         except Exception as e:
             self.home_page(force=True)
@@ -624,7 +646,13 @@ class OutlookSession(Session):
                 relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
                 attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
                 self.driver.find_element(By.XPATH, "//*[@id=\"mainApp\"]/div[2]/div[1]/input[2]").send_keys(attached_file_path)
-                self.pause(attached_file_size)
+                try : 
+                    # Click on send a copy
+                    WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[5]/button/div/i"))).click()             
+                except Exception:
+                    tmp = 'no confirmation needed'
+                self.pause(2*attached_file_size)
+                
         
             # Click the send button
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".ms-Button--primary")))
@@ -633,7 +661,7 @@ class OutlookSession(Session):
             self.pause()
             self.pause()
 
-            self.stats["sent_mails"] += 1
+            self.stats["sent_mails"][attached_file_size] += 1
             print("[INFO] : Mail Sent.")
             
         except Exception as e:
@@ -808,11 +836,12 @@ class OutlookSession(Session):
         Opens the the first mail in the list
         '''
         try:
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div/div[2]/div/div/div[@draggable='true']/div/div[2]/div[2]/div/div/span")))
-            self.driver.find_element(By.XPATH, "//div/div[2]/div/div/div[@draggable='true']/div/div[2]/div[2]/div/div/span").click()
+            
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[3]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div/div/div[2]")))
+            self.driver.find_element(By.XPATH, "//div[3]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div/div/div[2]").click()
             self.stats["read_mails"] += 1
             print("[INFO] : Read first email.")
-            self.pause(15)
+            self.pause(5)
         
         except Exception as e:
             self.home_page(force=True)
@@ -917,7 +946,7 @@ class GmailSession(Session):
         '''
         try:
             # Open the Gmail login page
-            self.driver.get("https://mail.google.com/mail/u/0/#inbox")
+            self.driver.get("https://accounts.google.com/AccountChooser/signinchooser?service=mail&continue=https%3A%2F%2Fmail.google.com%2Fmail%2F&flowName=GlifWebSignIn&flowEntry=AccountChooser&ec=asw-gmail-globalnav-signin")
             self.pause()
 
             # Enter user email
@@ -1012,7 +1041,7 @@ class GmailSession(Session):
                 relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
                 attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
                 self.driver.find_element(By.NAME, "Filedata").send_keys(attached_file_path)
-                self.pause(attached_file_size)
+                self.pause(2*attached_file_size)
         
             # Click the send button
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[4]/table/tbody/tr/td/div/div[2]/div")))
@@ -1021,7 +1050,7 @@ class GmailSession(Session):
             self.pause()
             self.pause()
 
-            self.stats["sent_mails"] += 1
+            self.stats["sent_mails"][attached_file_size] += 1
             print("[INFO] : Mail Sent.")
             
         except Exception as e:
@@ -1112,12 +1141,11 @@ class GmailSession(Session):
     @Session.log_event    
     def delete_drafts(self):
         '''
-        This function remove drafts as it perturbs the answering email function
+        This function removes drafts as it perturbs the reply function
         '''
         try:
 
             # Click on folder Drafts
-            self.pause()
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[5]/div/div/div")))
             self.driver.find_element(By.XPATH, "//div[5]/div/div/div").click()
             print(f"[DEBUG] : Clicked on folder Draft")
@@ -1126,19 +1154,21 @@ class GmailSession(Session):
             element = self.driver.find_element(By.CSS_SELECTOR, "body")
             actions = ActionChains(self.driver)
             actions.move_to_element(element).perform()
-            self.pause()
             
             # Click on Select All
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div[2]/div/div/div/div/div/div/span")))
             self.driver.find_element(By.XPATH, "//div[2]/div[2]/div/div/div/div/div/div/span").click()
             print(f"[DEBUG] : Clicked on select All")
-            self.pause()
 
             try:
                 # Click on Delete
                 WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div/div[2]/div/div")))
                 self.driver.find_element(By.XPATH, "//div[2]/div/div/div/div[2]/div/div").click()
                 print(f"[DEBUG] : Clicked on Delete")
+                self.pause()
+                self.pause()
+                self.pause()
+                self.pause()
                 self.pause()
                 
             except Exception as e:
@@ -1149,7 +1179,6 @@ class GmailSession(Session):
             # Come back to home page (So that it takes effect)
             self.home_page(force=True)
             print("[INFO] : Drafts deleted.")
-            self.pause()
             
         except Exception as e:
             self.home_page(force=True)
@@ -1217,7 +1246,7 @@ class GmailSession(Session):
             self.driver.find_element(By.XPATH, "//div[6]/div/div/table/tbody/tr").click()
             self.stats["read_mails"] += 1
             print("[INFO] : Read first email.")
-            self.pause(15)
+            self.pause(5)
         
         except Exception as e:
             self.home_page(force=True)
@@ -1233,15 +1262,12 @@ class GmailSession(Session):
         delete an opened mail
         '''
         try:
-            # # Select first Mail
-            # self.driver.find_element(By.XPATH, "//div[6]/div/div/table/tbody/tr/td[2]/div").click()
-            # print("[DEBUG] : Selected First Mail")
-            #self.pause(3000)
 
             # Click on delete icon
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@id=':4']/div[3]/div[1]/div/div[2]/div[3]/div"))).click()
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div[2]/div[3]/div"))).click()
             self.stats["deleted_mails"] += 1
             print("[INFO] : Deleted the first email.")
+            self.pause()
             self.pause()
         
         except Exception as e:
@@ -1275,6 +1301,7 @@ class GmailSession(Session):
             # Click the send button
             self.driver.find_element(By.XPATH, "//div[4]/table/tbody/tr/td/div/div[2]/div").click()
             print("[DEBUG] : Clicked the send button")
+            self.pause()
             self.pause()
 
             # home page

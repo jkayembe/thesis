@@ -28,35 +28,40 @@ PROVIDER = "PROVIDER"
 BROWSER = "BROWSER"
 ADBLOCK = "ADBLOCK"
 UNTRACKED = "UNTRACKED"
-ATTACHED_FILE_SIZE = "ATTACHED_FILE_SIZE"
 TIME_LIMIT =  "TIME_LIMIT"
 N_MAIL_SENT = "N_MAIL_SENT"
-N_MAIL_READ = "N_MAIL_READ"
-N_MAIL_ANSWERED = "N_MAIL_ANSWERED"
+N_MAIL_READ_AND_ANSWER = "N_MAIL_READ_AND_ANSWER"
+N_MAIL_READ_AND_DELETE = "N_MAIL_READ_AND_DELETE"
 CONTACTS = "CONTACTS"
 DOMAIN = "DOMAIN"
 
 # Default arguments dicionnary for the scenarios :
 SCENARIOS = {
     
-    # "scenario 1": {
-    #     USER: "Jason Kayembe",
-    #     USER_PASSWORD: "Azerty123",
-    #     DOMAIN : ".ulb.test4@proton.me",
-    #     CONTACTS: [ 
-    #         "jason.kayembe.ulb.test3@outlook.com",
-    #     ],
+    "scenario 1": {
+        USER: "Jason Kayembe",
+        USER_PASSWORD: "Azerty123",
+        DOMAIN : ".ulb.test4@proton.me",
+        CONTACTS: [ 
+            "jason.kayembe.ulb.test3@outlook.com",
+        ],
                   
-    #     PROVIDER: PROTON,
-    #     BROWSER: CHROME,
-    #     ADBLOCK:"true",
-    #     UNTRACKED:"true",   
-    #     ATTACHED_FILE_SIZE:10,
-    #     TIME_LIMIT: 3,
-    #     N_MAIL_SENT: 1,
-    #     N_MAIL_READ: 2,
-    #     N_MAIL_ANSWERED: 1,
-    # },
+        PROVIDER: PROTON,
+        BROWSER: CHROME,
+        ADBLOCK:"true",
+        UNTRACKED:"true",   
+        TIME_LIMIT: 3,
+        N_MAIL_SENT: { # for each attachment size
+            0: 0,   # no attachment
+            5: 1,
+            10: 0,
+            15: 0,
+            20: 0, 
+            25: 0 
+        },
+       N_MAIL_READ_AND_ANSWER: 0,
+       N_MAIL_READ_AND_DELETE: 0
+    },
     
     # "scenario 2": {
     #     USER: "Jason Kayembe",
@@ -69,30 +74,42 @@ SCENARIOS = {
     #     BROWSER: CHROME,
     #     ADBLOCK:"false",
     #     UNTRACKED:"false",
-    #     ATTACHED_FILE_SIZE:5,
     #     TIME_LIMIT: 100,
-    #     N_MAIL_SENT: 0,
-    #     N_MAIL_READ: 0,
-    #     N_MAIL_ANSWERED: 0
+        # N_MAIL_SENT: { # for each attachment size
+        #     0: 1,     # no attachment
+        #     5: 1, 
+        #     10: 0,
+        #     15: 0, 
+        #     20: 0,  
+        #     25: 0 
+        # },
+    #    N_MAIL_READ_AND_ANSWER: 0,
+    #    N_MAIL_READ_AND_DELETE: 0
     # }
-    "scenario 3": {
-        USER: "Jason Kayembe",
-        USER_PASSWORD: "Azerty.123",
-        DOMAIN : ".ulb.test@gmail.com",
-        CONTACTS: [
-            "jason.kayembe.ulb.test3@outlook.com",
-            "jason.kayembe@hotmail.com"
-        ],   
-        PROVIDER: GMAIL,
-        BROWSER: CHROME,
-        ADBLOCK:"true",
-        UNTRACKED:"true",   
-        ATTACHED_FILE_SIZE:5,
-        TIME_LIMIT: 1,
-        N_MAIL_SENT: 1,
-        N_MAIL_READ: 0,
-        N_MAIL_ANSWERED: 0
-    }
+    # "scenario 3": {
+    #     USER: "Jason Kayembe",
+    #     USER_PASSWORD: "Azerty.123",
+    #     DOMAIN : ".ulb.test@gmail.com",
+    #     CONTACTS: [
+    #         "jason.kayembe.ulb.test3@outlook.com",
+    #         "jason.kayembe@hotmail.com"
+    #     ],   
+    #     PROVIDER: GMAIL,
+    #     BROWSER: CHROME,
+    #     ADBLOCK:"true",
+    #     UNTRACKED:"true",   
+    #     TIME_LIMIT: 2,
+    #     N_MAIL_SENT: { # for each attachment size
+    #         0: 0,   # no attachment
+    #         5: 0, 
+    #         10: 0,  
+    #         15: 0,  
+    #         20: 0,  
+    #         25: 0   
+    #     },
+    #     N_MAIL_READ_AND_ANSWER: 3,
+    #     N_MAIL_READ_AND_DELETE: 0
+    # }
 }
 
 # Check if the script is run from a container :

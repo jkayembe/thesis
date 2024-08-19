@@ -12,7 +12,7 @@ from constants import *
 from sessions import OutlookSession, ProtonSession, GmailSession
 import utils
 from utils import (
-    select_random_moments,
+    select_evenly_spaced_moments,
     handle_arguments,
     extract_unique_id,
     THREAD_LOCAL_STORAGE
@@ -24,7 +24,7 @@ class Scenario:
     id = 0
     
     def __init__(self, user, user_address, user_psw, contacts, provider, browser, adblock, untracked,
-                 attached_file_size, time_limit, n_mail_to_send, n_mail_to_read, n_mail_to_answer):
+                 time_limit, n_mail_to_send, n_mail_to_read_and_answer, n_mail_to_read_and_delete):
         # Identifier
         self.id == Scenario.id
         Scenario.id += 1
@@ -39,16 +39,12 @@ class Scenario:
         self.browser = browser
         self.adblock = adblock
         self.untracked = untracked
-        self.attached_file_size = attached_file_size
         self.time_limit = time_limit # in minutes
         self.n_mail_to_send = n_mail_to_send
-        self.n_mail_to_read = n_mail_to_read
-        self.n_mail_to_answer = n_mail_to_answer
-        
+        self.n_mail_to_read_and_answer = n_mail_to_read_and_answer
+        self.n_mail_to_read_and_delete = n_mail_to_read_and_delete
+
         # Final stat of the session
-        self.sent_mails = 0
-        self.read_mails = 0
-        self.answered_mails = 0
         self.start = time.time()
         self.end = self.start
         self.duration = 0
@@ -65,17 +61,29 @@ class Scenario:
             f"Tracking: {"limited" if self.untracked else "allowed"}\n"
             f"Adblock: {"activated" if self.adblock else "not used"}\n"
             f"Duration: {self.time_limit} minutes\n"
-            f"Size of attachment: {self.attached_file_size}"
-            f"Number of emails to send: {self.n_mail_to_send}\n"
-            f"Number of emails to read: {self.n_mail_to_read}\n"
-            f"Number of emails to answer: {self.n_mail_to_answer}\n\n\n"
+            "Number of emails to send with:\n"
+            f"\t No attachment: {self.n_mail_to_send[0]}\n"
+            f"\t 5 MB attachment: {self.n_mail_to_send[5]}\n"
+            f"\t 10 MB attachment: {self.n_mail_to_send[10]}\n"
+            f"\t 15 MB attachment: {self.n_mail_to_send[15]}\n"
+            f"\t 20 MB attachment: {self.n_mail_to_send[20]}\n"
+            f"\t 25 MB attachment: {self.n_mail_to_send[25]}\n"
+            f"Number of emails to read and answer: {self.n_mail_to_read_and_answer}\n"
+            f"Number of emails to read and delete: {self.n_mail_to_read_and_delete}\n\n\n"
         )
         if self.finished:
             output += (
                 "**** Final Stat of the Session ****\n\n"
-                f"Sent emails: {self.stats["sent_mails"]}\n"
+                f"Sent emails with: \n"
+                f"\t No attachment: {self.stats['sent_mails'][0]}\n"
+                f"\t 5 MB attachment: {self.stats['sent_mails'][5]}\n"
+                f"\t 10 MB attachment: {self.stats['sent_mails'][10]}\n"
+                f"\t 15 MB attachment: {self.stats['sent_mails'][15]}\n"
+                f"\t 20 MB attachment: {self.stats['sent_mails'][20]}\n"
+                f"\t 25 MB attachment: {self.stats['sent_mails'][25]}\n"
                 f"Read emails: {self.stats["read_mails"]}\n"
                 f"Answered emails: {self.stats["answered_mails"]}\n"
+                f"Deleted emails: {self.stats["deleted_mails"]}\n"
                 f"Start time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.start))}\n"
                 f"End time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.end))}\n"
                 f"Duration: {str(timedelta(seconds=self.duration))}\n\n\n"
@@ -156,16 +164,28 @@ class Scenario:
             if unique_id is not None:
                 answer = self.select_answer(sender, unique_id)
                 session.reply(answer)
-                self.remaining_answers -= 1
             else:
                 session.delete_first()
         else:
             session.delete_first()
         
-            
+
+    def execute_action(self, moment, session, action_func, *args):
+        """
+        Handles the wait and execution of the specified action.
+        """
+        wait = moment + self.start - time.time()
+        while wait > 0:
+            print(f"[INFO] : Waiting {round(wait)} seconds before next action")
+            time.sleep(wait)
+            wait = moment + self.start - time.time()
+
+        action_func(*args)
+        session.home_page()
+
     def run(self):
         '''
-        This function executes the simulated session assigning each action (i.e.: send mail, read and answer, ...)
+        This function executes the simulated session assigning each action (i.e.: send mail, read_and_answer ...)
         to a random point in the time range [start, start + time_limit]
         '''
         
@@ -177,9 +197,11 @@ class Scenario:
         print(self)
 
         # Prepare the session schedule
-        n_operations = self.n_mail_to_send + self.n_mail_to_read + self.n_mail_to_answer
-        self.seconds = math.ceil(self.time_limit*60)
-        moments = select_random_moments(0, self.seconds, n_operations)
+        total_mail_to_send = sum(self.n_mail_to_send.values())
+        n_operations = total_mail_to_send + self.n_mail_to_read_and_answer + self.n_mail_to_read_and_delete
+        self.seconds = math.ceil(self.time_limit * 60)
+        moments = select_evenly_spaced_moments(0, self.seconds, n_operations)
+
     
         # Log in on the mail provider website
         session = self.get_session()
@@ -191,38 +213,28 @@ class Scenario:
             reader = csv.DictReader(csvfile)
             mails = list(reader)
         
-            # Send the specified number of emails
-            for idx in range(self.n_mail_to_send):
-        
-                wait = moments[idx] + self.start - time.time()
-                while wait > 0:
-                    print(f"[INFO] : Waiting {round(wait)} seconds before next action")
-                    time.sleep(wait)
-                    wait = moments[idx] + self.start - time.time()
-            
-                # Send a random mail from the list
-                mail = random.choice(mails)
-                subject = mail[SUBJECT_COL]
-                content = mail[CONTENT_COL]
-                session.send_mail(self.contacts[0], subject, content, self.attached_file_size)
-                session.home_page()
-        
-        # Read and Answer the specified number of emails
-        self.remaining_answers = self.n_mail_to_answer        
-        for idx in range(self.n_mail_to_send, self.n_mail_to_send + self.n_mail_to_read):
-            
-            wait = moments[idx] + self.start - time.time()
-            while wait > 0:
-                print(f"[INFO] : Waiting {round(wait)} seconds before next action")
-                time.sleep(wait)
-                wait = moments[idx] + self.start - time.time()
-            
-            if self.remaining_answers > 0 :
-                self.read_and_answer(session)
-            else:
-                self.read_and_delete(session)
-            session.home_page()
-        
+            # Initialize the index for moments
+            idx = 0
+
+            # Send the specified number of emails with different attachment sizes
+            for attachment_size, count in self.n_mail_to_send.items():
+                for _ in range(count):
+                    mail = random.choice(mails)
+                    subject = mail[SUBJECT_COL]
+                    content = mail[CONTENT_COL]
+                    self.execute_action(moments[idx], session, session.send_mail, self.contacts[0], subject, content, attachment_size)
+                    idx += 1
+
+            # Read and Answer the specified number of emails     
+            for _ in range(self.n_mail_to_read_and_answer):
+                self.execute_action(moments[idx], session, self.read_and_answer, session)
+                idx += 1
+
+            # Read and Delete the specified number of emails    
+            for _ in range(self.n_mail_to_read_and_delete):
+                self.execute_action(moments[idx], session, self.read_and_delete, session)
+                idx += 1
+
         # Logout, close browser, collect final stats and print summary
         rest = round(self.seconds - (time.time() - self.start) - 5)
         if (rest > 0):

@@ -63,40 +63,53 @@ def handle_arguments():
     scenario.json =
     {
         "scenario 1": {
-            'USER': "Jason Kayembe",
-            'USER_PASSWORD': "Azerty123",
-            'DOMAIN' : ".ulb.test4@proton.me",
-            'CONTACTS': [ 
-                "jason.kayembe.ulb.test3@outlook.com",
-            ],
-            'PROVIDER': PROTON,
-            'BROWSER': CHROME,
-            'ADBLOCK':"true",
-            'UNTRACKED':"true",
-            'ATTACHED_FILE_SIZE':5,
-            'TIME_LIMIT': 3,
-            'N_MAIL_SENT': 1,
-            'N_MAIL_READ': 3,
-            'N_MAIL_ANSWERED': 2,
+            USER: "Jason Kayembe",
+            USER_PASSWORD: "Azerty123",
+            DOMAIN : ".ulb.test3@outlook.com",
+            CONTACTS: [
+                "jason.kayembe.ulb.test@gmail.com",
+            ],   
+            PROVIDER: OUTLOOK,
+            BROWSER: CHROME,
+            ADBLOCK:"false",
+            UNTRACKED:"false",
+            TIME_LIMIT: 100,
+            N_MAIL_SENT: {
+                0: 1,   # 1 email without attachment
+                5: 1,   # 1 email with 5MB attachment
+                10: 0,  # 0 emails with 10MB attachment
+                15: 0,  # 0 emails with 15MB attachment
+                20: 0,  # 0 emails with 20MB attachment
+                25: 0   # 0 emails with 25MB attachment
+            },
+            N_MAIL_READ_AND_ANSWER: 0,
+            N_MAIL_READ_AND_DELETE: 0
         },
         
         "scenario 2": {
-            'USER': "Jason Kayembe",
-            'USER_PASSWORD': "Azerty123",
-            'DOMAIN': ".ulb.test3@outlook.com",
-            'CONTACTS': [
-                "jason.kayembe.ulb.test4@proton.me",
+            USER: "Jason Kayembe",
+            USER_PASSWORD: "Azerty.123",
+            DOMAIN : ".ulb.test@gmail.com",
+            CONTACTS: [
+                "jason.kayembe.ulb.test3@outlook.com",
+                "jason.kayembe@hotmail.com"
             ],   
-            'PROVIDER': OUTLOOK,
-            'BROWSER': CHROME,
-            'ADBLOCK':"false",
-            'UNTRACKED':"false",
-            'ATTACHED_FILE_SIZE':25,
-            'TIME_LIMIT': 4, 
-            'N_MAIL_SENT': 1,
-            'N_MAIL_READ': 3,
-            'N_MAIL_ANSWERED': 2
-        },
+            PROVIDER: GMAIL,
+            BROWSER: CHROME,
+            ADBLOCK:"true",
+            UNTRACKED:"true",   
+            TIME_LIMIT: 1,
+            N_MAIL_SENT: {
+                0: 1,   # 1 email without attachment
+                5: 1,   # 1 email with 5MB attachment
+                10: 0,  # 0 emails with 10MB attachment
+                15: 0,  # 0 emails with 15MB attachment
+                20: 0,  # 0 emails with 20MB attachment
+                25: 0   # 0 emails with 25MB attachment
+            },
+            N_MAIL_READ_AND_ANSWER: 0,
+            N_MAIL_READ_AND_DELETE: 0
+        }
     }
     '''
     
@@ -123,58 +136,67 @@ def handle_arguments():
         browser = scenario_data[BROWSER]
         adblock = scenario_data[ADBLOCK]
         untracked = scenario_data[UNTRACKED]
-        attached_file_size = scenario_data[ATTACHED_FILE_SIZE]
         time_limit = scenario_data[TIME_LIMIT]
         n_mail_to_send = scenario_data[N_MAIL_SENT]
-        n_mail_to_read = scenario_data[N_MAIL_READ]
-        n_mail_to_answer = scenario_data[N_MAIL_ANSWERED]
+        n_mail_to_read_and_answer = scenario_data[N_MAIL_READ_AND_ANSWER]
+        n_mail_to_read_and_delete = scenario_data[N_MAIL_READ_AND_DELETE]
         
         # Validate input
         try:
-            #time_limit = math.ceil(time_limit)
-            n_mail_to_send = int(n_mail_to_send)
-            n_mail_to_read = int(n_mail_to_read)
-            n_mail_to_answer = int(n_mail_to_answer)
-            attached_file_size = int(attached_file_size)
-            if  time_limit < 0 or \
-                n_mail_to_send < 0 or\
-                n_mail_to_read < 0 or \
-                n_mail_to_answer < 0 or \
-                n_mail_to_answer > n_mail_to_read or \
-                attached_file_size not in [5,10,15,20,25]:
+                        
+            # Validate n_mail_to_send dictionary
+            if not isinstance(n_mail_to_send, dict):
+                raise ValueError("N_MAIL_TO_SEND must be a dictionary.")
+            
+            # Ensure numbers are treated as int
+            time_limit = int(time_limit)
+            n_mail_to_read_and_answer = int(n_mail_to_read_and_answer)
+            n_mail_to_read_and_delete = int(n_mail_to_read_and_delete)
+            n_mail_to_send = {int(size): int(count) for size, count in n_mail_to_send.items()}
+            
+            # Validate input
+            for size, count in n_mail_to_send.items():
+                if size not in [0, 5, 10, 15, 20, 25] or count < 0:
+                    raise ValueError
+            
+            if time_limit < 0 or n_mail_to_read_and_answer < 0 or n_mail_to_read_and_delete < 0:
                 raise ValueError
+            
         except ValueError:
-            print("Invalid scenario parameters : TIME_LIMIT, N_MAIL_SENT, N_MAIL_READ and \
-                  N_MAIL_ANSWERED must be integers >= 0 and N_MAIL_READ >= N_MAIL_ANSWERED. ATTACHED_FILE_SIZE must be 5,10,15,20 or 25")
+            print("Invalid scenario parameters: TIME_LIMIT, N_MAIL_READ_AND_ANSWER, and N_MAIL_READ_AND_DELETE must be integers >= 0, "
+                  "N_MAIL_TO_SEND must be a dictionary with valid sizes (0, 5, 10, 15, 20, 25) "
+                  "and non-negative counts.")
             sys.exit(1)
 
         if provider not in PROVIDERS:
-            print(f"Invalid scenario parameter PROVIDER : Must be {' or '.join([p for p in PROVIDERS])}.")
+            print(f"Invalid scenario parameter PROVIDER: Must be {' or '.join([p for p in PROVIDERS])}.")
             sys.exit(1)
         if browser not in BROWSERS:
-            print(f"Invalid scenario parameter BROWSER : Only {' or '.join([b for b in BROWSERS])} is supported.")
+            print(f"Invalid scenario parameter BROWSER: Only {' or '.join([b for b in BROWSERS])} is supported.")
             sys.exit(1)
         if adblock not in ['true', 'false']:
             print(f"Invalid scenario parameter ADBLOCK: Must be 'true' or 'false.")
             sys.exit(1)
-        
         if untracked not in ['true', 'false']:
             print(f"Invalid scenario parameter UNTRACKED: Must be 'true' or 'false.")
             sys.exit(1)
 
-
-        scenario_params = (user, user_address, user_psw, contacts, provider, browser, adblock=='true', untracked=='true',
-                           attached_file_size, time_limit, n_mail_to_send, n_mail_to_read, n_mail_to_answer)
+        scenario_params = (user, user_address, user_psw, contacts, provider, browser, adblock == 'true', untracked == 'true',
+                           time_limit, n_mail_to_send, n_mail_to_read_and_answer, n_mail_to_read_and_delete)
         scenarios_parameters.append(scenario_params)
 
     return scenarios_parameters
 
-def select_random_moments(start, end, n):
+def select_evenly_spaced_moments(start, end, n):
     '''
-    selects n moments in the time range [sart - end]
+    Selects n evenly spaced moments in the time range [start - end]
     '''
-    moments = random.sample(range(start, end + 1), n)
-    return sorted(moments)
+    if n <= 1:
+        return [start] if n == 1 else []
+    
+    step = (end - start) / (n - 1)
+    moments = [start + i * step for i in range(n)]
+    return moments
 
 def extract_unique_id(text):
     '''

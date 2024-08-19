@@ -1,0 +1,26 @@
+{
+  "scenario 1": {
+    "USER": "Jason Kayembe",
+    "USER_PASSWORD": "Azerty123",
+    "DOMAIN": ".ulb.test4@proton.me",
+    "CONTACTS": [ 
+        "jason.kayembe.ulb.test@gmail.com"
+    ],
+              
+    "PROVIDER": "proton",
+    "BROWSER": "chrome",
+    "ADBLOCK":"false",
+    "UNTRACKED":"false",   
+    "TIME_LIMIT": 2,
+    "N_MAIL_SENT": { 
+        "0": 0,   
+        "5": 0,
+        "10": 0,
+        "15": 0,
+        "20": 0, 
+        "25": 0 
+    },
+   "N_MAIL_READ_AND_ANSWER": 0,
+   "N_MAIL_READ_AND_DELETE": 1
+  }
+}

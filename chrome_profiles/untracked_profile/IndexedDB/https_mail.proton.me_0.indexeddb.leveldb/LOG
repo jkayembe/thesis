@@ -1,0 +1,36 @@
+2024/08/17-18:22:01.631 57 Reusing MANIFEST /app/chrome_profiles/untracked_profile/IndexedDB/https_mail.proton.me_0.indexeddb.leveldb/MANIFEST-000001
+2024/08/17-18:22:01.632 57 Recovering log #8
+2024/08/17-18:22:01.632 57 Reusing old log /app/chrome_profiles/untracked_profile/IndexedDB/https_mail.proton.me_0.indexeddb.leveldb/000008.log 
+2024/08/17-18:22:01.632 57 Delete type=2 #7
+2024/08/17-18:22:04.105 5a Level-0 table #13: started
+2024/08/17-18:22:04.109 5a Level-0 table #13: 817 bytes OK
+2024/08/17-18:22:04.111 5a Delete type=0 #8
+2024/08/17-18:22:04.112 56 Manual compaction at level-0 from '\x00\x05\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x06\x00\x00\x00' @ 0 : 0; will stop at '\x00\x05\x00\x00\x05' @ 104 : 1
+2024/08/17-18:22:04.112 56 Compacting 1@0 + 1@1 files
+2024/08/17-18:22:04.114 56 Generated table #14@0: 17 keys, 858 bytes
+2024/08/17-18:22:04.114 56 Compacted 1@0 + 1@1 files => 858 bytes
+2024/08/17-18:22:04.116 56 compacted to: files[ 0 1 1 0 0 0 0 ]
+2024/08/17-18:22:04.116 56 Delete type=2 #13
+2024/08/17-18:22:04.117 56 Manual compaction at level-0 from '\x00\x05\x00\x00\x05' @ 104 : 1 .. '\x00\x06\x00\x00\x00' @ 0 : 0; will stop at (end)
+2024/08/17-18:22:04.508 56 Level-0 table #16: started
+2024/08/17-18:22:04.510 56 Level-0 table #16: 810 bytes OK
+2024/08/17-18:22:04.513 56 Delete type=0 #12
+2024/08/17-18:22:04.513 56 Delete type=2 #10
+2024/08/17-18:22:04.514 56 Manual compaction at level-0 from '\x00\x06\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x07\x00\x00\x00' @ 0 : 0; will stop at '\x00\x06\x00\x00\x05' @ 121 : 1
+2024/08/17-18:22:04.514 56 Compacting 1@0 + 1@1 files
+2024/08/17-18:22:04.516 56 Generated table #17@0: 21 keys, 895 bytes
+2024/08/17-18:22:04.516 56 Compacted 1@0 + 1@1 files => 895 bytes
+2024/08/17-18:22:04.520 56 compacted to: files[ 0 1 1 0 0 0 0 ]
+2024/08/17-18:22:04.520 56 Delete type=2 #16
+2024/08/17-18:22:04.520 56 Manual compaction at level-0 from '\x00\x06\x00\x00\x05' @ 121 : 1 .. '\x00\x07\x00\x00\x00' @ 0 : 0; will stop at (end)
+2024/08/17-18:22:04.520 5a Level-0 table #19: started
+2024/08/17-18:22:04.523 5a Level-0 table #19: 811 bytes OK
+2024/08/17-18:22:04.526 5a Delete type=0 #15
+2024/08/17-18:22:04.526 5a Delete type=2 #14
+2024/08/17-18:22:04.526 56 Manual compaction at level-0 from '\x00\x07\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x08\x00\x00\x00' @ 0 : 0; will stop at '\x00\x07\x00\x00\x05' @ 140 : 1
+2024/08/17-18:22:04.526 56 Compacting 1@0 + 1@1 files
+2024/08/17-18:22:04.528 56 Generated table #20@0: 25 keys, 931 bytes
+2024/08/17-18:22:04.529 56 Compacted 1@0 + 1@1 files => 931 bytes
+2024/08/17-18:22:04.531 56 compacted to: files[ 0 1 1 0 0 0 0 ]
+2024/08/17-18:22:04.531 56 Delete type=2 #19
+2024/08/17-18:22:04.532 56 Manual compaction at level-0 from '\x00\x07\x00\x00\x05' @ 140 : 1 .. '\x00\x08\x00\x00\x00' @ 0 : 0; will stop at (end)
