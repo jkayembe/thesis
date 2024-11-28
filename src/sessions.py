@@ -63,7 +63,7 @@ class WebDriver():
                 else:
                     profile = TRACKED_PROFILE
                 if IS_MEASURED:
-                    profiles_dir = "/chrome_profiles/"
+                    profiles_dir = CONTAINER_CHROME_PROFILES
                 else : 
                     profiles_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), CHROME_PROFILES))
                 options.add_argument(f"user-data-dir={profiles_dir}")
@@ -982,8 +982,7 @@ class GmailSession(Session):
         '''
         try:
             # Click on the user logo
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".gb_za")))
-            self.driver.find_element(By.CSS_SELECTOR, ".gb_za").click()
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//header/div[2]/div[3]/div[1]/div[2]/div/a"))).click()
             self.pause()
 
             # Click on the logout link
