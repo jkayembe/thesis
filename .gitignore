@@ -3,3 +3,9 @@ log/
 logs/
 Mail_Simulation.pyproj
 .vs/
+chromium_profiles/*
+!chromium_profiles/tracked_profile/History
+!chromium_profiles/tracked_profile/Preferences
+!chromium_profiles/untracked_profile/History
+!chromium_profiles/untracked_profile/Preferences
+
