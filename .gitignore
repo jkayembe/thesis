@@ -3,6 +3,7 @@ log/
 logs/
 Mail_Simulation.pyproj
 .vs/
+src/__pycache__
 chrome_profiles/*
 !chrome_profiles/tracked_profile/History
 !chrome_profiles/tracked_profile/Preferences
