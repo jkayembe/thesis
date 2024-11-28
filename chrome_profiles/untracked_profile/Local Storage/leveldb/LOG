@@ -1,6 +1,0 @@
-2024/08/17-18:21:26.672 84 Reusing MANIFEST /app/chrome_profiles/untracked_profile/Local Storage/leveldb/MANIFEST-000001
-2024/08/17-18:21:26.675 84 Recovering log #12
-2024/08/17-18:21:26.676 84 Reusing old log /app/chrome_profiles/untracked_profile/Local Storage/leveldb/000012.log 
-2024/08/17-18:22:27.767 86 Level-0 table #17: started
-2024/08/17-18:22:27.773 86 Level-0 table #17: 15642 bytes OK
-2024/08/17-18:22:27.778 86 Delete type=0 #12

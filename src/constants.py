@@ -5,6 +5,13 @@ import os
 SEED = int(os.environ.get("SEED", "321"))
 
 
+# Login webpages URL
+
+OUTLOOK_URL = "https://go.microsoft.com/fwlink/p/?LinkID=2125442&deeplink=owa%2F"
+PROTON_URL = "https://account.proton.me/fr/mail"
+GMAIL_URL =  "https://accounts.google.com/AccountChooser/signinchooser?service=mail&continue=https%3A%2F%2Fmail.google.com%2Fmail%2F&flowName=GlifWebSignIn&flowEntry=AccountChooser&ec=asw-gmail-globalnav-signin"
+
+
 # General constants :
 PROTON = "proton"
 OUTLOOK = "outlook"

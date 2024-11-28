@@ -1,0 +1,10 @@
+Configure your devices to use the Pi-Hole as their DNS server using:
+
+IPv4: 192.168.1.243
+IPv6: 2001:6a8:11a0:ee04:74a0:8a9a:bfc1:7a51
+
+If you have not done so already, the above IP should be set to static
+
+Xvfb :0 -screen 0 1296x736x16 & \
+x11vnc -forever -create -display :0 -rfbport 5900 -bg -nopw & \
+python src/scenario.py scenarios/2_outlook_noattachment_noadblock.json

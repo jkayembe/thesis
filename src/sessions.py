@@ -213,7 +213,7 @@ class ProtonSession(Session):
         try:
             
             # Open the login page
-            self.driver.get("https://account.proton.me/fr/mail")
+            self.driver.get(PROTON_URL)
             self.pause()
         
             # Enter username
@@ -552,13 +552,14 @@ class OutlookSession(Session):
         '''
         try:
             # Open the Outlook login page
-            self.driver.get("https://outlook.office.com/mail/")
+            self.driver.get(OUTLOOK_URL)
             self.pause()
             
             # Enter user email
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, "i0116")))
             self.driver.find_element(By.ID, "i0116").send_keys(self.user_address)
-            self.pause()
+            print(self.user_address)
+
 
             # Click on the next button
             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "idSIButton9")))
@@ -630,13 +631,12 @@ class OutlookSession(Session):
             self.pause()
         
             # Type the subject
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div[2]/div/div/div/input")))
-            self.driver.find_element(By.XPATH, "//div[2]/div[2]/div/div/div/input").send_keys(subject)
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div/div[3]/div[2]/span/input"))).send_keys(subject)
             self.pause()
         
             # Input the mail body
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div[3]/div/div/div/div/div[4]/div/div/div")))
-            mail_body_element = self.driver.find_element(By.XPATH, "//div[3]/div/div/div/div/div[4]/div/div/div")
+            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="editorParent_1"]/div')))
+            mail_body_element = self.driver.find_element(By.XPATH, '//*[@id="editorParent_1"]/div')
             self.driver.execute_script("arguments[0].innerText = arguments[1]", mail_body_element, content)
             self.pause()
 
@@ -655,8 +655,7 @@ class OutlookSession(Session):
                 
         
             # Click the send button
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".ms-Button--primary")))
-            self.driver.find_element(By.CSS_SELECTOR, ".ms-Button--primary").click()
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[@title='Send (Ctrl+Enter)']"))).click()
             self.pause()
             self.pause()
             self.pause()
@@ -899,7 +898,7 @@ class OutlookSession(Session):
             self.pause()
                 
             # Click the send button
-            self.driver.find_element(By.CSS_SELECTOR, ".ms-Button--primary").click()
+            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[@title='Send (Ctrl+Enter)']"))).click()
             print("[DEBUG] : Clicked the send button")
             self.pause()
 
@@ -946,7 +945,7 @@ class GmailSession(Session):
         '''
         try:
             # Open the Gmail login page
-            self.driver.get("https://accounts.google.com/AccountChooser/signinchooser?service=mail&continue=https%3A%2F%2Fmail.google.com%2Fmail%2F&flowName=GlifWebSignIn&flowEntry=AccountChooser&ec=asw-gmail-globalnav-signin")
+            self.driver.get(GMAIL_URL)
             self.pause()
 
             # Enter user email
