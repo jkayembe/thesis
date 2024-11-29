@@ -193,7 +193,61 @@ class Session:
     def close_browser(self):
     #     Session.drivers.remove(self.driver)
         self.driver.quit()
+
+
+    def find(self, selector):
+        """
+        Use the selector (selector type, target) to grab an html element
+        """
+        return WebDriverWait(self.driver, WAITING_LIMIT).until(EC.visibility_of_element_located(selector))
     
+    def click(self, selector):
+        """
+        Use the selector (selector type, target) to click on an html element
+        """
+        target = self.find(selector)
+        target.click()
+
+    def type(self, selector, input):
+         """
+        Use the selector (selector type, target) to type in an input html element
+        """
+         target = self.find(selector)
+         for char in input:
+             target.send_keys(char)
+    
+    def type_and_enter(self, selector, input):
+        """
+        Use the selector (selector type, target) to type and hit Enter on an html element
+        """
+        target = self.find(selector)
+        for char in input:
+             target.send_keys(char)
+        target.send_keys(Keys.ENTER)
+    
+    def type_2(self, selector, input):
+         target = self.find(selector)
+         self.driver.execute_script(
+                "if(arguments[0].contentEditable === 'true') {arguments[0].innerText = arguments[1]}",
+                target, input
+            )
+         
+    def type_3(self, selector, input):
+        """
+        Use the selector (selector type, target) to click and type on an html element
+        """
+        target = self.find(selector)
+        target.send_keys(input)
+
+
+    def wait_page_loaded(self, url_to_be_loaded):
+        """
+        Wait until the url is changed to 'url_to_be_loaded'
+        """
+        WebDriverWait(self.driver, MAX_PAGE_LOAD_TIME).until(lambda driver : driver.current_url == url_to_be_loaded)
+
+
+
 # # ===================================================================================================================================
 # # =============== Proton Session =====================================================================================================        
 # # ===================================================================================================================================
