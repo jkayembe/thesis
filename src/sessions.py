@@ -50,7 +50,7 @@ class WebDriver():
                     options.add_argument('--disable-dev-shm-usage')  # Required for running in Docker
 
                     
-                # If adblock is required
+                # If adblock is required load the extension
                 if adblock:
 
                     adblock_extension_path = os.path.join(os.path.dirname(__file__), ADBLOCK_FOLDER)
@@ -119,32 +119,27 @@ class Session:
         '''
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs):
-            try:
-                # We deactivate this function when measurement are performed since mounted volumes (in containers used by GMT) are read only.
-                if not IS_MEASURED :
+            # We deactivate this function when measurement are performed since mounted volumes (in containers used by GMT) are read only.
+            if not IS_MEASURED :
 
-                    output = func(self, *args, **kwargs)
-                    
-                    # If function didn't raise error we assume everything went fine and log execution timing
-                    with open(self.log_file_path + ".log", 'a', newline='', encoding='utf-8') as log:
-                        log_writer = csv.writer(log)
-                        if self.first:
-                            self.first = False
-                            log_writer.writerow(["Timestamp", "Event", "Description"])
-                        log_writer.writerow([datetime.now(), func.__name__, func.__doc__])
+                output = func(self, *args, **kwargs)
+                
+                # If function didn't raise error we assume everything went fine and log execution timing
+                with open(self.log_file_path + ".log", 'a', newline='', encoding='utf-8') as log:
+                    log_writer = csv.writer(log)
+                    if self.first:
+                        self.first = False
+                        log_writer.writerow(["Timestamp", "Event", "Description"])
+                    log_writer.writerow([datetime.now(), func.__name__, func.__doc__])
 
-                # Here we print the exact time when the function is called and when it ends so we can extract the energy associated with each function
-                # With the Green Metric Tool
-                else:
-                    print(f"START: {func.__name__}")
-                    output = func(self, *args, **kwargs)
-                    print(f"END: {func.__name__}")
+            # Here we print the exact time when the function is called and when it ends so we can extract the energy associated with each function
+            # With the Green Metric Tool
+            else:
+                print(f"START: {func.__name__}")
+                output = func(self, *args, **kwargs)
+                print(f"END: {func.__name__}")
 
-                return output
-            
-            except Exception as e:
-                print(f"[WARNING] : Function {func.__name__} didn't end. --> NO LOG.")
-                raise e
+            return output
             
         return wrapper
                 
@@ -191,7 +186,6 @@ class Session:
         else: time.sleep(delay)
         
     def close_browser(self):
-    #     Session.drivers.remove(self.driver)
         self.driver.quit()
 
 
@@ -199,13 +193,14 @@ class Session:
         """
         Use the selector (selector type, target) to grab an html element
         """
-        return WebDriverWait(self.driver, WAITING_LIMIT).until(EC.visibility_of_element_located(selector))
+        return WebDriverWait(self.driver, WAIT_LIMIT).until(EC.visibility_of_element_located(selector))
     
     def click(self, selector):
         """
         Use the selector (selector type, target) to click on an html element
         """
         target = self.find(selector)
+        WebDriverWait(self.driver, WAIT_LIMIT).until(EC.element_to_be_clickable(target))
         target.click()
 
     def type(self, selector, input):
@@ -589,393 +584,393 @@ class Session:
 # ===================================================================================================================================
 
 
-class OutlookSession(Session):
+# class OutlookSession(Session):
     
 
-    def __init__(self, user_address, user_psw, browser_name, adblock, untracked, time_limit=TIME_LIMIT):
-        super().__init__(user_address, user_psw, browser_name, adblock, untracked, time_limit)
+#     def __init__(self, user_address, user_psw, browser_name, adblock, untracked, time_limit=TIME_LIMIT):
+#         super().__init__(user_address, user_psw, browser_name, adblock, untracked, time_limit)
 
     
     
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event
-    def login(self):
-        '''
-        Log in to the Outlook user account
-        '''
-        try:
-            # Open the Outlook login page
-            self.driver.get(OUTLOOK_URL)
-            self.pause()
+#     @Session.time_limited_execution
+#     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+#     @Session.log_event
+#     def login(self):
+#         '''
+#         Log in to the Outlook user account
+#         '''
+#         try:
+#             # Open the Outlook login page
+#             self.driver.get(OUTLOOK_URL)
+#             self.pause()
             
-            # Enter user email
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, "i0116")))
-            self.driver.find_element(By.ID, "i0116").send_keys(self.user_address)
-            print(self.user_address)
+#             # Enter user email
+#             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, "i0116")))
+#             self.driver.find_element(By.ID, "i0116").send_keys(self.user_address)
+#             print(self.user_address)
 
 
-            # Click on the next button
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "idSIButton9")))
-            self.driver.find_element(By.ID, "idSIButton9").click()
-            self.pause()
+#             # Click on the next button
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "idSIButton9")))
+#             self.driver.find_element(By.ID, "idSIButton9").click()
+#             self.pause()
 
-            # Enter user password
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "i0118")))
-            self.driver.find_element(By.ID, "i0118").click()
-            self.driver.find_element(By.ID, "i0118").send_keys(self.psw)
-            self.driver.find_element(By.ID, "i0118").send_keys(Keys.ENTER)
-            self.pause()
+#             # Enter user password
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "i0118")))
+#             self.driver.find_element(By.ID, "i0118").click()
+#             self.driver.find_element(By.ID, "i0118").send_keys(self.psw)
+#             self.driver.find_element(By.ID, "i0118").send_keys(Keys.ENTER)
+#             self.pause()
 
-            # Click on the decline button
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "declineButton")))
-            self.driver.find_element(By.ID, "declineButton").click()
+#             # Click on the decline button
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "declineButton")))
+#             self.driver.find_element(By.ID, "declineButton").click()
 
-            print("[INFO] : Logged in.")
+#             print("[INFO] : Logged in.")
 
-            # Wait for the page to load
-            self.pause(10)
+#             # Wait for the page to load
+#             self.pause(10)
             
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
+#         except Exception as e:
+#             self.home_page(force=True)
+#             raise e
             
 
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event
-    def logout(self):
-        '''
-        Logout of the connected account
-        '''
-        try:
-            # Click on the user logo
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".\\_8ZYZKvxC8bvw1xgQGSkvvA\\=\\= > img")))
-            self.driver.find_element(By.CSS_SELECTOR, ".\\_8ZYZKvxC8bvw1xgQGSkvvA\\=\\= > img").click()
-            self.pause()
+#     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+#     @Session.log_event
+#     def logout(self):
+#         '''
+#         Logout of the connected account
+#         '''
+#         try:
+#             # Click on the user logo
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".\\_8ZYZKvxC8bvw1xgQGSkvvA\\=\\= > img")))
+#             self.driver.find_element(By.CSS_SELECTOR, ".\\_8ZYZKvxC8bvw1xgQGSkvvA\\=\\= > img").click()
+#             self.pause()
 
-            # Click on the logout link
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "mectrl_body_signOut")))
-            self.driver.find_element(By.ID, "mectrl_body_signOut").click()
-            self.pause()
+#             # Click on the logout link
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "mectrl_body_signOut")))
+#             self.driver.find_element(By.ID, "mectrl_body_signOut").click()
+#             self.pause()
 
-            print("[INFO] : Logged out.")
+#             print("[INFO] : Logged out.")
         
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
+#         except Exception as e:
+#             self.home_page(force=True)
+#             raise e
         
    
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event      
-    def send_mail(self, to, subject, content, attached_file_size):
-        '''
-        Send a mail to the specified recipient with the given subject and content
-        '''
-        try:
-            # Click to start composing an email
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//span/button/span/span/span")))
-            self.driver.find_element(By.XPATH, "//span/button/span/span/span").click()
-            self.pause()
+#     @Session.time_limited_execution
+#     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+#     @Session.log_event      
+#     def send_mail(self, to, subject, content, attached_file_size):
+#         '''
+#         Send a mail to the specified recipient with the given subject and content
+#         '''
+#         try:
+#             # Click to start composing an email
+#             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//span/button/span/span/span")))
+#             self.driver.find_element(By.XPATH, "//span/button/span/span/span").click()
+#             self.pause()
         
-            # Input the recipient address
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".\\___1mtnehv")))
-            recipient_field = self.driver.find_element(By.CSS_SELECTOR, ".\\___1mtnehv")
-            self.driver.execute_script("if(arguments[0].contentEditable === 'true') {arguments[0].innerText = '" + to + "'}", recipient_field)
-            self.pause()
+#             # Input the recipient address
+#             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".\\___1mtnehv")))
+#             recipient_field = self.driver.find_element(By.CSS_SELECTOR, ".\\___1mtnehv")
+#             self.driver.execute_script("if(arguments[0].contentEditable === 'true') {arguments[0].innerText = '" + to + "'}", recipient_field)
+#             self.pause()
         
-            # Type the subject
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div/div[3]/div[2]/span/input"))).send_keys(subject)
-            self.pause()
+#             # Type the subject
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div/div[3]/div[2]/span/input"))).send_keys(subject)
+#             self.pause()
         
-            # Input the mail body
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="editorParent_1"]/div')))
-            mail_body_element = self.driver.find_element(By.XPATH, '//*[@id="editorParent_1"]/div')
-            self.driver.execute_script("arguments[0].innerText = arguments[1]", mail_body_element, content)
-            self.pause()
+#             # Input the mail body
+#             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="editorParent_1"]/div')))
+#             mail_body_element = self.driver.find_element(By.XPATH, '//*[@id="editorParent_1"]/div')
+#             self.driver.execute_script("arguments[0].innerText = arguments[1]", mail_body_element, content)
+#             self.pause()
 
-            # Attach a file
-            if attached_file_size:
-                script_dir = os.path.dirname(os.path.abspath(__file__))
-                relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
-                attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
-                self.driver.find_element(By.XPATH, "//*[@id=\"mainApp\"]/div[2]/div[1]/input[2]").send_keys(attached_file_path)
-                try : 
-                    # Click on send a copy
-                    WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[5]/button/div/i"))).click()             
-                except Exception:
-                    tmp = 'no confirmation needed'
-                self.pause(2*attached_file_size)
+#             # Attach a file
+#             if attached_file_size:
+#                 script_dir = os.path.dirname(os.path.abspath(__file__))
+#                 relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
+#                 attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
+#                 self.driver.find_element(By.XPATH, "//*[@id=\"mainApp\"]/div[2]/div[1]/input[2]").send_keys(attached_file_path)
+#                 try : 
+#                     # Click on send a copy
+#                     WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[5]/button/div/i"))).click()             
+#                 except Exception:
+#                     tmp = 'no confirmation needed'
+#                 self.pause(2*attached_file_size)
                 
         
-            # Click the send button
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[@title='Send (Ctrl+Enter)']"))).click()
-            self.pause()
-            self.pause()
-            self.pause()
+#             # Click the send button
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[@title='Send (Ctrl+Enter)']"))).click()
+#             self.pause()
+#             self.pause()
+#             self.pause()
 
-            self.stats["sent_mails"][attached_file_size] += 1
-            print("[INFO] : Mail Sent.")
+#             self.stats["sent_mails"][attached_file_size] += 1
+#             print("[INFO] : Mail Sent.")
             
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
+#         except Exception as e:
+#             self.home_page(force=True)
+#             raise e
         
     
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event  
-    def filter(self):
-        '''
-        Show only unread emails
-        '''
-        try:    
-            # Click on the filter button
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[@id='mailListFilterMenu']/span/i"))).click()
-            self.pause()
+#     @Session.time_limited_execution
+#     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+#     @Session.log_event  
+#     def filter(self):
+#         '''
+#         Show only unread emails
+#         '''
+#         try:    
+#             # Click on the filter button
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[@id='mailListFilterMenu']/span/i"))).click()
+#             self.pause()
         
-            # Click on the "Unread" option
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".fui-MenuItem:nth-child(3) .UagSo")))
-            self.driver.find_element(By.CSS_SELECTOR, ".fui-MenuItem:nth-child(3) .UagSo").click()
-            print("[INFO] : Filtered emails, showing unread only.")
-            self.pause()
-            self.pause()
+#             # Click on the "Unread" option
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".fui-MenuItem:nth-child(3) .UagSo")))
+#             self.driver.find_element(By.CSS_SELECTOR, ".fui-MenuItem:nth-child(3) .UagSo").click()
+#             print("[INFO] : Filtered emails, showing unread only.")
+#             self.pause()
+#             self.pause()
         
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
+#         except Exception as e:
+#             self.home_page(force=True)
+#             raise e
    
     
 
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event
-    def home_page(self, force=False):
-        '''
-        This function clicks on the homepage link (i.e. : mailbox)
-        If force is enable or if it fails then tries to refresh the page with the "Outlook" link
-        '''
-        # Wait for 1 seconds then refresh
-        if force:
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[@id='O365_AppName']/span"))).click()
-            self.pause()
-            try:
-                WebDriverWait(self.driver, 10).until(EC.alert_is_present(),'Timed out waiting for popup to appear.')
-                alert = self.driver.switch_to.alert
-                alert.accept()
-                self.stats["refresh"] += 1
-                print("[DEBUG] : Alert accepted")
-                self.pause()
+#     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+#     @Session.log_event
+#     def home_page(self, force=False):
+#         '''
+#         This function clicks on the homepage link (i.e. : mailbox)
+#         If force is enable or if it fails then tries to refresh the page with the "Outlook" link
+#         '''
+#         # Wait for 1 seconds then refresh
+#         if force:
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[@id='O365_AppName']/span"))).click()
+#             self.pause()
+#             try:
+#                 WebDriverWait(self.driver, 10).until(EC.alert_is_present(),'Timed out waiting for popup to appear.')
+#                 alert = self.driver.switch_to.alert
+#                 alert.accept()
+#                 self.stats["refresh"] += 1
+#                 print("[DEBUG] : Alert accepted")
+#                 self.pause()
 
-            except TimeoutException:
-                temp = "no alert"
+#             except TimeoutException:
+#                 temp = "no alert"
             
-            print("[DEBUG] : Forced Refresh")
-        else:
-            try:
-                WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div/span"))).click()
-                self.pause()
-                self.stats["refresh"] += 1
+#             print("[DEBUG] : Forced Refresh")
+#         else:
+#             try:
+#                 WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div/span"))).click()
+#                 self.pause()
+#                 self.stats["refresh"] += 1
 
-            except Exception as e:
-                print(f"[ERROR] : An error occurred while clicking 'mailbox' link. Trying to force refreshing to homepage")
-                try:
-                    self.home_page(force=True)
-                except Exception as e:
-                    print("[ERROR] : Unable to reload home page. Program will exit.")
-                    sys.exit(1)
+#             except Exception as e:
+#                 print(f"[ERROR] : An error occurred while clicking 'mailbox' link. Trying to force refreshing to homepage")
+#                 try:
+#                     self.home_page(force=True)
+#                 except Exception as e:
+#                     print("[ERROR] : Unable to reload home page. Program will exit.")
+#                     sys.exit(1)
         
                     
           
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event    
-    def delete_drafts(self):
-        '''
-        This function remove drafts as it perturbs the answering email function
-        '''
-        try:
-            # Check if there are drafts
-            n_drafts = self.driver.find_element(By.XPATH, "//*[@id=\"folderPaneDroppableContainer\"]/div/div[3]/div/div/div[3]/div/span[2]/span/span[1]").text
-            n_drafts = int(n_drafts)
-            print(f"[INFO] : There is(are) : {n_drafts} draft(s).")
+#     @Session.time_limited_execution
+#     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+#     @Session.log_event    
+#     def delete_drafts(self):
+#         '''
+#         This function remove drafts as it perturbs the answering email function
+#         '''
+#         try:
+#             # Check if there are drafts
+#             n_drafts = self.driver.find_element(By.XPATH, "//*[@id=\"folderPaneDroppableContainer\"]/div/div[3]/div/div/div[3]/div/span[2]/span/span[1]").text
+#             n_drafts = int(n_drafts)
+#             print(f"[INFO] : There is(are) : {n_drafts} draft(s).")
 
-        except Exception as e:
-            print(f"[INFO] : There is no drafts")
-            return
-        try:
-            # Click on folder Drafts
-            self.pause()
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[3]/div/div/div[2]/div/span")))
-            self.driver.find_element(By.XPATH, "//div[3]/div/div/div[3]/div/span").click()
-            print(f"[DEBUG] : Clicked on folder Draft")
-            self.pause()
+#         except Exception as e:
+#             print(f"[INFO] : There is no drafts")
+#             return
+#         try:
+#             # Click on folder Drafts
+#             self.pause()
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[3]/div/div/div[2]/div/span")))
+#             self.driver.find_element(By.XPATH, "//div[3]/div/div/div[3]/div/span").click()
+#             print(f"[DEBUG] : Clicked on folder Draft")
+#             self.pause()
 
-            # Click on Empty Folder
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "(//button[@type='button'])[24]")))
-            self.driver.find_element(By.XPATH, "(//button[@type='button'])[24]").click()
-            print(f"[DEBUG] : Clicked on empty folder")
-            self.pause()
+#             # Click on Empty Folder
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "(//button[@type='button'])[24]")))
+#             self.driver.find_element(By.XPATH, "(//button[@type='button'])[24]").click()
+#             print(f"[DEBUG] : Clicked on empty folder")
+#             self.pause()
 
-            # Click on Confirm
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/span/button/span/span/span")))
-            self.driver.find_element(By.XPATH, "//div[2]/div/span/button/span/span/span").click()
-            print(f"[DEBUG] : Clicked on Confirmed")
-            self.pause()
+#             # Click on Confirm
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/span/button/span/span/span")))
+#             self.driver.find_element(By.XPATH, "//div[2]/div/span/button/span/span/span").click()
+#             print(f"[DEBUG] : Clicked on Confirmed")
+#             self.pause()
 
-            # Come back to home page (So that it takes effect)
-            self.home_page(force=True)
-            print("[INFO] : Drafts deleted.")
-            self.pause()
+#             # Come back to home page (So that it takes effect)
+#             self.home_page(force=True)
+#             print("[INFO] : Drafts deleted.")
+#             self.pause()
             
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
+#         except Exception as e:
+#             self.home_page(force=True)
+#             raise e
     
 
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    def get_sender_address(self):
-        '''
-        Retrieves the sender's address of the first mail
-        '''
-        try:
-            # Get the sender address
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div[2]/div[2]/div/div/span")))
-            sender = self.driver.find_element(By.XPATH, "//div[2]/div[2]/div/div/span").get_attribute("title")
-            print("[DEBUG] : Looked in the First Span for the sendor address")
-            self.pause()
+#     @Session.time_limited_execution
+#     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+#     def get_sender_address(self):
+#         '''
+#         Retrieves the sender's address of the first mail
+#         '''
+#         try:
+#             # Get the sender address
+#             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div[2]/div[2]/div/div/span")))
+#             sender = self.driver.find_element(By.XPATH, "//div[2]/div[2]/div/div/span").get_attribute("title")
+#             print("[DEBUG] : Looked in the First Span for the sendor address")
+#             self.pause()
 
-            # If the sender is not found in the first span, check the second span (this is because "brouillon" tag appears)
-            if sender is None or sender == "":
-                print("[DEBUG] : Look in the second Span (Likely because of Brouillon)")
-                sender = self.driver.find_element(By.XPATH, "//div[2]/div/div/div/div/div[2]/div[2]/div/div/span[2]").get_attribute("title")
-                print("[DEBUG] : Found in second Span")
-                self.pause()
+#             # If the sender is not found in the first span, check the second span (this is because "brouillon" tag appears)
+#             if sender is None or sender == "":
+#                 print("[DEBUG] : Look in the second Span (Likely because of Brouillon)")
+#                 sender = self.driver.find_element(By.XPATH, "//div[2]/div/div/div/div/div[2]/div[2]/div/div/span[2]").get_attribute("title")
+#                 print("[DEBUG] : Found in second Span")
+#                 self.pause()
                 
 
-            print("[INFO] : Sender = {}.".format(sender))
-            return sender
+#             print("[INFO] : Sender = {}.".format(sender))
+#             return sender
         
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            raise e
+#         except Exception as e:
+#             self.home_page(force=True)
+#             self.filter()
+#             raise e
         
 
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    def get_subject(self):
-        '''
-        Returns the subject of an opened mail
-        '''
-        try:
-            element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//*[@id='ConversationReadingPaneContainer']/div/div/div[1]/div/div/div/div/div/div/div/div/span[1]")))
-            print(f"[INFO] : Found the email subject : {element.text}.")
-            self.pause()
-            return element.text
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            self.read_first()
-            raise e
+#     @Session.time_limited_execution
+#     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+#     def get_subject(self):
+#         '''
+#         Returns the subject of an opened mail
+#         '''
+#         try:
+#             element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//*[@id='ConversationReadingPaneContainer']/div/div/div[1]/div/div/div/div/div/div/div/div/span[1]")))
+#             print(f"[INFO] : Found the email subject : {element.text}.")
+#             self.pause()
+#             return element.text
+#         except Exception as e:
+#             self.home_page(force=True)
+#             self.filter()
+#             self.read_first()
+#             raise e
             
     
     
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event
-    def read_first(self):
-        '''
-        Opens the the first mail in the list
-        '''
-        try:
+#     @Session.time_limited_execution
+#     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+#     @Session.log_event
+#     def read_first(self):
+#         '''
+#         Opens the the first mail in the list
+#         '''
+#         try:
             
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[3]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div/div/div[2]")))
-            self.driver.find_element(By.XPATH, "//div[3]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div/div/div[2]").click()
-            self.stats["read_mails"] += 1
-            print("[INFO] : Read first email.")
-            self.pause(5)
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[3]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div/div/div[2]")))
+#             self.driver.find_element(By.XPATH, "//div[3]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div/div/div[2]").click()
+#             self.stats["read_mails"] += 1
+#             print("[INFO] : Read first email.")
+#             self.pause(5)
         
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            raise e    
+#         except Exception as e:
+#             self.home_page(force=True)
+#             self.filter()
+#             raise e    
     
     
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event
-    def delete_first(self):
-        '''
-        delete the first mail in the list
-        '''
-        try:
-            # Put mouse on banner to make delete icon appear
-            element = self.driver.find_element(By.XPATH, "//div/div/div/div/div/div[2]/div/div/div[@draggable='true']")
-            actions = ActionChains(self.driver)
-            actions.move_to_element(element).perform()
-            print("[DEBUG] : Moved Mouse on First Mail")
-            self.pause()
+#     @Session.time_limited_execution
+#     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+#     @Session.log_event
+#     def delete_first(self):
+#         '''
+#         delete the first mail in the list
+#         '''
+#         try:
+#             # Put mouse on banner to make delete icon appear
+#             element = self.driver.find_element(By.XPATH, "//div/div/div/div/div/div[2]/div/div/div[@draggable='true']")
+#             actions = ActionChains(self.driver)
+#             actions.move_to_element(element).perform()
+#             print("[DEBUG] : Moved Mouse on First Mail")
+#             self.pause()
 
-            # Click on delete icon
-            self.driver.find_element(By.XPATH, "//div/div/div/div/div/div[2]/div/div/div/div/div[3]/div").click()
-            self.stats["deleted_mails"] += 1
-            print("[INFO] : Deleted the first email.")
-            self.pause()
+#             # Click on delete icon
+#             self.driver.find_element(By.XPATH, "//div/div/div/div/div/div[2]/div/div/div/div/div[3]/div").click()
+#             self.stats["deleted_mails"] += 1
+#             print("[INFO] : Deleted the first email.")
+#             self.pause()
         
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            self.read_first()
-            raise e  
+#         except Exception as e:
+#             self.home_page(force=True)
+#             self.filter()
+#             self.read_first()
+#             raise e  
 
     
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event
-    def reply(self, answer):
-        '''
-        Answer to an opened email
-        '''
-        try:
-            # Click on reply
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".Yk9K4 .Q0K3G")))
-            self.driver.find_element(By.CSS_SELECTOR, ".Yk9K4 .Q0K3G").click()
-            print("[DEBUG] : Clicked on reply")
-            self.pause()
+#     @Session.time_limited_execution
+#     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+#     @Session.log_event
+#     def reply(self, answer):
+#         '''
+#         Answer to an opened email
+#         '''
+#         try:
+#             # Click on reply
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".Yk9K4 .Q0K3G")))
+#             self.driver.find_element(By.CSS_SELECTOR, ".Yk9K4 .Q0K3G").click()
+#             print("[DEBUG] : Clicked on reply")
+#             self.pause()
 
-            # Write answer in the editor
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div[2]/div/div/div[4]/div/div/div")))
-            element = self.driver.find_element(By.XPATH, "//div[2]/div/div/div[4]/div/div/div")
-            self.driver.execute_script("if(arguments[0].contentEditable === 'true') {arguments[0].innerText = arguments[1]}", element, answer)
-            print("[DEBUG] : Edited Editor Content")
-            self.pause()
+#             # Write answer in the editor
+#             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div[2]/div/div/div[4]/div/div/div")))
+#             element = self.driver.find_element(By.XPATH, "//div[2]/div/div/div[4]/div/div/div")
+#             self.driver.execute_script("if(arguments[0].contentEditable === 'true') {arguments[0].innerText = arguments[1]}", element, answer)
+#             print("[DEBUG] : Edited Editor Content")
+#             self.pause()
                 
-            # Click the send button
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[@title='Send (Ctrl+Enter)']"))).click()
-            print("[DEBUG] : Clicked the send button")
-            self.pause()
+#             # Click the send button
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[@title='Send (Ctrl+Enter)']"))).click()
+#             print("[DEBUG] : Clicked the send button")
+#             self.pause()
 
-            # Mark as read
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div[3]/div/button/span/i/span/i")))
-            self.driver.find_element(By.XPATH, "//div[2]/div/div/div[3]/div/button/span/i/span/i").click()
-            print("[DEBUG] : Clicked the ... button")
-            self.pause()
+#             # Mark as read
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div[3]/div/button/span/i/span/i")))
+#             self.driver.find_element(By.XPATH, "//div[2]/div/div/div[3]/div/button/span/i/span/i").click()
+#             print("[DEBUG] : Clicked the ... button")
+#             self.pause()
 
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//li[6]/button/div/span")))
-            self.driver.find_element(By.XPATH, "//li[6]/button/div/span").click()
-            print("[DEBUG] : Clicked the mark_as_read button")
+#             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//li[6]/button/div/span")))
+#             self.driver.find_element(By.XPATH, "//li[6]/button/div/span").click()
+#             print("[DEBUG] : Clicked the mark_as_read button")
             
-            self.stats["answered_mails"] += 1
-            print("[INFO] : Response sent.")
-            self.pause()
+#             self.stats["answered_mails"] += 1
+#             print("[INFO] : Response sent.")
+#             self.pause()
             
             
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            self.read_first()
-            raise e    
+#         except Exception as e:
+#             self.home_page(force=True)
+#             self.filter()
+#             self.read_first()
+#             raise e    
 
 # ===================================================================================================================================
 # =============== Gmail Session =====================================================================================================        

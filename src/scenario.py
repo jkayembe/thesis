@@ -9,8 +9,9 @@ import csv
 
 # local import
 from constants import *
-from sessions import OutlookSession, GmailSession
+from sessions import GmailSession
 from protonSession import ProtonSession
+from outlookSession import OutlookSession
 import utils
 from utils import (
     select_evenly_spaced_moments,

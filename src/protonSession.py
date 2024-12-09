@@ -107,37 +107,38 @@ class ProtonSession(Session):
     @Session.log_event
     def send_mail(self, to, mail_object, mail_body, attached_file_size=0):
         '''
-        Composer et envoyer un email avec un destinataire, un objet et un contenu spécifiés.
+        Compose and send an email with a specified recipient, subject, and content.
         '''
         try:
-            # Cliquer sur le bouton de rédaction
+            # Click on the compose button
             self.click(COMPOSE_BUTTON)
         
-            # Saisir le destinataire
+            # Enter the recipient
             self.type_and_enter(RECIPIENT_FIELD, to)
 
-            # Saisir l'objet du mail
+            # Enter the subject of the email
             self.type(SUBJECT_FIELD, mail_object)
             
-            # Changer de contexte vers le cadre de contenu du mail
+            # Switch context to the email content iframe
             self.driver.switch_to.frame(0)
             
-            # Saisir le contenu du mail
+            # Enter the content of the email
             self.type(EMAIL_BODY_IFRAME, mail_body)
             
-            # Revenir au contexte par défaut
+            # Return to the default context
             self.driver.switch_to.default_content()
             self.pause()
 
-            # Attacher un fichier si nécessaire
+            # Attach a file if necessary
             if attached_file_size:
                 script_dir = os.path.dirname(os.path.abspath(__file__))
                 relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
                 attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
                 self.type(ATTACH_FILE_INPUT, attached_file_path)
-                self.pause(2 * attached_file_size)
+                # Wait for file to download
+                self.pause(TIME_PER_MB * attached_file_size)
             
-            # Cliquer sur le bouton d'envoi
+            # Click on the send button
             self.click(SEND_BUTTON)
             
             self.stats["sent_mails"][attached_file_size] += 1
@@ -148,28 +149,31 @@ class ProtonSession(Session):
             raise e
 
 
+
+
     @Session.time_limited_execution
     @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
     @Session.log_event
     def filter(self):
         '''
-        Afficher uniquement les emails non lus
+        Display only unread emails.
         '''
         try:
-            # Rafraîchir la boîte de réception
+            # Refresh the inbox
             self.click(REFRESH_BUTTON)
             print("[INFO] : Mailbox refreshed")
             
-            # Cliquer sur le bouton de filtre
+            # Click on the filter button
             self.click(FILTER_BUTTON)
             
-            # Sélectionner l'option "non lus"
+            # Select the "unread" option
             self.click(UNREAD_FILTER_OPTION)
             print("[INFO] : Emails filtered. Showing unread emails only.")
 
         except Exception as e:
             self.home_page(force=True)
             raise e
+
     
     
     @Session.time_limited_execution
@@ -231,7 +235,7 @@ class ProtonSession(Session):
         Retrieves the subject of the currently opened email.
         '''
         try:
-            subject = WebDriverWait(self.driver, WAITING_LIMIT).until(
+            subject = WebDriverWait(self.driver, WAIT_LIMIT).until(
                 EC.visibility_of_element_located(FIRST_EMAIL_SUBJECT)
             ).text
             print(f"[INFO] : Found subject = {subject}")
@@ -297,17 +301,16 @@ class ProtonSession(Session):
 
             # Switch to the reply iframe
             self.driver.switch_to.frame(1)
-            reply_frame = WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located(EMAIL_REPLY_IFRAME)
-            )
             print("[DEBUG] : Switched to reply iframe.")
 
-
+            # Type answer
             self.type(EMAIL_REPLY_IFRAME, answer)
             print("[DEBUG] : Email response set.")
 
-            # Switch back and send the reply
+            # Switch back to main iframe
             self.driver.switch_to.default_content()
+
+            # Send the reply
             self.click(SEND_BUTTON_REPLY)
             print("[DEBUG] : Clicked the Send button.")
 
