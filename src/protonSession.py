@@ -114,7 +114,7 @@ class ProtonSession(Session):
             self.click(COMPOSE_BUTTON)
         
             # Enter the recipient
-            self.type_and_enter(RECIPIENT_FIELD, to)
+            self.type(RECIPIENT_FIELD, to, hit_enter=True)
 
             # Enter the subject of the email
             self.type(SUBJECT_FIELD, mail_object)
@@ -134,7 +134,7 @@ class ProtonSession(Session):
                 script_dir = os.path.dirname(os.path.abspath(__file__))
                 relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
                 attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
-                self.type(ATTACH_FILE_INPUT, attached_file_path)
+                self.file_input(ATTACH_FILE_INPUT, attached_file_path)
                 # Wait for file to download
                 self.pause(TIME_PER_MB * attached_file_size)
             

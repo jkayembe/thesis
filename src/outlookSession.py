@@ -13,7 +13,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
 # ==============================================================================================================
-# =============== Outlook Session ==================================================================================
+# =============== Outlook Session ==============================================================================
 # ==============================================================================================================
 
 # Constants for URLs
@@ -35,7 +35,7 @@ COMPOSE_BUTTON = (By.XPATH, "//span/button/span/span/span")
 RECIPIENT_FIELD = (By.CSS_SELECTOR, ".\\___1mtnehv")
 SUBJECT_FIELD = (By.XPATH, "//div/div[3]/div[2]/span/input")
 EMAIL_BODY = (By.XPATH, '//*[@id="editorParent_1"]/div')
-ATTACH_FILE_INPUT = (By.XPATH, "//*[@id=\"mainApp\"]/div[2]/div[1]/input[2]")
+ATTACH_FILE_INPUT = (By.XPATH, "//input[@data-testid='local-computer-filein'][2]")
 SEND_A_COPY_BUTTON = (By.XPATH, "//div[5]/button/div/i")
 SEND_BUTTON = (By.XPATH, "//button[@title='Send (Ctrl+Enter)']")
 
@@ -93,6 +93,7 @@ class OutlookSession(Session):
             self.click(DECLINE_BUTTON)
             # Wait for the page to load
             self.wait_page_loaded(LOGGED_IN_URL)
+            self.wait_for_visual_readiness()
             print("[INFO] : Logged in.")
 
         except Exception as e:
@@ -114,6 +115,7 @@ class OutlookSession(Session):
             self.click(LOGOUT_BUTTON)
             # Wait until disconnected
             self.wait_page_loaded(LOGGED_OUT_URL)
+            self.wait_for_visual_readiness()
             print("[INFO] : Logged out.")
         except Exception as e:
             self.home_page(force=True)
@@ -132,7 +134,7 @@ class OutlookSession(Session):
             # Click to start composing an email
             self.click(COMPOSE_BUTTON)
             # Input the recipient address
-            self.type_and_enter(RECIPIENT_FIELD, to)
+            self.type(RECIPIENT_FIELD, to, hit_enter=True)
             # Type the subject
             self.type(SUBJECT_FIELD, subject)
             # Input the mail body
@@ -142,7 +144,7 @@ class OutlookSession(Session):
                 script_dir = os.path.dirname(os.path.abspath(__file__))
                 relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
                 attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
-                self.type(ATTACH_FILE_INPUT, attached_file_path)
+                self.file_input(ATTACH_FILE_INPUT, attached_file_path)
                 try : 
                     # Click on send a copy
                     self.click(SEND_A_COPY_BUTTON)            
