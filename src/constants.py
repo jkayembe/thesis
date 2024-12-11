@@ -26,8 +26,9 @@ BROWSERS = [CHROME,]
 MAX_ATTEMPTS = 2            # Determines how many times the sessions functions are attempted (in case of failure)
 DELAY = 1                   # Seconds between each attempts
 WAIT_LIMIT = 10             # Max time for Selenium to find an html element :
-MAX_PAGE_LOAD_TIME = 6     # Max time for a webpage to load
+MAX_PAGE_LOAD_TIME = 1      # Max time for a webpage to load
 TIME_PER_MB = 2             # Seconds to wait for 1MB of attached file to be uploaded
+READING_TIME = 5            # Seconds to read a mail
 
 # Determine interval between each action: lower value to fasten the session
 TIME_BETWEEN_ACTIONS = 2

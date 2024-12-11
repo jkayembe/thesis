@@ -9,7 +9,7 @@ import csv
 
 # local import
 from constants import *
-from sessions import GmailSession
+from gmailSession import GmailSession
 from protonSession import ProtonSession
 from outlookSession import OutlookSession
 import utils

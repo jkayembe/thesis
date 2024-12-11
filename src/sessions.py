@@ -74,7 +74,7 @@ class WebDriver():
 
 
                 if adblock: print("[INFO]: AdBlock extension is loaded.")
-                print(f"[INFO]: {"Limited" if untracked else "Allowed"} tracking profile loaded.")
+                print(f"[INFO] : {"Limited" if untracked else "Allowed"} tracking profile loaded.")
                
         # set Window Size
         self.driver.set_window_size(width=1296, height=736)
@@ -119,7 +119,7 @@ class Session:
         '''
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs):
-            # We deactivate this function when measurement are performed since mounted volumes (in containers used by GMT) are read only.
+            # We deactivate this function when measurements are performed since mounted volumes (in containers used by GMT) are read only.
             if not IS_MEASURED :
 
                 output = func(self, *args, **kwargs)
@@ -143,16 +143,25 @@ class Session:
             
         return wrapper
                 
-    def retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY):
+    def retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY, *prerequisite_actions):
         '''
-        This decorator allows to retry functions that fail
+        This decorator allows to retry functions that fail. prerequisite_actions
+        is a list of actions to perform before retrying (under the form lambda self : self.action(*args))
         '''
         def wrapper_maker(func):
+
             @functools.wraps(func)
             def wrapper(self, *args, **kwargs):
                 for attempt in range(max_attempts):
                     try:
+                        # Perform prerequisite actions if needed
+                        if attempt > 0:
+                            for action in prerequisite_actions:
+                                action(self)
+                                
+                        # Run function
                         return func(self, *args, **kwargs)
+                    
                     except Exception as e:
                         msg = e.msg if isinstance(e, TimeoutException) else str(e)
                         print(f"[ERROR] : Function {func.__name__} : Attempt {attempt + 1}/{max_attempts} failed : {msg}")
@@ -160,6 +169,7 @@ class Session:
                             time.sleep(delay)
                 raise RuntimeError(f"[ERROR] : Failed to execute {func.__name__} after {max_attempts} attempts.")
             return wrapper
+        
         return wrapper_maker
 
     def time_limited_execution(func):
@@ -172,7 +182,7 @@ class Session:
             remains = self.start + self.time_limit - now
             try:
                 if remains > 0:
-                    print("[INFO] : {} Seconds left".format(round(remains)))
+                    print("[INFO] : {} Seconds left. Executing {}".format(round(remains), func.__name__))
                     return func(self, *args, **kwargs)
                 else:
                     print(f"[TIMEOUT] : Won't execute {func.__name__}.")
@@ -214,18 +224,31 @@ class Session:
         Use the selector (selector type, target) to type in an input html element
         """
         target = self.find(selector)
+        target.clear()
         for char in input:
             target.send_keys(char)
         if hit_enter:
             target.send_keys(Keys.ENTER)
 
     def file_input(self, selector, absolute_data_path):
+        count = 3
+        while count > 0:
+            print(count)
+            count = count - 1
+            self.pause(1)
+
+        raise TimeoutException
         input_target = WebDriverWait(self.driver, WAIT_LIMIT).until(
             EC.presence_of_element_located(selector),
             f"Couldn't find file_input HTML element using selector '{selector[1]}' after {WAIT_LIMIT} seconds"
             )
         input_target.send_keys(absolute_data_path)
     
+    def move_mouse_to(self, selector):
+        target = self.find(selector)
+        actions = ActionChains(self.driver)
+        actions.move_to_element(target).perform()
+        self.pause(1)
 
     def wait_page_loaded(self, url_to_be_loaded=None):
         """
@@ -234,7 +257,7 @@ class Session:
         the page is fully loaded,
         the page is ready: meaning the layout is stable, and ready for user interaction..
         """
-
+        
         start = time.time()
         wait_limit = MAX_PAGE_LOAD_TIME
 
@@ -269,397 +292,3 @@ class Session:
                 """),
                 f"There are still ongoing layout shifts after {MAX_PAGE_LOAD_TIME}s."
         )
-
-
-# ===================================================================================================================================
-# =============== Gmail Session =====================================================================================================        
-# ===================================================================================================================================
-
-
-class GmailSession(Session):
-    
-
-    def __init__(self, user_address, user_psw, browser_name, adblock, untracked, time_limit=TIME_LIMIT):
-        super().__init__(user_address, user_psw, browser_name, adblock, untracked, time_limit)
-
-    
-    
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event
-    def login(self):
-        '''
-        Log in to the Gmail user account
-        '''
-        try:
-            # Open the Gmail login page
-            self.driver.get(GMAIL_URL)
-            self.pause()
-
-            # Enter user email
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, "identifierId")))
-            self.driver.find_element(By.ID, "identifierId").send_keys(self.user_address)
-            self.pause()
-
-            # Click on the next button
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".VfPpkd-LgbsSe-OWXEXe-k8QpJ > .VfPpkd-vQzf8d")))
-            self.driver.find_element(By.CSS_SELECTOR, ".VfPpkd-LgbsSe-OWXEXe-k8QpJ > .VfPpkd-vQzf8d").click()
-            self.pause()
-
-            # Enter user password
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.NAME, "Passwd")))
-            self.driver.find_element(By.NAME, "Passwd").click()
-            self.driver.find_element(By.NAME, "Passwd").send_keys(self.psw)
-            self.driver.find_element(By.NAME, "Passwd").send_keys(Keys.ENTER)
-            self.pause()
-
-            print("[INFO] : Logged in.")
-
-            # Wait for the page to load
-            self.pause(10)
-            
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
-            
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event
-    def logout(self):
-        '''
-        Logout of the connected account
-        '''
-        try:
-            # Click on the user logo
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//header/div[2]/div[3]/div[1]/div[2]/div/a"))).click()
-            self.pause()
-
-            # Click on the logout link
-            self.driver.switch_to.frame(2)
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[contains(.,\'Sign out\')]")))
-            self.driver.find_element(By.XPATH, "//a[contains(.,\'Sign out\')]").click()
-            self.pause()
-
-            print("[INFO] : Logged out.")
-        
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
-        
-   
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event      
-    def send_mail(self, to, subject, content, attached_file_size):
-        '''
-        Send a mail to the specified recipient with the given subject and content
-        '''
-        try:
-
-            # Click to start composing an email
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".T-I-KE")))
-            self.driver.find_element(By.CSS_SELECTOR, ".T-I-KE").click()
-            self.pause()
-            
-            # Move mouse out of left pane
-            element = self.driver.find_element(By.CSS_SELECTOR, "body")
-            actions = ActionChains(self.driver)
-            actions.move_to_element(element).perform()
-        
-            # Input the recipient address
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div/div/input")))
-            self.driver.find_element(By.XPATH, "//div/div/input").send_keys(to)
-            self.pause()
-        
-            # Type the subject
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[3]/input")))
-            self.driver.find_element(By.XPATH, "//div[3]/input").send_keys(subject)
-            self.pause()
-        
-            # Input the mail body
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//td[2]/div[2]/div/div")))
-            mail_body_element = self.driver.find_element(By.XPATH, "//td[2]/div[2]/div/div")
-            self.driver.execute_script("arguments[0].innerText = arguments[1]", mail_body_element, content)
-            self.pause()
-
-            # Attach a file
-            if attached_file_size:
-                script_dir = os.path.dirname(os.path.abspath(__file__))
-                relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
-                attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
-                self.driver.find_element(By.NAME, "Filedata").send_keys(attached_file_path)
-                self.pause(2*attached_file_size)
-        
-            # Click the send button
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[4]/table/tbody/tr/td/div/div[2]/div")))
-            self.driver.find_element(By.XPATH, "//div[4]/table/tbody/tr/td/div/div[2]/div").click()
-            self.pause()
-            self.pause()
-            self.pause()
-
-            self.stats["sent_mails"][attached_file_size] += 1
-            print("[INFO] : Mail Sent.")
-            
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
-        
-    
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event  
-    def filter(self):
-        '''
-        Show only unread emails
-        '''
-        try:    
-            # Wait for the search bar to be clickable
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.NAME, "q")))
-    
-            # Find the search bar element
-            search_bar = self.driver.find_element(By.NAME, "q")
-    
-            # Clear any existing text in the search bar
-            search_bar.clear()
-    
-            # Type the filter criteria (inbox + unread) and press Enter
-            search_bar.send_keys("is:unread in:inbox")
-            search_bar.send_keys(Keys.ENTER)
-            
-            self.pause()
-            self.pause()
-            self.pause()
-            print("[INFO] : Filtered emails, showing unread only.")
-        
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
-   
-    
-
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event
-    def home_page(self, force=False):
-        '''
-        This function clicks on the homepage link (i.e. : mailbox)
-        If force is enable or if it fails then tries to refresh the page with the "Outlook" link
-        '''
-        # Wait for 1 seconds then refresh
-        if force:
-            self.pause()
-            self.driver.get("https://mail.google.com/mail/u/0/#inbox")
-            try:
-                WebDriverWait(self.driver, 10).until(EC.alert_is_present(),'Timed out waiting for popup to appear.')
-                alert = self.driver.switch_to.alert
-                alert.accept()
-                self.stats["refresh"] += 1
-                print("[DEBUG] : Alert accepted")
-                self.pause()
-
-            except TimeoutException:
-                temp = "no alert"
-            
-            print("[DEBUG] : Forced Refresh")
-        else:
-            try:
-                # Click on inbox
-                WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div/div/div/div/div/div/div[2]"))).click()
-                self.pause()
-                
-                # Move mouse out of left pane
-                element = self.driver.find_element(By.CSS_SELECTOR, "body")
-                actions = ActionChains(self.driver)
-                actions.move_to_element(element).perform()
-
-                self.stats["refresh"] += 1
-
-            except Exception as e:
-                print(f"[ERROR] : An error occurred while clicking 'mailbox' link. Trying to force refreshing to homepage")
-                try:
-                    self.home_page(force=True)
-                except Exception as e:
-                    print("[ERROR] : Unable to reload home page. Program will exit.")
-                    sys.exit(1)
-        
-                    
-          
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event    
-    def delete_drafts(self):
-        '''
-        This function removes drafts as it perturbs the reply function
-        '''
-        try:
-
-            # Click on folder Drafts
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[5]/div/div/div")))
-            self.driver.find_element(By.XPATH, "//div[5]/div/div/div").click()
-            print(f"[DEBUG] : Clicked on folder Draft")
-            
-            # Move mouse out of left pane
-            element = self.driver.find_element(By.CSS_SELECTOR, "body")
-            actions = ActionChains(self.driver)
-            actions.move_to_element(element).perform()
-            
-            # Click on Select All
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div[2]/div/div/div/div/div/div/span")))
-            self.driver.find_element(By.XPATH, "//div[2]/div[2]/div/div/div/div/div/div/span").click()
-            print(f"[DEBUG] : Clicked on select All")
-
-            try:
-                # Click on Delete
-                WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div/div[2]/div/div")))
-                self.driver.find_element(By.XPATH, "//div[2]/div/div/div/div[2]/div/div").click()
-                print(f"[DEBUG] : Clicked on Delete")
-                self.pause()
-                self.pause()
-                self.pause()
-                self.pause()
-                self.pause()
-                
-            except Exception as e:
-                print(f"[INFO] : There is no draft")
-                self.home_page(force=True)
-                return
-
-            # Come back to home page (So that it takes effect)
-            self.home_page(force=True)
-            print("[INFO] : Drafts deleted.")
-            
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
-    
-
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    def get_sender_address(self):
-        '''
-        Retrieves the sender's address the first mail in the list
-        '''
-        try:
-            # Get the sender address
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div[6]/div/div/table/tbody/tr/td[5]/div[2]/span/span")))
-            sender = self.driver.find_element(By.XPATH, "//div[6]/div/div/table/tbody/tr/td[5]/div[2]/span/span").get_attribute("email")
-            print("[DEBUG] : Got the address of the sender")
-            self.pause()
-
-            # If the sender the user_address check the second span (this is because it's a reply to a mail that we sent)
-            if sender == self.user_address:
-                print("[DEBUG] : Look in the second Span. Address found is the user's")
-                sender = self.driver.find_element(By.XPATH, "//div[6]/div/div/table/tbody/tr/td[5]/div[2]/span/span[3]").get_attribute("email")
-                print("[DEBUG] : Found in second Span")
-                self.pause()
-                
-
-            print("[INFO] : Sender = {}.".format(sender))
-            return sender
-        
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            raise e
-        
-
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    def get_subject(self):
-        '''
-        Returns the subject of an opened mail
-        '''
-        try:
-            element = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div[2]/div/div/div[2]/div/h2")))
-            print(f"[INFO] : Found the email subject : {element.text}.")
-            self.pause()
-            return element.text
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            self.read_first()
-            raise e
-            
-    
-    
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event
-    def read_first(self):
-        '''
-        Opens the the first mail in the list
-        '''
-        try:
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[6]/div/div/table/tbody/tr")))
-            self.driver.find_element(By.XPATH, "//div[6]/div/div/table/tbody/tr").click()
-            self.stats["read_mails"] += 1
-            print("[INFO] : Read first email.")
-            self.pause(5)
-        
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            raise e    
-    
-    
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event
-    def delete_first(self):
-        '''
-        delete an opened mail
-        '''
-        try:
-
-            # Click on delete icon
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div[2]/div[3]/div"))).click()
-            self.stats["deleted_mails"] += 1
-            print("[INFO] : Deleted the first email.")
-            self.pause()
-            self.pause()
-        
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            self.read_first()
-            raise e
-
-    
-    @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
-    @Session.log_event
-    def reply(self, answer):
-        '''
-        Answer to an opened email
-        '''
-        try:
-            # Click on reply
-            WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[2]/div/div/div/table/tbody/tr/td[2]/div/div/span")))
-            self.driver.find_element(By.XPATH, "//div[2]/div/div/div/table/tbody/tr/td[2]/div/div/span").click()
-            print("[DEBUG] : Clicked on reply")
-            self.pause()
-
-            # Write answer in the editor
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//div[3]/div/table/tbody/tr/td[2]/div[2]/div/div")))
-            element = self.driver.find_element(By.XPATH, "//div[3]/div/table/tbody/tr/td[2]/div[2]/div/div")
-            self.driver.execute_script("if(arguments[0].contentEditable === 'true') {arguments[0].innerText = arguments[1]}", element, answer)
-            print("[DEBUG] : Edited Editor Content")
-            self.pause()
-                
-            # Click the send button
-            self.driver.find_element(By.XPATH, "//div[4]/table/tbody/tr/td/div/div[2]/div").click()
-            print("[DEBUG] : Clicked the send button")
-            self.pause()
-            self.pause()
-
-            # home page
-            self.home_page()
-            
-            self.stats["answered_mails"] += 1
-            print("[INFO] : Response sent.")
-            self.pause()
-            
-            
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            self.read_first()
-            raise e

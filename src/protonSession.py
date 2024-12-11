@@ -1,7 +1,6 @@
 # Local imports
 
 from sessions import *
-from constants import *
 
 
 # =====================================================================================
@@ -45,125 +44,101 @@ class ProtonSession(Session):
         super().__init__(user_address, user_psw, browser_name, adblock, untracked, time_limit)
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True))
     @Session.log_event
     def login(self):
         '''
         Log in to the mail provider website
         '''
-        try:
-            # Open the login page
-            self.driver.get(PROTON_URL)
+        # Open the login page
+        self.driver.get(PROTON_URL)
+        # Enter username
+        self.type(USERNAME_INPUT, self.user_address)
+        # Enter password
+        self.type(PASSWORD_INPUT, self.psw)
+        # Click on the login button
+        self.click(LOGIN_BUTTON)
+        # Wait for the page to load
+        self.wait_page_loaded(LOGGED_IN_URL)
+        print("[INFO] : Logged in")
 
-            # Enter username
-            self.type(USERNAME_INPUT, self.user_address)
-
-            # Enter password
-            self.type(PASSWORD_INPUT, self.psw)
-
-            # Click on the login button
-            self.click(LOGIN_BUTTON)
-
-            # Wait for the page to load
-            self.wait_page_loaded(LOGGED_IN_URL)
-            print("[INFO] : Logged in")
-
-        except Exception as e:
-            raise e
-
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True))
     @Session.log_event
     def logout(self):
         '''
         This function logs out of the proton website
         '''
-        try:
-            # Click on user avatar
-            self.click(USER_AVATAR)
-
-            # Click on logout button
-            self.click(LOGOUT_BUTTON)
-
-            # Wait for the page to load
-            self.wait_page_loaded(LOGGED_OUT_URL)
-            print("[INFO] : Logged out")
-
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
+        # Click on user avatar
+        self.click(USER_AVATAR)
+        # Click on logout button
+        self.click(LOGOUT_BUTTON)
+        # Wait for the page to load
+        self.wait_page_loaded(LOGGED_OUT_URL)
+        print("[INFO] : Logged out")
         
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True))
     @Session.log_event
     def send_mail(self, to, mail_object, mail_body, attached_file_size=0):
         '''
         Compose and send an email with a specified recipient, subject, and content.
         '''
-        try:
-            # Click on the compose button
-            self.click(COMPOSE_BUTTON)
+
+        # Click on the compose button
+        self.click(COMPOSE_BUTTON)
+        # Enter the recipient
+        self.type(RECIPIENT_FIELD, to, hit_enter=True)
+        # Enter the subject of the email
+        self.type(SUBJECT_FIELD, mail_object)
+        # Switch context to the email content iframe
+        self.driver.switch_to.frame(0)
+        # Enter the content of the email
+        self.type(EMAIL_BODY_IFRAME, mail_body)
+        # Return to the default context
+        self.driver.switch_to.default_content()
+
+        # Attach a file if necessary
+        if attached_file_size:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
+            attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
+            self.file_input(ATTACH_FILE_INPUT, attached_file_path)
+            # Wait for file to download
+            self.pause(TIME_PER_MB * attached_file_size)
         
-            # Enter the recipient
-            self.type(RECIPIENT_FIELD, to, hit_enter=True)
-
-            # Enter the subject of the email
-            self.type(SUBJECT_FIELD, mail_object)
-            
-            # Switch context to the email content iframe
-            self.driver.switch_to.frame(0)
-            
-            # Enter the content of the email
-            self.type(EMAIL_BODY_IFRAME, mail_body)
-            
-            # Return to the default context
-            self.driver.switch_to.default_content()
-            self.pause()
-
-            # Attach a file if necessary
-            if attached_file_size:
-                script_dir = os.path.dirname(os.path.abspath(__file__))
-                relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
-                attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
-                self.file_input(ATTACH_FILE_INPUT, attached_file_path)
-                # Wait for file to download
-                self.pause(TIME_PER_MB * attached_file_size)
-            
-            # Click on the send button
-            self.click(SEND_BUTTON)
-            
-            self.stats["sent_mails"][attached_file_size] += 1
-            print("[INFO] : Sent mail.")
-
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
-
+        # Click on the send button
+        self.click(SEND_BUTTON)
+        
+        self.stats["sent_mails"][attached_file_size] += 1
+        print("[INFO] : Sent mail.")
 
 
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True))
     @Session.log_event
     def filter(self):
         '''
         Display only unread emails.
         '''
-        try:
-            # Refresh the inbox
-            self.click(REFRESH_BUTTON)
-            print("[INFO] : Mailbox refreshed")
-            
-            # Click on the filter button
-            self.click(FILTER_BUTTON)
-            
-            # Select the "unread" option
-            self.click(UNREAD_FILTER_OPTION)
-            print("[INFO] : Emails filtered. Showing unread emails only.")
 
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
+        # Refresh the inbox
+        self.click(REFRESH_BUTTON)
+        # Click on the filter button
+        self.click(FILTER_BUTTON)
+        # Select the "unread" option
+        self.click(UNREAD_FILTER_OPTION)
+        print("[INFO] : Emails filtered. Showing unread emails only.")
+
 
     
     
@@ -200,117 +175,92 @@ class ProtonSession(Session):
 
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True),
+                              lambda self : self.filter())
     def get_sender_address(self):
         '''
         Retrieves the sender's email address from the first email in the list.
         '''
-        try:
-            sender = WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located(FIRST_EMAIL_ITEM)
-            ).get_attribute("title")
-            print(f"[INFO] : Sender's address= {sender}.")
-            return sender
-        
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            raise e
+        sender = self.find(FIRST_EMAIL_ITEM).get_attribute("title")
+        print(f"[INFO] : Sender's address= {sender}.")
+        return sender
+    
 
 
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True),
+                              lambda self : self.filter(),
+                              lambda self : self.read_first())
     def get_subject(self):
         '''
         Retrieves the subject of the currently opened email.
         '''
-        try:
-            subject = WebDriverWait(self.driver, WAIT_LIMIT).until(
-                EC.visibility_of_element_located(FIRST_EMAIL_SUBJECT)
-            ).text
-            print(f"[INFO] : Found subject = {subject}")
-            return subject
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            self.read_first()
-            raise e
+        subject = self.find(FIRST_EMAIL_SUBJECT).text
+        print(f"[INFO] : Found subject = {subject}")
+        return subject
 
 
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True),
+                              lambda self : self.filter())
     @Session.log_event
     def read_first(self):
         '''
         Opens the first email in the list.
         '''
-        try:
-            self.click(FIRST_EMAIL_ITEM)
-            print("[INFO] : Read first email.")
-            self.stats["read_mails"] += 1
-            self.pause(5)
-
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            raise e
+        self.click(FIRST_EMAIL_ITEM)
+        self.pause(READING_TIME)
+        print("[INFO] : Read first email.")
+        self.stats["read_mails"] += 1
+        
 
 
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True),
+                              lambda self : self.filter(),
+                              lambda self : self.read_first())
     @Session.log_event
     def delete_first(self):
         '''
         Deletes the first email in the list.
         '''
-        try:
-            self.click(DELETE_EMAIL_BUTTON)
-            print("[INFO] : Deleted the email.")
-            self.stats["deleted_mails"] += 1
-
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            self.read_first()
-            raise e
+        self.click(DELETE_EMAIL_BUTTON)
+        print("[INFO] : Deleted the email.")
+        self.stats["deleted_mails"] += 1
 
 
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True),
+                              lambda self : self.filter(),
+                              lambda self : self.read_first())
     @Session.log_event
     def reply(self, answer):
         '''
         Replies to an opened email.
         '''
-        try:
-            self.click(REPLY_BUTTON)
-            print("[DEBUG] : Clicked on Reply")
-
-            # Switch to the reply iframe
-            self.driver.switch_to.frame(1)
-            print("[DEBUG] : Switched to reply iframe.")
-
-            # Type answer
-            self.type(EMAIL_REPLY_IFRAME, answer)
-            print("[DEBUG] : Email response set.")
-
-            # Switch back to main iframe
-            self.driver.switch_to.default_content()
-
-            # Send the reply
-            self.click(SEND_BUTTON_REPLY)
-            print("[DEBUG] : Clicked the Send button.")
-
-
-            self.stats["answered_mails"] += 1
-            print("[INFO] : Reply sent.")
-
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            self.read_first()
-            raise e
+        self.click(REPLY_BUTTON)
+        # Switch to the reply iframe
+        self.driver.switch_to.frame(1)
+        # Type answer
+        self.type(EMAIL_REPLY_IFRAME, answer)
+        # Switch back to main iframe
+        self.driver.switch_to.default_content()
+        # Send the reply
+        self.click(SEND_BUTTON_REPLY)
+        
+        self.stats["answered_mails"] += 1
+        print("[INFO] : Reply sent.")

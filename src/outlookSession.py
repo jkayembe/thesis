@@ -1,7 +1,6 @@
 # Local imports
 
 from sessions import *
-from constants import *
 
 # ==============================================================================================================
 # =============== Outlook Session ==============================================================================
@@ -53,109 +52,102 @@ class OutlookSession(Session):
         super().__init__(user_address, user_psw, browser_name, adblock, untracked, time_limit)
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True))
     @Session.log_event
     def login(self):
         '''
         Log in to the Outlook user account.
         '''
-        try:
 
-            # Open the Outlook login page
-            self.driver.get(OUTLOOK_URL)
-            # Enter user email
-            self.type(USERNAME_INPUT, self.user_address)
-            # Click on the next button
-            self.click(NEXT_BUTTON)
-            # Enter user password
-            self.type(PASSWORD_INPUT, self.psw)
-            self.click(NEXT_BUTTON)
-            # Click on the decline button
-            self.click(DECLINE_BUTTON)
-            # Wait for the page to load
-            self.wait_page_loaded(LOGGED_IN_URL)
-            print("[INFO] : Logged in.")
+        # Open the Outlook login page
+        self.driver.get(OUTLOOK_URL)
+        # Enter user email
+        self.type(USERNAME_INPUT, self.user_address)
+        # Click on the next button
+        self.click(NEXT_BUTTON)
+        # Enter user password
+        self.type(PASSWORD_INPUT, self.psw)
+        self.click(NEXT_BUTTON)
+        # Click on the decline button
+        self.click(DECLINE_BUTTON)
+        # Wait for the page to load
+        self.wait_page_loaded(LOGGED_IN_URL)
+        print("[INFO] : Logged in.")
 
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
     
     
 
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True))
     @Session.log_event
     def logout(self):
         '''
         Log out of the connected account.
         '''
-        try:
-            # Click on the user logo
-            self.click(USER_AVATAR)
-            # Click on the logout link
-            self.click(LOGOUT_BUTTON)
-            # Wait until disconnected
-            self.wait_page_loaded(LOGGED_OUT_URL)
-            self.wait_for_visual_readiness()
-            print("[INFO] : Logged out.")
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
+
+        # Click on the user logo
+        self.click(USER_AVATAR)
+        # Click on the logout link
+        self.click(LOGOUT_BUTTON)
+        # Wait until disconnected
+        self.wait_page_loaded(LOGGED_OUT_URL)
+        print("[INFO] : Logged out.")
+
         
 
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True))
     @Session.log_event
     def send_mail(self, to, subject, content, attached_file_size=0):
         '''
         Compose and send an email with a specified recipient, subject, and content.
         '''
-        try:
-            # Click to start composing an email
-            self.click(COMPOSE_BUTTON)
-            # Input the recipient address
-            self.type(RECIPIENT_FIELD, to, hit_enter=True)
-            # Type the subject
-            self.type(SUBJECT_FIELD, subject)
-            # Input the mail body
-            self.type(EMAIL_BODY, content)
-            # Attach a file
-            if attached_file_size:
-                script_dir = os.path.dirname(os.path.abspath(__file__))
-                relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
-                attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
-                self.file_input(ATTACH_FILE_INPUT, attached_file_path)
-                try : 
-                    # Click on send a copy
-                    self.click(SEND_A_COPY_BUTTON)            
-                except Exception:
-                    tmp = 'No confirmation needed'
-                self.pause(TIME_PER_MB * attached_file_size)
-            # Click the send button
-            self.click(SEND_BUTTON)
-            self.stats["sent_mails"][attached_file_size] += 1
-            print("[INFO] : Mail Sent.")
 
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
+        # Click to start composing an email
+        self.click(COMPOSE_BUTTON)
+        # Input the recipient address
+        self.type(RECIPIENT_FIELD, to, hit_enter=True)
+        # Type the subject
+        self.type(SUBJECT_FIELD, subject)
+        # Input the mail body
+        self.type(EMAIL_BODY, content)
+        # Attach a file
+        if attached_file_size:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
+            attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
+            self.file_input(ATTACH_FILE_INPUT, attached_file_path)
+            try : 
+                # Click on send a copy
+                self.click(SEND_A_COPY_BUTTON)            
+            except Exception:
+                tmp = 'No confirmation needed'
+            self.pause(TIME_PER_MB * attached_file_size)
+        # Click the send button
+        self.click(SEND_BUTTON)
+        self.stats["sent_mails"][attached_file_size] += 1
+        print("[INFO] : Mail Sent.")
         
 
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True))
     @Session.log_event
     def filter(self):
         '''Show only unread emails.'''
-        try:
-            # Click on the filter button
-            self.click(FILTER_BUTTON)
-            # Click on the "Unread" option
-            self.click(UNREAD_FILTER_OPTION)
-            print("[INFO] : Filtered emails, showing unread only.")
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
+        # Click on the filter button
+        self.click(FILTER_BUTTON)
+        # Click on the "Unread" option
+        self.click(UNREAD_FILTER_OPTION)
+        print("[INFO] : Filtered emails, showing unread only.")
         
 
 
@@ -186,7 +178,9 @@ class OutlookSession(Session):
 
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True))
     @Session.log_event
     def delete_drafts(self):
         '''
@@ -194,164 +188,122 @@ class OutlookSession(Session):
         '''
         try:
             # Check if there are drafts
-            n_drafts = WebDriverWait(self.driver, WAIT_LIMIT).until(
-                EC.visibility_of_element_located(DRAFT_COUNT)
-            ).text
+            n_drafts = self.find(DRAFT_COUNT).text
             n_drafts = int(n_drafts)
             print(f"[INFO] : There are {n_drafts} draft(s).")
         except TimeoutException:
             print("[INFO] : No drafts found.")
             return
 
-        try:
-            # Navigate to the Drafts folder
-            self.click(DRAFTS_FOLDER)
-            print("[DEBUG] : Navigated to Drafts folder.")
-
-            # Click on 'Empty Folder' button
-            self.click(EMPTY_FOLDER_BUTTON)
-            print("[DEBUG] : Clicked on 'Empty Folder' button.")
-
-            # Confirm the deletion of drafts
-            self.click(CONFIRM_EMPTY_FOLDER)
-            print("[DEBUG] : Confirmed deletion of drafts.")
-            self.pause(1)
-
-            # Return to the home page
-            self.home_page(force=True)
-            print("[INFO] : Drafts deleted successfully.")
-        except Exception as e:
-            self.home_page(force=True)
-            raise e
-
+        # Navigate to the Drafts folder
+        self.click(DRAFTS_FOLDER)
+        # Click on 'Empty Folder' button
+        self.click(EMPTY_FOLDER_BUTTON)
+        # Confirm the deletion of drafts
+        self.click(CONFIRM_EMPTY_FOLDER)
+        self.pause(1)
+        # Return to the home page
+        self.home_page(force=True)
 
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True),
+                              lambda self : self.filter())
     def get_sender_address(self):
         '''
         Retrieve sender's address from the first email in the inbox.
         '''
-        try:
-            # Attempt to locate the sender's address in the primary span
-            sender = WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located(FIRST_SENDER_SPAN)
-            ).get_attribute("title")
-            print("[DEBUG] : Checked first span for sender address.")
+        # Attempt to locate the sender's address in the primary span
+        sender = self.find(FIRST_SENDER_SPAN).get_attribute("title")
+        # If the sender is not found, check the secondary span
+        if not sender:
+            sender = self.find(SECOND_SENDER_SPAN).get_attribute("title")
 
-            # If the sender is not found, check the secondary span
-            if not sender:
-                print("[DEBUG] : Checking the second span (possibly due to draft tag).")
-                sender = self.driver.find_element(*SECOND_SENDER_SPAN).get_attribute("title")
-                print("[DEBUG] : Found sender in the second span.")
-
-            print(f"[INFO] : Sender = {sender}.")
-            return sender
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            raise e
+        print(f"[INFO] : Sender = {sender}.")
+        return sender
 
 
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True),
+                              lambda self : self.filter(),
+                              lambda self : self.read_first())
     def get_subject(self):
         '''
         Retrieve the subject of the currently opened email.
         '''
-        try:
-            # Locate the subject element
-            subject_element = WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located(EMAIL_SUBJECT)
-            )
-            print(f"[INFO] : Found the email subject: {subject_element.text}.")
-            return subject_element.text
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            self.read_first()
-            raise e
+        # Locate the subject element
+        subject_element = self.find(EMAIL_SUBJECT).text
+        print(f"[INFO] : Found the email subject: {subject_element}.")
+        return subject_element
+
         
 
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True),
+                              lambda self : self.filter())
     @Session.log_event
     def read_first(self):
         '''
         Open the first email in the inbox.
         '''
-        try:
-            # Locate and click the first email in the list
-            self.click(FIRST_EMAIL_ITEM)
-            self.stats["read_mails"] += 1
-            print("[INFO] : Opened the first email.")
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            raise e
-        
+        self.click(FIRST_EMAIL_ITEM)
+        self.pause(READING_TIME)
+        self.stats["read_mails"] += 1
+        print("[INFO] : Opened the first email.")
+    
+
+
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True),
+                              lambda self : self.filter(),
+                              lambda self : self.read_first())
     @Session.log_event
     def delete_first(self):
         '''
         delete the first mail in the list
         '''
-        try:
-            # Put mouse on banner to make delete icon appear
-            element = self.driver.find_element(*DELETE_BANNER)
-            actions = ActionChains(self.driver)
-            actions.move_to_element(element).perform()
-            print("[DEBUG] : Moved Mouse on First Mail")
-            self.pause()
-
-            # Click on delete icon
-            self.click(DELETE_ICON)
-            self.stats["deleted_mails"] += 1
-            print("[INFO] : Deleted the first email.")
-            self.pause()
+        # Put mouse on banner to make delete icon appear
+        self.move_mouse_to(DELETE_BANNER)
+        # Click on delete icon
+        self.click(DELETE_ICON)
         
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            self.read_first()
-            raise e  
+        self.stats["deleted_mails"] += 1
+        print("[INFO] : Deleted the first email.")
+
         
 
 
     @Session.time_limited_execution
-    @Session.retry_on_failure(max_attempts=MAX_ATTEMPTS, delay=DELAY)
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                              DELAY,
+                              lambda self : self.home_page(force = True),
+                              lambda self : self.filter(),
+                              lambda self : self.read_first())
     @Session.log_event
     def reply(self, answer):
         '''
         Answer an opened email
         '''
-        try:
-            # Click on reply
-            self.click(REPLY_BUTTON)
-            print("[DEBUG] : Clicked on reply")
+        # Click on reply
+        self.click(REPLY_BUTTON)
+        # Write answer in the editor
+        self.type(EDITOR_INPUT, answer)
+        # Click the send button
+        self.click(SEND_BUTTON)
+        # Click on more option
+        self.click(MORE_OPTIONS_BUTTON)
+        # Mark as read
+        self.click(MARK_AS_READ_BUTTON)
 
-            # Write answer in the editor
-            self.type(EDITOR_INPUT, answer)
-            print("[DEBUG] : Edited Editor Content")
-
-            # Click the send button
-            self.click(SEND_BUTTON)
-            print("[DEBUG] : Clicked the send button")
-
-            # Mark as read
-            self.click(MORE_OPTIONS_BUTTON)
-            print("[DEBUG] : Clicked the ... button")
-
-            self.click(MARK_AS_READ_BUTTON)
-            print("[DEBUG] : Clicked the mark_as_read button")
-
-            self.stats["answered_mails"] += 1
-            print("[INFO] : Response sent.")
-        except Exception as e:
-            self.home_page(force=True)
-            self.filter()
-            self.read_first()
-            raise e
+        self.stats["answered_mails"] += 1
+        print("[INFO] : Response sent.")
