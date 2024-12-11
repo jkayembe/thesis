@@ -1,16 +1,7 @@
 # Local imports
 
-from sessions import Session, WebDriver
+from sessions import *
 from constants import *
-
-# Third parties imports
-
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
 
 # ==============================================================================================================
 # =============== Outlook Session ==============================================================================
@@ -27,10 +18,8 @@ USERNAME_INPUT = (By.ID, "i0116")
 PASSWORD_INPUT = (By.ID, "i0118")
 NEXT_BUTTON = (By.ID, "idSIButton9")
 DECLINE_BUTTON = (By.ID, "declineButton")
-
 USER_AVATAR = (By.CSS_SELECTOR, ".\\_8ZYZKvxC8bvw1xgQGSkvvA\\=\\= > img")
 LOGOUT_BUTTON = (By.ID, "mectrl_body_signOut")
-
 COMPOSE_BUTTON = (By.XPATH, "//span/button/span/span/span")
 RECIPIENT_FIELD = (By.CSS_SELECTOR, ".\\___1mtnehv")
 SUBJECT_FIELD = (By.XPATH, "//div/div[3]/div[2]/span/input")
@@ -38,28 +27,20 @@ EMAIL_BODY = (By.XPATH, '//*[@id="editorParent_1"]/div')
 ATTACH_FILE_INPUT = (By.XPATH, "//input[@data-testid='local-computer-filein'][2]")
 SEND_A_COPY_BUTTON = (By.XPATH, "//div[5]/button/div/i")
 SEND_BUTTON = (By.XPATH, "//button[@title='Send (Ctrl+Enter)']")
-
 FILTER_BUTTON = (By.XPATH, "//button[@id='mailListFilterMenu']/span/i")
 UNREAD_FILTER_OPTION = (By.CSS_SELECTOR, ".fui-MenuItem:nth-child(3) .UagSo")
 HOME_PAGE_LINK = (By.XPATH, "//div[2]/div/div/div/span")
-
 DRAFT_COUNT = (By.XPATH, "//div[3]/div/span[2]/span/span[1]")
 DRAFTS_FOLDER = (By.XPATH, "//div[2]/div/div/div[3]/div/span[1]")
 EMPTY_FOLDER_BUTTON = (By.XPATH, "(//button[@type='button'])[24]")
 CONFIRM_EMPTY_FOLDER = (By.XPATH, "//div[3]/button[1]")
-
 FIRST_SENDER_SPAN = (By.XPATH, "//div[2]/div[2]/div/div/span")
 SECOND_SENDER_SPAN = (By.XPATH, "//div[2]/div/div/div/div/div[2]/div[2]/div/div/span[2]")
-
 FIRST_EMAIL_ITEM = (By.XPATH, "//div[3]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div/div/div[2]")
-
 EMAIL_SUBJECT = (By.XPATH, "//*[@id='ConversationReadingPaneContainer']/div/div/div[1]/div/div/div/div/div/div/div/div/span[1]")
-
 FIRST_EMAIL_ITEM = (By.XPATH, "//div[3]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div/div/div[2]")
-
 DELETE_BANNER = (By.XPATH, "//div/div[3]/div/div/div[1]/div[3]/div/div/div/div/div/div/div/div[2]/div/div/div")
 DELETE_ICON = (By.XPATH, "//div/div/div[1]/div[3]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div/div/div[3]/div")
-
 REPLY_BUTTON = (By.CSS_SELECTOR, ".Yk9K4 .Q0K3G")
 EDITOR_INPUT = (By.XPATH, "//*[@id='editorParent_1']/div")
 SEND_BUTTON = (By.XPATH, "//button[@title='Send (Ctrl+Enter)']")
@@ -230,7 +211,7 @@ class OutlookSession(Session):
             # Click on 'Empty Folder' button
             self.click(EMPTY_FOLDER_BUTTON)
             print("[DEBUG] : Clicked on 'Empty Folder' button.")
-            # self.pause(1000)
+
             # Confirm the deletion of drafts
             self.click(CONFIRM_EMPTY_FOLDER)
             print("[DEBUG] : Confirmed deletion of drafts.")

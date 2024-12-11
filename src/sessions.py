@@ -154,7 +154,8 @@ class Session:
                     try:
                         return func(self, *args, **kwargs)
                     except Exception as e:
-                        print(f"[ERROR] : Function {func.__name__} : Attempt {attempt + 1}/{max_attempts} failed : {str(e)}")
+                        msg = e.msg if isinstance(e, TimeoutException) else str(e)
+                        print(f"[ERROR] : Function {func.__name__} : Attempt {attempt + 1}/{max_attempts} failed : {msg}")
                         if delay:
                             time.sleep(delay)
                 raise RuntimeError(f"[ERROR] : Failed to execute {func.__name__} after {max_attempts} attempts.")
@@ -168,7 +169,7 @@ class Session:
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs):
             now = time.time()
-            remains = self.time_limit + self.start - now
+            remains = self.start + self.time_limit - now
             try:
                 if remains > 0:
                     print("[INFO] : {} Seconds left".format(round(remains)))
@@ -176,8 +177,7 @@ class Session:
                 else:
                     print(f"[TIMEOUT] : Won't execute {func.__name__}.")
             except Exception as e:
-                traceback.print_exc()
-                print(f"[ERROR] : ", str(e))
+                print(str(e))
         return wrapper
     
     def pause(self, delay=None):
@@ -194,7 +194,8 @@ class Session:
         Use the selector (selector type, target) to grab an html element
         """
         return WebDriverWait(self.driver, WAIT_LIMIT).until(
-            EC.visibility_of_element_located(selector), f"[ERROR] : Couldn't find {selector[1]} after {WAIT_LIMIT} seconds"
+            EC.visibility_of_element_located(selector),
+            f"Couldn't find HTML element using selector '{selector[1]}' after {WAIT_LIMIT} seconds"
             )
     
     def click(self, selector):
@@ -204,7 +205,7 @@ class Session:
         target = self.find(selector)
         WebDriverWait(self.driver, WAIT_LIMIT).until(
             EC.element_to_be_clickable(target),
-            f'[ERROR] : {selector[1]} is not clickable after {WAIT_LIMIT} seconds'
+            f"HTML element not clickable using selector '{selector[1]}' after {WAIT_LIMIT} seconds"
             )
         target.click()
 
@@ -221,7 +222,7 @@ class Session:
     def file_input(self, selector, absolute_data_path):
         input_target = WebDriverWait(self.driver, WAIT_LIMIT).until(
             EC.presence_of_element_located(selector),
-            f"[ERROR] : Couldn't find file_input element [{selector[1]}] after {WAIT_LIMIT} seconds"
+            f"Couldn't find file_input HTML element using selector '{selector[1]}' after {WAIT_LIMIT} seconds"
             )
         input_target.send_keys(absolute_data_path)
     
@@ -268,20 +269,6 @@ class Session:
                 """),
                 f"There are still ongoing layout shifts after {MAX_PAGE_LOAD_TIME}s."
         )
-
-        wait_limit = max(MAX_PAGE_LOAD_TIME - (time.time() - start), 0)
-
-        # # Ensure there are no ongoing animations (for cases where transitions are being used)
-
-        # WebDriverWait(self.driver, wait_limit).until(
-        #     lambda driver: driver.execute_script("""
-        #         var animations = document.getAnimations();
-        #         return animations.length === 0;  // No ongoing animations
-        #     """),
-        #     f"There are still ongoing animations after {MAX_PAGE_LOAD_TIME}s.{self.driver.execute_script("""
-        #         return document.getAnimations();
-        #     """)}"
-        # )
 
 
 # ===================================================================================================================================

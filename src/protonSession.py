@@ -1,15 +1,7 @@
 # Local imports
 
-from sessions import Session, WebDriver
+from sessions import *
 from constants import *
-
-# Third parties imports
-
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.keys import Keys
 
 
 # =====================================================================================
@@ -45,7 +37,6 @@ DELETE_EMAIL_BUTTON = (By.CSS_SELECTOR, ".flex-1 > div > .toolbar .flex:nth-chil
 REPLY_BUTTON = (By.CSS_SELECTOR, ".button-for-icon:nth-child(1) > .rtl\\3Amirror")
 EMAIL_REPLY_IFRAME = (By.ID, "rooster-editor")
 SEND_BUTTON_REPLY = (By.XPATH, "//footer/div/div/button/span")
-
 
 
 class ProtonSession(Session):
