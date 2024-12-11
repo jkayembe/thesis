@@ -93,7 +93,6 @@ class OutlookSession(Session):
             self.click(DECLINE_BUTTON)
             # Wait for the page to load
             self.wait_page_loaded(LOGGED_IN_URL)
-            self.wait_for_visual_readiness()
             print("[INFO] : Logged in.")
 
         except Exception as e:

@@ -217,107 +217,6 @@ class Session:
             target.send_keys(char)
         if hit_enter:
             target.send_keys(Keys.ENTER)
-    
-
-    def wait_page_loaded(self, url_to_be_loaded):
-        """
-        Wait until the page is fully loaded and the URL is the expected one.
-        """
-        # Wait for the URL to change to the expected one
-        WebDriverWait(self.driver, MAX_PAGE_LOAD_TIME).until(
-            lambda driver: driver.current_url == url_to_be_loaded
-        )
-
-        # Wait for the document to be completely loaded (readyState === 'complete')
-        WebDriverWait(self.driver, MAX_PAGE_LOAD_TIME).until(
-            lambda driver: driver.execute_script('return document.readyState') == 'complete'
-        )
-
-
-    def wait_for_visual_readiness(self):
-        """
-        Wait until the page is visually ready: meaning 
-        the layout is stable, and it's ready for user interaction.
-        """
-        
-        # Step 1: Wait for the page to finish loading and rendering, checking the performance data
-        try:
-            WebDriverWait(self.driver, MAX_PAGE_LOAD_TIME).until(
-                lambda driver: driver.execute_script("""
-                    return window.performance.timing.loadEventEnd > 0 && 
-                        window.performance.timing.domContentLoadedEventEnd > 0;
-                """)
-            )
-            print("Step 1: Page load and rendering completed.")
-        except Exception as e:
-            print("Step 1 failed: Page load and rendering did not complete.")
-            print(f"Error: {e}")
-            return
-
-        # self.pause(15)
-        # paintEntries = self.driver.execute_script("""
-        #              var performance = window.performance;
-        #              var largestContentfulPaint = performance.getEntriesByType('paint')
-        #              return largestContentfulPaint;
-        #         """)
-        
-        # print(f"paintEntries = {paintEntries} .")
-
-        # # Step 2: Check that the page layout has settled (no more reflows happening)
-        # try:
-        #     WebDriverWait(self.driver, MAX_PAGE_LOAD_TIME).until(
-        #         lambda driver: driver.execute_script("""
-        #             var performance = window.performance;
-        #             var largestContentfulPaint = performance.getEntriesByType('paint')
-        #                 .filter(function(entry) { return entry.name === 'largest-contentful-paint'; });
-        #             return largestContentfulPaint.length > 0 && largestContentfulPaint[0].startTime > 0;
-        #         """)
-        #     )
-        #     print("Step 2: Layout is stable (LCP has been recorded).")
-        # except Exception as e:
-        #     print("Step 2 failed: Layout is not stable.")
-        #     print(f"Error: {e}")
-        #     return
-
-            # Step 2: Ensure there are no ongoing layout shifts
-        try:
-            WebDriverWait(self.driver, MAX_PAGE_LOAD_TIME).until(
-                lambda driver: driver.execute_script("""
-                    var layoutShifts = performance.getEntriesByType('layout-shift');
-                    return layoutShifts.every(shift => shift.hadRecentInput === false);  // No unexpected shifts
-                """)
-            )
-            print("Step 2: Layout is stable (no unexpected layout shifts).")
-        except Exception as e:
-            print("Step 2 failed: Layout is unstable (unexpected layout shifts).")
-            print(f"Error: {e}")
-            return
-
-        # Step 3: Optional - Ensure there are no ongoing animations (for cases where transitions are being used)
-        try:
-            WebDriverWait(self.driver, MAX_PAGE_LOAD_TIME).until(
-                lambda driver: driver.execute_script("""
-                    var animations = document.getAnimations();
-                    return animations.length === 0;  // No ongoing animations
-                """)
-            )
-            print("Step 3: No ongoing animations.")
-        except Exception as e:
-            print("Step 3 failed: There are ongoing animations.")
-            print(f"Error: {e}")
-            return
-
-        # Step 4: Ensure critical elements are fully visible (e.g., body tag)
-        try:
-            WebDriverWait(self.driver, MAX_PAGE_LOAD_TIME).until(
-                EC.visibility_of_element_located((By.TAG_NAME, 'body'))
-            )
-            print("Step 4: Critical elements are visible.")
-        except Exception as e:
-            print("Step 4 failed: Critical elements are not visible.")
-            print(f"Error: {e}")
-            return
-
 
     def file_input(self, selector, absolute_data_path):
         input_target = WebDriverWait(self.driver, WAIT_LIMIT).until(
@@ -325,6 +224,64 @@ class Session:
             f"[ERROR] : Couldn't find file_input element [{selector[1]}] after {WAIT_LIMIT} seconds"
             )
         input_target.send_keys(absolute_data_path)
+    
+
+    def wait_page_loaded(self, url_to_be_loaded=None):
+        """
+        Wait until :
+        the URL is the expected one (if provided),
+        the page is fully loaded,
+        the page is ready: meaning the layout is stable, and ready for user interaction..
+        """
+
+        start = time.time()
+        wait_limit = MAX_PAGE_LOAD_TIME
+
+        if url_to_be_loaded:
+
+            # Wait for the URL to change to the expected one
+            WebDriverWait(self.driver, wait_limit).until(
+                lambda driver: driver.current_url == url_to_be_loaded,
+                f"URL didn't change to '{url_to_be_loaded}' after {MAX_PAGE_LOAD_TIME}s." 
+            )
+
+
+        wait_limit = max(MAX_PAGE_LOAD_TIME - (time.time() - start), 0)
+
+        # Wait for the page to finish loading and rendering, checking the performance data
+        WebDriverWait(self.driver, wait_limit).until(
+            lambda driver: driver.execute_script("""
+                return window.performance.timing.loadEventEnd > 0 && 
+                    window.performance.timing.domContentLoadedEventEnd > 0;
+            """),
+            f"Window.performance.timing.loadEventEnd <= 0 OR \
+            Window.performance.timing.domContentLoadedEventEnd <= 0 after {MAX_PAGE_LOAD_TIME}s."
+        )
+
+        wait_limit = max(MAX_PAGE_LOAD_TIME - (time.time() - start), 0)
+
+        # Wait until there is no ongoings layout shifts
+        WebDriverWait(self.driver, wait_limit, poll_frequency=1).until(
+                lambda driver: driver.execute_script("""
+                    var layoutShifts = performance.getEntriesByType('layout-shift');
+                    return layoutShifts.every(shift => shift.hadRecentInput === false);  // No unexpected shifts
+                """),
+                f"There are still ongoing layout shifts after {MAX_PAGE_LOAD_TIME}s."
+        )
+
+        wait_limit = max(MAX_PAGE_LOAD_TIME - (time.time() - start), 0)
+
+        # # Ensure there are no ongoing animations (for cases where transitions are being used)
+
+        # WebDriverWait(self.driver, wait_limit).until(
+        #     lambda driver: driver.execute_script("""
+        #         var animations = document.getAnimations();
+        #         return animations.length === 0;  // No ongoing animations
+        #     """),
+        #     f"There are still ongoing animations after {MAX_PAGE_LOAD_TIME}s.{self.driver.execute_script("""
+        #         return document.getAnimations();
+        #     """)}"
+        # )
 
 
 # ===================================================================================================================================
