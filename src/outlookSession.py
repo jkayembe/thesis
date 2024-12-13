@@ -93,7 +93,7 @@ class OutlookSession(Session):
         # Click on the logout link
         self.click(LOGOUT_BUTTON)
         # Wait until disconnected
-        self.wait_page_loaded(LOGGED_OUT_URL)
+        self.wait_page_loaded()
         print("[INFO] : Logged out.")
 
         

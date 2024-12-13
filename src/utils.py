@@ -149,7 +149,7 @@ def handle_arguments():
                 raise ValueError("N_MAIL_TO_SEND must be a dictionary.")
             
             # Ensure numbers are treated as int
-            time_limit = int(time_limit)
+            time_limit = int(time_limit*60)
             n_mail_to_read_and_answer = int(n_mail_to_read_and_answer)
             n_mail_to_read_and_delete = int(n_mail_to_read_and_delete)
             n_mail_to_send = {int(size): int(count) for size, count in n_mail_to_send.items()}

@@ -41,7 +41,7 @@ class Scenario:
         self.browser = browser
         self.adblock = adblock
         self.untracked = untracked
-        self.time_limit = time_limit # in minutes
+        self.time_limit = time_limit # in seconds
         self.n_mail_to_send = n_mail_to_send
         self.n_mail_to_read_and_answer = n_mail_to_read_and_answer
         self.n_mail_to_read_and_delete = n_mail_to_read_and_delete
@@ -62,7 +62,7 @@ class Scenario:
             f"Browser: {self.browser}\n"
             f"Tracking: {"limited" if self.untracked else "allowed"}\n"
             f"Adblock: {"activated" if self.adblock else "not used"}\n"
-            f"Duration: {self.time_limit} minutes\n"
+            f"Duration: {self.time_limit} seconds\n"
             "Number of emails to send with:\n"
             f"\t No attachment: {self.n_mail_to_send[0]}\n"
             f"\t 5 MB attachment: {self.n_mail_to_send[5]}\n"
@@ -97,11 +97,11 @@ class Scenario:
         This function opens a session on the email service provider's website
         '''
         if self.provider == OUTLOOK:
-            session = OutlookSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.seconds)
+            session = OutlookSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit)
         elif self.provider == PROTON:
-            session = ProtonSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.seconds)
+            session = ProtonSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit)
         elif self.provider == GMAIL:
-            session = GmailSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.seconds)
+            session = GmailSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit)
         return session
     
     def get_email_file_path(self, firstname=None, surname=None):
@@ -201,8 +201,7 @@ class Scenario:
         # Prepare the session schedule
         total_mail_to_send = sum(self.n_mail_to_send.values())
         n_operations = total_mail_to_send + self.n_mail_to_read_and_answer + self.n_mail_to_read_and_delete
-        self.seconds = math.ceil(self.time_limit * 60)
-        moments = select_evenly_spaced_moments(0, self.seconds, n_operations)
+        moments = select_evenly_spaced_moments(0, self.time_limit, n_operations)
 
     
         # Log in on the mail provider website
@@ -238,7 +237,7 @@ class Scenario:
                 idx += 1
 
         # Logout, close browser, collect final stats and print summary
-        rest = round(self.seconds - (time.time() - self.start) - 5)
+        rest = round(self.time_limit - (time.time() - self.start) - 5)
         if (rest > 0):
             time.sleep(rest)
         session.logout()

@@ -12,7 +12,9 @@ USERNAME_INPUT = (By.ID, "identifierId")
 PASSWORD_INPUT = (By.NAME, "Passwd")
 NEXT_BUTTON = (By.CSS_SELECTOR, ".VfPpkd-LgbsSe-OWXEXe-k8QpJ > .VfPpkd-vQzf8d")
 LOGOUT_AVATAR = (By.XPATH, "//header/div[2]/div[3]/div[1]/div[2]/div/a")
-LOGOUT_BUTTON = (By.XPATH, "//a[contains(.,'Sign out')]")
+ACCOUNT_FRAME = "account"
+LOGOUT_BUTTON = (By.XPATH, "//div[contains(text(),'Sign out')]")
+
 COMPOSE_BUTTON = (By.CSS_SELECTOR, ".T-I-KE")
 RECIPIENT_FIELD = (By.XPATH, "//div/div/input")
 SUBJECT_FIELD = (By.XPATH, "//div[3]/input")
@@ -25,6 +27,7 @@ INBOX_LINK = (By.XPATH, "//div[2]/div/div/div/div/div/div/div/div/div[2]")
 BODY_ELEMENT = (By.CSS_SELECTOR, "body")
 
 
+DRAFTS_COUNT = (By.XPATH, "//div[@data-tootip='Drafts']/div/div[2]/div")
 DRAFTS_FOLDER = (By.XPATH, "//div[5]/div/div/div")
 SELECT_ALL_DRAFTS = (By.XPATH, "//div[2]/div[2]/div/div/div/div/div/div/span")
 DELETE_BUTTON = (By.XPATH, "//div[2]/div/div/div/div[2]/div/div")
@@ -69,8 +72,9 @@ class GmailSession(Session):
     @Session.log_event
     def logout(self):
         self.click(LOGOUT_AVATAR)
+        self.switch_frame(frame_name = ACCOUNT_FRAME)
         self.click(LOGOUT_BUTTON)
-        self.wait_page_loaded(GMAIL_URL)
+        self.wait_page_loaded()
         print("[INFO] : Logged out.")
 
 
@@ -156,11 +160,19 @@ class GmailSession(Session):
                               lambda self : self.home_page(force = True))
     @Session.log_event
     def delete_drafts(self):
-        self.click(DRAFTS_FOLDER)
-        self.click(SELECT_ALL_DRAFTS)
-        self.click(DELETE_BUTTON)
+        try:
+            self.find(DRAFTS_COUNT)
+        except TimeoutException:
+            print("[INFO] : No Drafts")
+            return
+        else:
+            self.click(DRAFTS_FOLDER)
+            self.move_mouse_to(BODY_ELEMENT)
+            self.click(SELECT_ALL_DRAFTS)
+            self.click(DELETE_BUTTON)
+            print("[INFO] : Drafts deleted.")
         self.home_page(force=True)
-        print("[INFO] : Drafts deleted.")
+        
 
 
     @Session.time_limited_execution
@@ -200,58 +212,58 @@ class GmailSession(Session):
         print(f"[INFO] : Found the email subject: {subject}.")
         return subject
     
-@Session.time_limited_execution
-@Session.retry_on_failure(MAX_ATTEMPTS,
-                              DELAY,
-                              lambda self : self.home_page(force = True),
-                              lambda self : self.filter())
-@Session.log_event
-def read_first(self):
-    '''
-    Open the first email in the inbox.
-    '''
-    self.click(FIRST_EMAIL_ITEM)
-    self.pause(READING_TIME)
-    self.stats["read_mails"] += 1
-    print("[INFO] : Opened the first email.")
+    @Session.time_limited_execution
+    @Session.retry_on_failure(MAX_ATTEMPTS,
+                                DELAY,
+                                lambda self : self.home_page(force = True),
+                                lambda self : self.filter())
+    @Session.log_event
+    def read_first(self):
+        '''
+        Open the first email in the inbox.
+        '''
+        self.click(FIRST_EMAIL_ITEM)
+        self.pause(READING_TIME)
+        self.stats["read_mails"] += 1
+        print("[INFO] : Opened the first email.")
 
 
 
-@Session.time_limited_execution
-@Session.retry_on_failure(MAX_ATTEMPTS, DELAY,
-                          lambda self: self.home_page(force=True),
-                          lambda self: self.filter(),
-                          lambda self: self.read_first()
-)
-@Session.log_event
-def delete_first(self):
-    '''
-    Delete the first email in the inbox.
-    '''
-    self.click(DELETE_ICON)
-    self.stats["deleted_mails"] += 1
-    print("[INFO] : Deleted the first email.")
+    @Session.time_limited_execution
+    @Session.retry_on_failure(MAX_ATTEMPTS, DELAY,
+                            lambda self: self.home_page(force=True),
+                            lambda self: self.filter(),
+                            lambda self: self.read_first()
+    )
+    @Session.log_event
+    def delete_first(self):
+        '''
+        Delete the first email in the inbox.
+        '''
+        self.click(DELETE_ICON)
+        self.stats["deleted_mails"] += 1
+        print("[INFO] : Deleted the first email.")
 
 
-@Session.time_limited_execution
-@Session.retry_on_failure(MAX_ATTEMPTS, DELAY,
-                          lambda self: self.home_page(force=True),
-                          lambda self: self.filter(),
-                          lambda self: self.read_first()
-)
-@Session.log_event
-def reply(self, answer):
-    '''
-    Reply to an opened email.
-    '''
-    # Click the reply button
-    self.click(REPLY_BUTTON)
-    # Write the reply in the editor
-    self.type(EDITOR_INPUT, answer)
-    # Click on Send
-    self.click(SEND_BUTTON)
-    # Navigate back to the home page
-    self.home_page()
+    @Session.time_limited_execution
+    @Session.retry_on_failure(MAX_ATTEMPTS, DELAY,
+                            lambda self: self.home_page(force=True),
+                            lambda self: self.filter(),
+                            lambda self: self.read_first()
+    )
+    @Session.log_event
+    def reply(self, answer):
+        '''
+        Reply to an opened email.
+        '''
+        # Click the reply button
+        self.click(REPLY_BUTTON)
+        # Write the reply in the editor
+        self.type(EDITOR_INPUT, answer)
+        # Click on Send
+        self.click(SEND_BUTTON)
+        # Navigate back to the home page
+        self.home_page()
 
-    self.stats["answered_mails"] += 1
-    print("[INFO] : Response sent.")
+        self.stats["answered_mails"] += 1
+        print("[INFO] : Response sent.")

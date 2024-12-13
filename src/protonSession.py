@@ -29,12 +29,11 @@ REFRESH_BUTTON = (By.XPATH, "//span/span/span")
 FILTER_BUTTON = (By.XPATH, "//main/div/div/div/div/div/div/div/nav/div[2]/div/button")
 UNREAD_FILTER_OPTION = (By.CSS_SELECTOR, ".dropdown-item:nth-child(4) > .dropdown-item-button")
 HOME_PAGE_LINK = (By.XPATH, "//span/span/span")
-COMPOSE_IFRAME_ALERT = EC.alert_is_present()
 FIRST_EMAIL_SUBJECT = (By.XPATH, "//section/div/div[3]/div/header/div/h1/span")
 FIRST_EMAIL_ITEM = (By.XPATH, "//div/div[1]/div/div/div/div[2]/span[2]/span[contains(@data-testid,'message-column:sender-address')]")
 DELETE_EMAIL_BUTTON = (By.CSS_SELECTOR, ".flex-1 > div > .toolbar .flex:nth-child(4)")
 REPLY_BUTTON = (By.CSS_SELECTOR, ".button-for-icon:nth-child(1) > .rtl\\3Amirror")
-EMAIL_REPLY_IFRAME = (By.ID, "rooster-editor")
+EMAIL_REPLY_EDITOR = (By.ID, "rooster-editor")
 SEND_BUTTON_REPLY = (By.XPATH, "//footer/div/div/button/span")
 
 
@@ -77,7 +76,7 @@ class ProtonSession(Session):
         # Click on logout button
         self.click(LOGOUT_BUTTON)
         # Wait for the page to load
-        self.wait_page_loaded(LOGGED_OUT_URL)
+        self.wait_page_loaded()
         print("[INFO] : Logged out")
         
 
@@ -98,11 +97,11 @@ class ProtonSession(Session):
         # Enter the subject of the email
         self.type(SUBJECT_FIELD, mail_object)
         # Switch context to the email content iframe
-        self.driver.switch_to.frame(0)
+        self.switch_frame(frame_number=0)
         # Enter the content of the email
         self.type(EMAIL_BODY_IFRAME, mail_body)
         # Return to the default context
-        self.driver.switch_to.default_content()
+        self.switch_frame()
 
         # Attach a file if necessary
         if attached_file_size:
@@ -152,8 +151,7 @@ class ProtonSession(Session):
         if force:
             self.driver.get(HOME_PAGE_URL)
             try:
-                WebDriverWait(self.driver, 10).until(COMPOSE_IFRAME_ALERT, 'Timed out waiting for popup to appear.')
-                alert = self.driver.switch_to.alert
+                alert = self.switch_frame(alert=True)
                 alert.accept()
                 self.stats["refresh"] += 1
             except TimeoutException:
@@ -254,11 +252,11 @@ class ProtonSession(Session):
         '''
         self.click(REPLY_BUTTON)
         # Switch to the reply iframe
-        self.driver.switch_to.frame(1)
+        self.switch_frame(frame_number=1)
         # Type answer
-        self.type(EMAIL_REPLY_IFRAME, answer)
+        self.type(EMAIL_REPLY_EDITOR, answer)
         # Switch back to main iframe
-        self.driver.switch_to.default_content()
+        self.switch_frame()
         # Send the reply
         self.click(SEND_BUTTON_REPLY)
         

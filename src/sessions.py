@@ -182,7 +182,7 @@ class Session:
             remains = self.start + self.time_limit - now
             try:
                 if remains > 0:
-                    print("[INFO] : {} Seconds left. Executing {}".format(round(remains), func.__name__))
+                    print("[INFO] : Executing '{}' ({} Seconds left)".format(func.__name__, round(remains)))
                     return func(self, *args, **kwargs)
                 else:
                     print(f"[TIMEOUT] : Won't execute {func.__name__}.")
@@ -198,7 +198,9 @@ class Session:
     def close_browser(self):
         self.driver.quit()
 
-
+    # ***************************************************************************************************************
+    # User Interaction
+    # ***************************************************************************************************************
     def find(self, selector):
         """
         Use the selector (selector type, target) to grab an html element
@@ -231,13 +233,9 @@ class Session:
             target.send_keys(Keys.ENTER)
 
     def file_input(self, selector, absolute_data_path):
-        count = 3
-        while count > 0:
-            print(count)
-            count = count - 1
-            self.pause(1)
-
-        raise TimeoutException
+        """
+        Feed the local path of file to upload to the file input HTML element pointed by selector.
+        """
         input_target = WebDriverWait(self.driver, WAIT_LIMIT).until(
             EC.presence_of_element_located(selector),
             f"Couldn't find file_input HTML element using selector '{selector[1]}' after {WAIT_LIMIT} seconds"
@@ -249,6 +247,21 @@ class Session:
         actions = ActionChains(self.driver)
         actions.move_to_element(target).perform()
         self.pause(1)
+
+    def switch_frame(self, frame_number = None, frame_name = None, alert = False):
+            
+        if alert:
+            WebDriverWait(self.driver, WAIT_LIMIT).until(
+                EC.alert_is_present,
+                'Timed out waiting for popup to appear.'
+            )
+            self.driver.switch_to.alert
+        elif frame_number:
+            self.driver.switch_to.frame(frame_number)
+        elif frame_name:
+            self.driver.switch_to.frame(frame_name)
+        else:
+            self.driver.switch_to.default_content()
 
     def wait_page_loaded(self, url_to_be_loaded=None):
         """
