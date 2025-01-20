@@ -8,7 +8,7 @@ from sessions import *
 # =====================================================================================
 
 # Constants for URLs
-PROTON_URL = "https://account.proton.me/fr/mail"
+MY_SOLUTION_URL = "https://account.proton.me/fr/mail"
 HOME_PAGE_URL = "https://account.proton.me/fr/mail"
 LOGGED_IN_URL = "https://mail.proton.me/u/0/inbox"
 LOGGED_OUT_URL = "https://account.proton.me/mail"
@@ -22,7 +22,8 @@ LOGOUT_BUTTON = (By.CSS_SELECTOR, ".pb-4 > .button")
 COMPOSE_BUTTON = (By.XPATH, "//div[3]/div/div/div/div[1]/div[2]/button")
 RECIPIENT_FIELD = (By.XPATH, "//input[contains(@id,'to-composer')]")
 SUBJECT_FIELD = (By.XPATH, "//input[contains(@id, 'subject-composer')]")
-EMAIL_BODY_IFRAME = (By.XPATH, "/html/body/div[1]/div/div[@id='rooster-editor']")
+ROOSTER_IFRAME = (By.XPATH, "//iframe[@data-testid='rooster-iframe']")
+EMAIL_BODY_INPUT = (By.XPATH, "//*[@id='rooster-editor']")
 ATTACH_FILE_INPUT = (By.XPATH, "//div[2]/div/div/label/input")
 SEND_BUTTON = (By.XPATH, "//footer/div/div/button/span")
 REFRESH_BUTTON = (By.XPATH, "//span/span/span")
@@ -52,7 +53,7 @@ class ProtonSession(Session):
         Log in to the mail provider website
         '''
         # Open the login page
-        self.driver.get(PROTON_URL)
+        self.driver.get(MY_SOLUTION_URL)
         # Enter username
         self.type(USERNAME_INPUT, self.user_address)
         # Enter password
@@ -89,7 +90,6 @@ class ProtonSession(Session):
         '''
         Compose and send an email with a specified recipient, subject, and content.
         '''
-
         # Click on the compose button
         self.click(COMPOSE_BUTTON)
         # Enter the recipient
@@ -97,9 +97,9 @@ class ProtonSession(Session):
         # Enter the subject of the email
         self.type(SUBJECT_FIELD, mail_object)
         # Switch context to the email content iframe
-        self.switch_frame(frame_number=0)
+        self.switch_frame(iframe_element=ROOSTER_IFRAME)
         # Enter the content of the email
-        self.type(EMAIL_BODY_IFRAME, mail_body)
+        self.type(EMAIL_BODY_INPUT, mail_body)
         # Return to the default context
         self.switch_frame()
 
@@ -152,6 +152,7 @@ class ProtonSession(Session):
             self.driver.get(HOME_PAGE_URL)
             try:
                 alert = self.switch_frame(alert=True)
+                self.pause(10)
                 alert.accept()
                 self.stats["refresh"] += 1
             except TimeoutException:
@@ -252,7 +253,7 @@ class ProtonSession(Session):
         '''
         self.click(REPLY_BUTTON)
         # Switch to the reply iframe
-        self.switch_frame(frame_number=1)
+        self.switch_frame(iframe_element=ROOSTER_IFRAME)
         # Type answer
         self.type(EMAIL_REPLY_EDITOR, answer)
         # Switch back to main iframe

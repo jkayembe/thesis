@@ -3,10 +3,13 @@ log/
 logs/
 Mail_Simulation.pyproj
 .vs/
+.vscode/
 src/__pycache__
 chrome_profiles/*
 !chrome_profiles/tracked_profile/History
 !chrome_profiles/tracked_profile/Preferences
 !chrome_profiles/untracked_profile/History
 !chrome_profiles/untracked_profile/Preferences
-
+my_email_solution/docker-data/dms/
+!my_email_solution/docker-data/dms/config/
+!my_email_solution/docker-data/dms/ssl/

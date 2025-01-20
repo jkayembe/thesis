@@ -12,6 +12,7 @@ from constants import *
 from gmailSession import GmailSession
 from protonSession import ProtonSession
 from outlookSession import OutlookSession
+from mySolutionSession import MySolutionSession
 import utils
 from utils import (
     select_evenly_spaced_moments,
@@ -102,6 +103,8 @@ class Scenario:
             session = ProtonSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit)
         elif self.provider == GMAIL:
             session = GmailSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit)
+        elif self.provider == MY_SOLUTION:
+            session = MySolutionSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit)
         return session
     
     def get_email_file_path(self, firstname=None, surname=None):

@@ -1,0 +1,25 @@
+networks:
+  my-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/24
+          gateway: 172.19.0.1
+
+services:
+  simulator:
+    image: jkayembe/automated-session
+    container_name: simulator
+    networks:
+      my-network:
+        ipv4_address: 172.19.0.2
+    ports:
+      - "5900:5900"  # VNC port
+    environment:
+      DISPLAY: ":0"  # Set the display environment variable for X server
+      IS_MEASURED: "false"
+      SEED: "123"
+    volumes:
+      - .:/app  # Mount the current directory to /app
+    working_dir: /app
+    command: /app/entrypoint.sh

@@ -1,0 +1,84 @@
+
+networks:
+  mail-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/24
+          gateway: 172.20.0.1
+
+services:
+
+  dnsserver:
+    restart: always
+    image: strm/dnsmasq
+    container_name: dns-server
+    hostname: ns.example.com
+    networks:
+      mail-network:
+        ipv4_address: 172.20.0.2
+    volumes:
+      - ./docker-data/dns/config/dnsmasq.conf:/etc/dnsmasq.conf
+    cap_add:
+      - NET_ADMIN 
+
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: mailserver
+    # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
+    hostname: mail.example.com
+    env_file: mailserver.env
+    networks:
+      mail-network:
+        ipv4_address: 172.20.0.3
+    dns:
+      - 172.20.0.2
+    ports:
+      - "25:25"    # SMTP  (explicit TLS => STARTTLS, Authentication is DISABLED => use port 465/587 instead)
+      - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
+      - "465:465"  # ESMTP (implicit TLS)
+      - "587:587"  # ESMTP (explicit TLS => STARTTLS)
+      - "993:993"  # IMAP4 (implicit TLS)
+    volumes:
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - ./docker-data/dms/mail-state/:/var/mail-state/
+      - ./docker-data/dms/mail-logs/:/var/log/mail/
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:rorcpt
+
+    restart: always
+    stop_grace_period: 1m
+    healthcheck:
+      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+      timeout: 3s
+      retries: 0
+    depends_on:
+    - dnsserver  # Ensure mailserver waits for dnsserver
+
+  webmail:
+    #image: roundcube/roundcubemail:latest
+    build:
+       context: docker-data/webmail
+    container_name: webmail
+    networks:
+      mail-network:
+        ipv4_address: 172.20.0.4
+    environment:
+      - ROUNDCUBEMAIL_DEFAULT_HOST=ssl://mailserver
+      - ROUNDCUBEMAIL_DEFAULT_PORT=993
+      - ROUNDCUBEMAIL_SMTP_SERVER=ssl://mailserver
+      - ROUNDCUBEMAIL_SMTP_PORT=465
+      - ROUNDCUBEMAIL_UPLOAD_MAX_FILESIZE=100M
+    volumes:
+      - ./docker-data/webmail/config/zzz_roundcube-custom.ini:/usr/local/etc/php/conf.d/zzz_roundcube-custom.ini # Config file to modify php memory limit
+      - ./docker-data/webmail/config/:/var/roundcube/config/ # Advanced config : Image search and includes *.php files in this.
+      - ./docker-data/ca/ssl/cacert.pem:/etc/openssl/certs/cacert.pem # Include the CA certificate
+      - ./docker-data/webmail/config/ssl/webmail.example.com-cert.pem:/etc/ssl/certs/ssl-cert-snakeoil.pem # Import webmail's certficate
+      - ./docker-data/webmail/config/ssl/webmail.example.com-key.pem:/etc/ssl/private/ssl-cert-snakeoil.key # Import webmail's private key
+    ports:
+      - "443:443"    # HTTPS
+      - "80:80"
+    depends_on:
+      - mailserver
+

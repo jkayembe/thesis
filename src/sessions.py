@@ -57,7 +57,7 @@ class WebDriver():
                     options.add_argument(f"--load-extension={adblock_extension_path}")
 
                     
-                # # Select the chrommium profile to allow or limit tracking
+                # Select the chrommium profile to allow or limit tracking
                 if untracked:
                     profile = UNTRACKED_PROFILE
                 else:
@@ -68,6 +68,10 @@ class WebDriver():
                     profiles_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), CHROME_PROFILES))
                 options.add_argument(f"user-data-dir={profiles_dir}")
                 options.add_argument(f'profile-directory={profile}')
+
+                # Add the System's Certificate Authorities (CA) trust store so that our
+                # own CAs (added to the system trusted store) are considered as valid by chromium
+                options.add_argument("ignore-certificate-errors")
 
                 # Initialize WebDriver with Chrome binary path and options
                 self.driver = webdriver.Chrome(options=options)
@@ -199,7 +203,7 @@ class Session:
         self.driver.quit()
 
     # ***************************************************************************************************************
-    # User Interaction
+    # User Interactions
     # ***************************************************************************************************************
     def find(self, selector):
         """
@@ -248,18 +252,21 @@ class Session:
         actions.move_to_element(target).perform()
         self.pause(1)
 
-    def switch_frame(self, frame_number = None, frame_name = None, alert = False):
-            
+    def switch_frame(self, frame_number = None, frame_name = None, iframe_element = None, alert = False):
+        
         if alert:
             WebDriverWait(self.driver, WAIT_LIMIT).until(
-                EC.alert_is_present,
+                EC.alert_is_present(),
                 'Timed out waiting for popup to appear.'
             )
-            self.driver.switch_to.alert
+            return self.driver.switch_to.alert
         elif frame_number:
             self.driver.switch_to.frame(frame_number)
         elif frame_name:
             self.driver.switch_to.frame(frame_name)
+        elif iframe_element:
+            iframe = self.find(iframe_element)
+            self.driver.switch_to.frame(iframe)
         else:
             self.driver.switch_to.default_content()
 
