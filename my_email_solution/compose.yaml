@@ -72,13 +72,12 @@ services:
       - ROUNDCUBEMAIL_UPLOAD_MAX_FILESIZE=100M
     volumes:
       - ./docker-data/webmail/config/zzz_roundcube-custom.ini:/usr/local/etc/php/conf.d/zzz_roundcube-custom.ini # Config file to modify php memory limit
-      - ./docker-data/webmail/config/:/var/roundcube/config/ # Advanced config : Image search and includes *.php files in this.
+      - ./docker-data/webmail/config/:/var/roundcube/config/ # RoundCube Config files
       - ./docker-data/ca/ssl/cacert.pem:/etc/openssl/certs/cacert.pem # Include the CA certificate
       - ./docker-data/webmail/config/ssl/webmail.example.com-cert.pem:/etc/ssl/certs/ssl-cert-snakeoil.pem # Import webmail's certficate
       - ./docker-data/webmail/config/ssl/webmail.example.com-key.pem:/etc/ssl/private/ssl-cert-snakeoil.key # Import webmail's private key
     ports:
       - "443:443"    # HTTPS
-      - "80:80"
     depends_on:
       - mailserver
 
