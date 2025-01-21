@@ -27,7 +27,7 @@ class Scenario:
     id = 0
     
     def __init__(self, user, user_address, user_psw, contacts, provider, browser, adblock, untracked,
-                 time_limit, n_mail_to_send, n_mail_to_read_and_answer, n_mail_to_read_and_delete):
+                 time_limit, login, n_mail_to_send, n_mail_to_read_and_answer, n_mail_to_read_and_delete):
         # Identifier
         self.id == Scenario.id
         Scenario.id += 1
@@ -43,6 +43,7 @@ class Scenario:
         self.adblock = adblock
         self.untracked = untracked
         self.time_limit = time_limit # in seconds
+        self.login = login
         self.n_mail_to_send = n_mail_to_send
         self.n_mail_to_read_and_answer = n_mail_to_read_and_answer
         self.n_mail_to_read_and_delete = n_mail_to_read_and_delete
@@ -64,6 +65,7 @@ class Scenario:
             f"Tracking: {"limited" if self.untracked else "allowed"}\n"
             f"Adblock: {"activated" if self.adblock else "not used"}\n"
             f"Duration: {self.time_limit} seconds\n"
+            f"Number of login/logout sequence: {self.login}\n"
             "Number of emails to send with:\n"
             f"\t No attachment: {self.n_mail_to_send[0]}\n"
             f"\t 5 MB attachment: {self.n_mail_to_send[5]}\n"
@@ -93,18 +95,18 @@ class Scenario:
             )
         return output
     
-    def get_session(self):
+    def get_session(self, no_time_limit = False):
         '''
         This function opens a session on the email service provider's website
         '''
         if self.provider == OUTLOOK:
-            session = OutlookSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit)
+            session = OutlookSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit, no_time_limit)
         elif self.provider == PROTON:
-            session = ProtonSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit)
+            session = ProtonSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit, no_time_limit)
         elif self.provider == GMAIL:
-            session = GmailSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit)
+            session = GmailSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit, no_time_limit)
         elif self.provider == MY_SOLUTION:
-            session = MySolutionSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit)
+            session = MySolutionSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit, no_time_limit)
         return session
     
     def get_email_file_path(self, firstname=None, surname=None):
@@ -276,8 +278,17 @@ class Scenario:
         print(self)
 
         # Log in on the mail provider website
-        session = self.get_session()
+        session = self.get_session(no_time_limit=True)
         self.start = time.time()
+
+        # Login/logout the account as many times as asked
+        if self.login > 1:
+            for _ in range(self.login - 1 ):
+                session.login()
+                session.pause(PAUSE_BTW_RUN)
+                session.logout()
+                session.pause(PAUSE_BTW_RUN)
+
         session.login()
 
         # Open the CSV file containing email subjects and bodies
@@ -293,17 +304,17 @@ class Scenario:
                     subject = mail[SUBJECT_COL]
                     content = mail[CONTENT_COL]
                     session.send_mail(self.contacts[0], subject, content, attachment_size)
-                    session.pause(2)
+                    session.pause(PAUSE_BTW_RUN)
 
             # Read and Answer the specified number of emails     
             for _ in range(self.n_mail_to_read_and_answer):
                 self.read_and_answer(session)
-                session.pause(2)
+                session.pause(PAUSE_BTW_RUN)
 
             # Read and Delete the specified number of emails    
             for _ in range(self.n_mail_to_read_and_delete):
                 self.read_and_delete(session)
-                session.pause(2)
+                session.pause(PAUSE_BTW_RUN)
 
         # Logout, close browser, collect final stats and print summary
 
@@ -335,7 +346,7 @@ def main():
     
     for sp in scenarios_parameters:
         scenario = Scenario(*sp)
-        thread = threading.Thread(target=scenario.run)
+        thread = threading.Thread(target=scenario.run_sequential)
         threads.append(thread)
         thread.start()
 

@@ -26,4 +26,4 @@ echo "172.19.0.1 my_solution" >> /etc/hosts
 
 # Run the Python script (-u option to unbuffer the output)
 echo "Running Python script..."
-python -u src/scenario.py test2.json
+python -u src/scenario.py scenarios_2025/2025_proton_login_noadblock.json

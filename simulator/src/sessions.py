@@ -86,11 +86,12 @@ class WebDriver():
 #========================================================================================================================
 class Session:
               
-    def __init__(self, user_address, psw, browser_name, adblock, untracked, time_limit=TIME_LIMIT):
+    def __init__(self, user_address, psw, browser_name, adblock, untracked, time_limit=TIME_LIMIT, no_time_limit=False):
         self.user_address = user_address
         self.psw = psw
         self.start = time.time()
         self.time_limit = time_limit
+        self.no_time_limit = no_time_limit
         self.driver = WebDriver(browser_name, adblock, untracked).driver
 
         
@@ -182,16 +183,26 @@ class Session:
         '''
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs):
-            now = time.time()
-            remains = self.start + self.time_limit - now
-            try:
-                if remains > 0:
-                    print("[INFO] : Executing '{}' ({} Seconds left)".format(func.__name__, round(remains)))
+
+            if self.no_time_limit == True: # NO TIME LIMIT
+                try:
+                    print("[INFO] : Executing '{}'".format(func.__name__))
                     return func(self, *args, **kwargs)
-                else:
-                    print(f"[TIMEOUT] : Won't execute {func.__name__}.")
-            except Exception as e:
-                print(str(e))
+                except Exception as e:
+                    print(str(e))
+            else:   # TIME LIMIT ACTIVATED
+
+                now = time.time()
+                remains = self.start + self.time_limit - now
+                try:
+                    if remains > 0:
+                        print("[INFO] : Executing '{}' ({} Seconds left)".format(func.__name__, round(remains)))
+                        return func(self, *args, **kwargs)
+                    else:
+                        print(f"[TIMEOUT] : Won't execute {func.__name__}.")
+                except Exception as e:
+                    print(str(e))
+
         return wrapper
     
     def pause(self, delay=None):

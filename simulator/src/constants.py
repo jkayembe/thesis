@@ -24,6 +24,7 @@ WAIT_LIMIT = 10             # Max time for Selenium to find an html element :
 MAX_PAGE_LOAD_TIME = 40      # Max time for a webpage to load
 TIME_PER_MB = 2             # Seconds to wait for 1MB of attached file to be uploaded
 READING_TIME = 5            # Seconds to read a mail
+PAUSE_BTW_RUN = 5
 
 # Determine interval between each action: lower value to fasten the session
 TIME_BETWEEN_ACTIONS = 2
@@ -36,6 +37,7 @@ BROWSER = "BROWSER"
 ADBLOCK = "ADBLOCK"
 UNTRACKED = "UNTRACKED"
 TIME_LIMIT =  "TIME_LIMIT"
+LOGIN = "LOGIN"
 N_MAIL_SENT = "N_MAIL_SENT"
 N_MAIL_READ_AND_ANSWER = "N_MAIL_READ_AND_ANSWER"
 N_MAIL_READ_AND_DELETE = "N_MAIL_READ_AND_DELETE"
@@ -58,6 +60,7 @@ SCENARIOS = {
         ADBLOCK:"true",
         UNTRACKED:"true",   
         TIME_LIMIT: 3,
+        LOGIN: 0,
         N_MAIL_SENT: { # for each attachment size
             0: 0,   # no attachment
             5: 1,
@@ -82,6 +85,7 @@ SCENARIOS = {
     #     ADBLOCK:"false",
     #     UNTRACKED:"false",
     #     TIME_LIMIT: 100,
+    #     LOGIN: 0,
         # N_MAIL_SENT: { # for each attachment size
         #     0: 1,     # no attachment
         #     5: 1, 
@@ -106,6 +110,7 @@ SCENARIOS = {
     #     ADBLOCK:"true",
     #     UNTRACKED:"true",   
     #     TIME_LIMIT: 2,
+    #     LOGIN: 0,
     #     N_MAIL_SENT: { # for each attachment size
     #         0: 0,   # no attachment
     #         5: 0, 

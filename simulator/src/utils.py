@@ -74,6 +74,7 @@ def handle_arguments():
             ADBLOCK:"false",
             UNTRACKED:"false",
             TIME_LIMIT: 100,
+            LOGIN: 100,
             N_MAIL_SENT: {
                 0: 1,   # 1 email without attachment
                 5: 1,   # 1 email with 5MB attachment
@@ -99,6 +100,7 @@ def handle_arguments():
             ADBLOCK:"true",
             UNTRACKED:"true",   
             TIME_LIMIT: 1,
+            LOGIN: 100,            
             N_MAIL_SENT: {
                 0: 1,   # 1 email without attachment
                 5: 1,   # 1 email with 5MB attachment
@@ -137,6 +139,7 @@ def handle_arguments():
         adblock = scenario_data[ADBLOCK]
         untracked = scenario_data[UNTRACKED]
         time_limit = scenario_data[TIME_LIMIT]
+        login = scenario_data[LOGIN]
         n_mail_to_send = scenario_data[N_MAIL_SENT]
         n_mail_to_read_and_answer = scenario_data[N_MAIL_READ_AND_ANSWER]
         n_mail_to_read_and_delete = scenario_data[N_MAIL_READ_AND_DELETE]
@@ -150,6 +153,7 @@ def handle_arguments():
             
             # Ensure numbers are treated as int
             time_limit = int(time_limit*60)
+            login = int(login)
             n_mail_to_read_and_answer = int(n_mail_to_read_and_answer)
             n_mail_to_read_and_delete = int(n_mail_to_read_and_delete)
             n_mail_to_send = {int(size): int(count) for size, count in n_mail_to_send.items()}
@@ -159,11 +163,11 @@ def handle_arguments():
                 if size not in [0, 5, 10, 15, 20, 25] or count < 0:
                     raise ValueError
             
-            if time_limit < 0 or n_mail_to_read_and_answer < 0 or n_mail_to_read_and_delete < 0:
+            if time_limit < 0 or n_mail_to_read_and_answer < 0 or n_mail_to_read_and_delete < 0 or login < 0:
                 raise ValueError
             
         except ValueError:
-            print("Invalid scenario parameters: TIME_LIMIT, N_MAIL_READ_AND_ANSWER, and N_MAIL_READ_AND_DELETE must be integers >= 0, "
+            print("Invalid scenario parameters: TIME_LIMIT, LOGIN, N_MAIL_READ_AND_ANSWER, and N_MAIL_READ_AND_DELETE must be integers >= 0, "
                   "N_MAIL_TO_SEND must be a dictionary with valid sizes (0, 5, 10, 15, 20, 25) "
                   "and non-negative counts.")
             sys.exit(1)
@@ -182,7 +186,7 @@ def handle_arguments():
             sys.exit(1)
 
         scenario_params = (user, user_address, user_psw, contacts, provider, browser, adblock == 'true', untracked == 'true',
-                           time_limit, n_mail_to_send, n_mail_to_read_and_answer, n_mail_to_read_and_delete)
+                           time_limit, login, n_mail_to_send, n_mail_to_read_and_answer, n_mail_to_read_and_delete)
         scenarios_parameters.append(scenario_params)
 
     return scenarios_parameters

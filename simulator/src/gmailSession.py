@@ -3,7 +3,8 @@
 from sessions import *
 
 # Constants for URLs
-GMAIL_URL = "https://mail.google.com/"
+#GMAIL_URL = "https://mail.google.com/"
+GMAIL_URL = "https://accounts.google.com/v3/signin/identifier?service=mail&continue=https%3A%2F%2Fmail.google.com%2Fmail%2F&flowName=GlifWebSignIn&flowEntry=AccountChooser&ec=asw-gmail-globalnav-signin&ddm=1"
 LOGGED_IN_URL = "https://mail.google.com/mail/u/0/#inbox"
 HOME_PAGE_URL = "https://mail.google.com/mail/u/0/#inbox"
 
@@ -48,8 +49,8 @@ SEND_BUTTON = (By.XPATH, "//div[4]/table/tbody/tr/td/div/div[2]/div")
 
 class GmailSession(Session):
 
-    def __init__(self, user_address, user_psw, browser_name, adblock, untracked, time_limit=TIME_LIMIT):
-        super().__init__(user_address, user_psw, browser_name, adblock, untracked, time_limit)
+    def __init__(self, user_address, user_psw, browser_name, adblock, untracked, time_limit=TIME_LIMIT, no_time_limit=False):
+        super().__init__(user_address, user_psw, browser_name, adblock, untracked, time_limit, no_time_limit)
 
     @Session.time_limited_execution
     @Session.retry_on_failure(MAX_ATTEMPTS,

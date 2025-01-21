@@ -23,7 +23,7 @@ flow:
       container: automated-session
       commands:
         - type: console
-          command: python src/scenario.py test/2_gmail_answer_adblock.json
+          command: python src/scenario.py scenarios_2025/2025_proton_login_noadblock.json
           note: Starting the Python Scenario Script
           log-stdout: true
           read-notes-stdout: true
