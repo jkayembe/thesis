@@ -1,4 +1,4 @@
-venv/
+simulator/venv/
 
 Mail_Simulation.pyproj
 .vs/
@@ -17,3 +17,7 @@ simulator/chrome_profiles/*
 my_email_solution/docker-data/dms/
 !my_email_solution/docker-data/dms/config/
 !my_email_solution/docker-data/dms/ssl/
+
+notebook/notebook_venv/
+
+note
