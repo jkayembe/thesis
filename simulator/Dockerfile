@@ -21,7 +21,6 @@ ENV CHROMIUM_DRIVER_PATH='/usr/bin/chromedriver'
 ENV IS_CONTAINER=true
 ENV DISPLAY=:0
 
-
 # Start Xvfb and x11vnc, then run the Python script
 #CMD ["bash", "-c", "Xvfb :0 -screen 0 1296x736x16  & \
 #                    x11vnc -forever -create -display :0 -rfbport 5900 -bg -nopw && \

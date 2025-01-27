@@ -1,12 +1,12 @@
-simulator/venv/
-
 Mail_Simulation.pyproj
 .vs/
 .vscode/
 
+simulator/simulator_venv/
 simulator/log/
 simulator/logs/
-simulator/test*.json
+simulator/test/
+simulator/scenarios_2025_done/
 simulator/src/__pycache__
 simulator/chrome_profiles/*
 !simulator/chrome_profiles/tracked_profile/History

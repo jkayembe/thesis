@@ -172,8 +172,10 @@ class Scenario:
                 answer = self.select_answer(sender, unique_id)
                 session.reply(answer)
             else:
+                print("[ERROR] : Can't extract subject. Abording answer.")
                 session.delete_first()
         else:
+            print("[ERROR] : Can't answer email. Sender not known in contact list. Abording answer.")
             session.delete_first()
         
 
@@ -280,7 +282,7 @@ class Scenario:
         # Log in on the mail provider website
         session = self.get_session(no_time_limit=True)
         self.start = time.time()
-
+        
         # Login/logout the account as many times as asked
         if self.login > 1:
             for _ in range(self.login - 1 ):
@@ -290,6 +292,7 @@ class Scenario:
                 session.pause(PAUSE_BTW_RUN)
 
         session.login()
+        session.pause(PAUSE_BTW_RUN)
 
         # Open the CSV file containing email subjects and bodies
         file_path = self.get_email_file_path()[0]
@@ -304,16 +307,19 @@ class Scenario:
                     subject = mail[SUBJECT_COL]
                     content = mail[CONTENT_COL]
                     session.send_mail(self.contacts[0], subject, content, attachment_size)
+                    session.home_page()
                     session.pause(PAUSE_BTW_RUN)
 
             # Read and Answer the specified number of emails     
             for _ in range(self.n_mail_to_read_and_answer):
                 self.read_and_answer(session)
+                session.home_page()
                 session.pause(PAUSE_BTW_RUN)
 
             # Read and Delete the specified number of emails    
             for _ in range(self.n_mail_to_read_and_delete):
                 self.read_and_delete(session)
+                session.home_page()
                 session.pause(PAUSE_BTW_RUN)
 
         # Logout, close browser, collect final stats and print summary

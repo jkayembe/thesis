@@ -133,8 +133,7 @@ class GmailSession(Session):
             self.driver.get(HOME_PAGE_URL)
             # Handle potential alert popups
             try:
-                WebDriverWait(self.driver, 10).until(EC.alert_is_present(), "Timed out waiting for popup to appear.")
-                alert = self.driver.switch_to.alert
+                alert = self.switch_frame(alert=True)
                 alert.accept()
                 self.stats["refresh"] += 1
             except TimeoutException:

@@ -8,10 +8,10 @@ from sessions import *
 # =====================================================================================
 
 # Constants for URLs
-MY_SOLUTION_URL = "https://my_solution/"
-HOME_PAGE_URL = "https://my_solution/?_task=mail"
-LOGGED_IN_URL = "https://my_solution/?_task=mail&_mbox=INBOX"
-LOGGED_OUT_URL = "https://my_solution/?_task=logout&_token=XXQAOUkQpEaCtGgjU9O8LRCqjDVD6ABy"
+MY_SOLUTION_URL = "https://my-solution.com/"
+HOME_PAGE_URL = "https://my-solution.com/?_task=mail"
+LOGGED_IN_URL = "https://my-solution.com/?_task=mail&_mbox=INBOX"
+LOGGED_OUT_URL = "https://my-solution.com/?_task=logout&_token=XXQAOUkQpEaCtGgjU9O8LRCqjDVD6ABy"
 
 # Constants for selectors
 USERNAME_INPUT = (By.ID, "rcmloginuser")
@@ -85,14 +85,9 @@ class MySolutionSession(Session):
         '''
         Compose and send an email with a specified recipient, subject, and content.
         '''
-
-        # Click on the compose button
         self.click(COMPOSE_BUTTON)
-        # Enter the recipient
         self.type(RECIPIENT_FIELD, to, hit_enter=True)
-        # Enter the subject of the email
         self.type(SUBJECT_FIELD, mail_object)
-        # Enter the content of the email
         self.type(EMAIL_BODY_IFRAME, mail_body)
 
         # Attach a file if necessary
@@ -104,7 +99,6 @@ class MySolutionSession(Session):
             # Wait for file to download
             self.pause(TIME_PER_MB * attached_file_size)
         
-        # Click on the send button
         self.click(SEND_BUTTON)
         
         self.stats["sent_mails"][attached_file_size] += 1
@@ -153,7 +147,6 @@ class MySolutionSession(Session):
             except Exception as e:
                 print(f"[DEBUG] : Failed to click mailbox link ({e}). Trying force refresh.")
                 self.home_page(force=True)
-        self.pause(delay=1)
             
 
     def delete_drafts(self):

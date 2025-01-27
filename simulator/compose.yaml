@@ -8,11 +8,13 @@ networks:
 
 services:
   simulator:
-    image: jkayembe/automated-session
+    image: jkayembe/automated-session:latest
     container_name: simulator
     networks:
       my-network:
         ipv4_address: 172.19.0.2
+    dns:
+      - 172.19.0.1
     ports:
       - "5900:5900"  # VNC port
     environment:

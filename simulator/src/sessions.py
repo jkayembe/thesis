@@ -6,6 +6,7 @@ import time
 import functools
 import csv
 import traceback
+import fnmatch
 from datetime import datetime
 
 
@@ -17,6 +18,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
+
 
 # local imports
 from constants import *
@@ -51,10 +53,16 @@ class WebDriver():
 
                     
                 # If adblock is required load the extension
-                if adblock:
+                # if adblock:
 
-                    adblock_extension_path = os.path.join(os.path.dirname(__file__), ADBLOCK_FOLDER)
-                    options.add_argument(f"--load-extension={adblock_extension_path}")
+                #     adblock_extension_path = os.path.join(os.path.dirname(__file__), ADBLOCK_FOLDER)
+                #     options.add_argument(f"--load-extension={adblock_extension_path}")
+                
+                #If encryption is required, load mailvelope
+                if True:
+
+                    pgp_extension_path = os.path.join(os.path.dirname(__file__), PGP_FOLDER)
+                    options.add_argument(f"--load-extension={pgp_extension_path}")
 
                     
                 # Select the chrommium profile to allow or limit tracking
@@ -69,15 +77,13 @@ class WebDriver():
                 options.add_argument(f"user-data-dir={profiles_dir}")
                 options.add_argument(f'profile-directory={profile}')
 
-                # Add the System's Certificate Authorities (CA) trust store so that our
-                # own CAs (added to the system trusted store) are considered as valid by chromium
+                # Since our own webmail is using self-signed certificate, we need to ignore browser warnings
                 options.add_argument("ignore-certificate-errors")
 
                 # Initialize WebDriver with Chrome binary path and options
                 self.driver = webdriver.Chrome(options=options)
 
-
-                if adblock: print("[INFO]: AdBlock extension is loaded.")
+                # if adblock: print("[INFO] : AdBlock extension is loaded.")
                 print(f"[INFO] : {"Limited" if untracked else "Allowed"} tracking profile loaded.")
                
         # set Window Size
@@ -296,7 +302,7 @@ class Session:
 
             # Wait for the URL to change to the expected one
             WebDriverWait(self.driver, wait_limit).until(
-                lambda driver: driver.current_url == url_to_be_loaded,
+                lambda driver: fnmatch.fnmatch(driver.current_url, url_to_be_loaded), #compare both address bu allow wildcards like */?
                 f"URL didn't change to '{url_to_be_loaded}' after {MAX_PAGE_LOAD_TIME}s." 
             )
 

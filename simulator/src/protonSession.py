@@ -10,7 +10,7 @@ from sessions import *
 # Constants for URLs
 MY_SOLUTION_URL = "https://account.proton.me/fr/mail"
 HOME_PAGE_URL = "https://account.proton.me/fr/mail"
-LOGGED_IN_URL = "https://mail.proton.me/u/0/inbox"
+LOGGED_IN_URL = "https://mail.proton.me/u/*/inbox"
 LOGGED_OUT_URL = "https://account.proton.me/mail"
 
 # Constants for selectors
@@ -18,7 +18,7 @@ USERNAME_INPUT = (By.ID, "username")
 PASSWORD_INPUT = (By.ID, "password")
 LOGIN_BUTTON = (By.CSS_SELECTOR, ".button-large")
 USER_AVATAR = (By.CSS_SELECTOR, ".my-auto > .m-auto")
-LOGOUT_BUTTON = (By.CSS_SELECTOR, ".pb-4 > .button")
+LOGOUT_BUTTON = (By.XPATH, "//button[@data-testid='userdropdown:button:logout']")
 COMPOSE_BUTTON = (By.XPATH, "//div[3]/div/div/div/div[1]/div[2]/button")
 RECIPIENT_FIELD = (By.XPATH, "//input[contains(@id,'to-composer')]")
 SUBJECT_FIELD = (By.XPATH, "//input[contains(@id, 'subject-composer')]")
@@ -72,6 +72,7 @@ class ProtonSession(Session):
         '''
         This function logs out of the proton website
         '''
+
         # Click on user avatar
         self.click(USER_AVATAR)
         # Click on logout button
@@ -152,7 +153,6 @@ class ProtonSession(Session):
             self.driver.get(HOME_PAGE_URL)
             try:
                 alert = self.switch_frame(alert=True)
-                self.pause(10)
                 alert.accept()
                 self.stats["refresh"] += 1
             except TimeoutException:

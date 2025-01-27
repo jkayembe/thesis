@@ -14,7 +14,7 @@ services:
     restart: always
     image: strm/dnsmasq
     container_name: dns-server
-    hostname: ns.example.com
+    hostname: ns.my-solution.com
     networks:
       mail-network:
         ipv4_address: 172.20.0.2
@@ -27,7 +27,7 @@ services:
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
     container_name: mailserver
     # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
-    hostname: mail.example.com
+    hostname: mail.my-solution.com
     env_file: mailserver.env
     networks:
       mail-network:
@@ -74,8 +74,8 @@ services:
       - ./docker-data/webmail/config/zzz_roundcube-custom.ini:/usr/local/etc/php/conf.d/zzz_roundcube-custom.ini # Config file to modify php memory limit
       - ./docker-data/webmail/config/:/var/roundcube/config/ # RoundCube Config files
       - ./docker-data/ca/ssl/cacert.pem:/etc/openssl/certs/cacert.pem # Include the CA certificate
-      - ./docker-data/webmail/config/ssl/webmail.example.com-cert.pem:/etc/ssl/certs/ssl-cert-snakeoil.pem # Import webmail's certficate
-      - ./docker-data/webmail/config/ssl/webmail.example.com-key.pem:/etc/ssl/private/ssl-cert-snakeoil.key # Import webmail's private key
+      - ./docker-data/webmail/config/ssl/webmail.my-solution.com-cert.pem:/etc/ssl/certs/ssl-cert-snakeoil.pem # Import webmail's certficate
+      - ./docker-data/webmail/config/ssl/webmail.my-solution.com-key.pem:/etc/ssl/private/ssl-cert-snakeoil.key # Import webmail's private key
     ports:
       - "443:443"    # HTTPS
     depends_on:

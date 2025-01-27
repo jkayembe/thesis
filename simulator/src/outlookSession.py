@@ -22,7 +22,7 @@ LOGOUT_BUTTON = (By.ID, "mectrl_body_signOut")
 COMPOSE_BUTTON = (By.XPATH, "//span/button/span/span/span")
 RECIPIENT_FIELD = (By.CSS_SELECTOR, ".\\___1mtnehv")
 SUBJECT_FIELD = (By.XPATH, "//div/div[3]/div[2]/span/input")
-EMAIL_BODY = (By.XPATH, '//*[@id="editorParent_1"]/div')
+EMAIL_BODY = (By.XPATH, '//*[contains(@id, "editorParent_")]/div')
 ATTACH_FILE_INPUT = (By.XPATH, "//input[@data-testid='local-computer-filein'][2]")
 SEND_A_COPY_BUTTON = (By.XPATH, "//div[5]/button/div/i")
 SEND_BUTTON = (By.XPATH, "//button[@title='Send (Ctrl+Enter)']")
@@ -60,7 +60,6 @@ class OutlookSession(Session):
         '''
         Log in to the Outlook user account.
         '''
-
         # Open the Outlook login page
         self.driver.get(OUTLOOK_URL)
         # Enter user email
@@ -75,8 +74,6 @@ class OutlookSession(Session):
         # Wait for the page to load
         self.wait_page_loaded(LOGGED_IN_URL)
         print("[INFO] : Logged in.")
-
-    
     
 
     @Session.retry_on_failure(MAX_ATTEMPTS,
@@ -161,8 +158,8 @@ class OutlookSession(Session):
             self.driver.get(HOME_PAGE_URL)
         # Accept alert if any
             try:
-                WebDriverWait(self.driver, WAIT_LIMIT).until(EC.alert_is_present())
-                self.driver.switch_to.alert.accept()
+                alert = self.switch_frame(alert=True)
+                alert.accept()
                 self.stats["refresh"] += 1
             except TimeoutException:
                 print("[DEBUG] : No alert found.")

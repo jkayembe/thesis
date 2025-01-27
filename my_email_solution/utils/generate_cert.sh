@@ -22,8 +22,8 @@ step certificate create "Smallstep Root CA" \
   --profile root-ca \
   --not-before "2021-01-01T00:00:00+00:00" \
   --not-after "2031-01-01T00:00:00+00:00" \
-  --san "example.com" \
-  --san "mail.example.com" \
+  --san "my-solution.com" \
+  --san "mail.my-solution.com" \
   --kty RSA --size 2048
 
 # Add read permissions to the CA files
@@ -31,41 +31,41 @@ chmod +r "$FOLDER/ca/ssl/cacert.pem" "$FOLDER/ca/ssl/cakey.pem"
 
 # Create the DMS (Docker Mail Server) certificate
 step certificate create "Smallstep Leaf" \
-  "$FOLDER/dms/config/ssl/mail.example.com-cert.pem" \
-  "$FOLDER/dms/config/ssl/mail.example.com-key.pem" \
+  "$FOLDER/dms/config/ssl/mail.my-solution.com-cert.pem" \
+  "$FOLDER/dms/config/ssl/mail.my-solution.com-key.pem" \
   --no-password --insecure \
   --profile leaf \
   --ca "$FOLDER/ca/ssl/cacert.pem" \
   --ca-key "$FOLDER/ca/ssl/cakey.pem" \
   --not-before "2021-01-01T00:00:00+00:00" \
   --not-after "2031-01-01T00:00:00+00:00" \
-  --san "example.com" \
-  --san "mail.example.com" \
+  --san "my-solution.com" \
+  --san "mail.my-solution.com" \
   --san "mailserver" \
   --kty RSA --size 2048
 
 cp "$FOLDER/ca/ssl/cacert.pem" "$FOLDER/dms/config/ssl/demoCA/cacert.pem"
 
 # Add read permissions to the DMS files
-chmod +r "$FOLDER/dms/config/ssl/mail.example.com-cert.pem" \
-          "$FOLDER/dms/config/ssl/mail.example.com-key.pem" \
+chmod +r "$FOLDER/dms/config/ssl/mail.my-solution.com-cert.pem" \
+          "$FOLDER/dms/config/ssl/mail.my-solution.com-key.pem" \
           "$FOLDER/dms/config/ssl/demoCA/cacert.pem"
 
 # Create the Webmail certificate
 step certificate create "Smallstep Leaf" \
-  "$FOLDER/webmail/config/ssl/webmail.example.com-cert.pem" \
-  "$FOLDER/webmail/config/ssl/webmail.example.com-key.pem" \
+  "$FOLDER/webmail/config/ssl/webmail.my-solution.com-cert.pem" \
+  "$FOLDER/webmail/config/ssl/webmail.my-solution.com-key.pem" \
   --no-password --insecure \
   --profile leaf \
   --ca "$FOLDER/ca/ssl/cacert.pem" \
   --ca-key "$FOLDER/ca/ssl/cakey.pem" \
   --not-before "2021-01-01T00:00:00+00:00" \
   --not-after "2031-01-01T00:00:00+00:00" \
-  --san "example.com" \
-  --san "webmail.example.com" \
+  --san "my-solution.com" \
+  --san "my-solution.com" \
   --san "webmail" \
   --kty RSA --size 2048
 
 # Add read permissions to the Webmail files
-chmod +r "$FOLDER/webmail/config/ssl/webmail.example.com-cert.pem" \
-          "$FOLDER/webmail/config/ssl/webmail.example.com-key.pem"
+chmod +r "$FOLDER/webmail/config/ssl/webmail.my-solution.com-cert.pem" \
+          "$FOLDER/webmail/config/ssl/webmail.my-solution.com-key.pem"

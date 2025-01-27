@@ -12,6 +12,7 @@
     "ADBLOCK":"true",
     "UNTRACKED":"true",   
     "TIME_LIMIT": 2,
+    "LOGIN": 1,
     "N_MAIL_SENT": { 
         "0": 1,   
         "5": 0,

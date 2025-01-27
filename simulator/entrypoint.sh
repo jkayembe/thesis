@@ -22,8 +22,8 @@ x11vnc -forever -create -display :0 -rfbport 5900 -nopw > /tmp/logs/x11vnc.log 2
 # Add my_solution (i.e. the docker-gateway, so that we can reach 
 # the host (which has exposed ports to my_solution own docker network))
 # entry to /etc/hosts
-echo "172.19.0.1 my_solution" >> /etc/hosts
+echo "172.19.0.1 my-solution.com" >> /etc/hosts
 
 # Run the Python script (-u option to unbuffer the output)
 echo "Running Python script..."
-python -u src/scenario.py scenarios_2025/2025_proton_login_noadblock.json
+python -u src/scenario.py scenarios_2025/2025_outlook_answer_noadblock.json
