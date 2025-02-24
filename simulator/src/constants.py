@@ -19,15 +19,15 @@ BROWSERS = [CHROME,]
 # Time Limits 
 
 MAX_ATTEMPTS = 2            # Determines how many times the sessions functions are attempted (in case of failure)
-DELAY = 1                   # Seconds between each attempts
+DELAY = 1                   # Seconds between each attempts when functions fail
 WAIT_LIMIT = 10             # Max time for Selenium to find an html element :
-MAX_PAGE_LOAD_TIME = 40      # Max time for a webpage to load
+MAX_PAGE_LOAD_TIME = 40     # Max time for a webpage to load
 TIME_PER_MB = 2             # Seconds to wait for 1MB of attached file to be uploaded
-READING_TIME = 5            # Seconds to read a mail
-PAUSE_BTW_RUN = 5
-
-# Determine interval between each action: lower value to fasten the session
-TIME_BETWEEN_ACTIONS = 2
+READING_TIME = 5            # Seconds to read a mail (Use 5 in real testing)
+PAUSE_BTW_RUN = 5           # Seconds between different actions (Use 5 in real testing)
+WAIT_AFTER_PAGE_LOADED = 5  # Seconds to wait after a page is loaded so that display stabalizes. (Use 5 in real testing)
+MAILVELOPE_POPUP_WAIT_TIME = 2 # Max seconds to wait for Mailvelope credentials handling window to popup (Use 2)
+DEFAULT_PAUSE_DELAY = 2    # Determine defult value of Session.pause() (Use 2)
 
 # Keys for the Default arguments dictionnary :
 USER = "USER"
@@ -36,8 +36,9 @@ PROVIDER = "PROVIDER"
 BROWSER = "BROWSER"
 ADBLOCK = "ADBLOCK"
 UNTRACKED = "UNTRACKED"
+PGP = "PGP"
 TIME_LIMIT =  "TIME_LIMIT"
-LOGIN = "LOGIN"
+N_SESSION = 'N_SESSION'
 N_MAIL_SENT = "N_MAIL_SENT"
 N_MAIL_READ_AND_ANSWER = "N_MAIL_READ_AND_ANSWER"
 N_MAIL_READ_AND_DELETE = "N_MAIL_READ_AND_DELETE"
@@ -47,7 +48,7 @@ DOMAIN = "DOMAIN"
 # Default arguments dicionnary for the scenarios :
 SCENARIOS = {
     
-    "scenario 1": {
+    "scenario": {
         USER: "Jason Kayembe",
         USER_PASSWORD: "Azerty123",
         DOMAIN : ".ulb.test4@proton.me",
@@ -58,9 +59,10 @@ SCENARIOS = {
         PROVIDER: PROTON,
         BROWSER: CHROME,
         ADBLOCK:"true",
-        UNTRACKED:"true",   
+        UNTRACKED:"true",
+        PGP: "false",   
         TIME_LIMIT: 3,
-        LOGIN: 0,
+        N_SESSION: 1,
         N_MAIL_SENT: { # for each attachment size
             0: 0,   # no attachment
             5: 1,
@@ -72,56 +74,6 @@ SCENARIOS = {
        N_MAIL_READ_AND_ANSWER: 0,
        N_MAIL_READ_AND_DELETE: 0
     },
-    
-    # "scenario 2": {
-    #     USER: "Jason Kayembe",
-    #     USER_PASSWORD: "Azerty123",
-    #     DOMAIN : ".ulb.test3@outlook.com",
-    #     CONTACTS: [
-    #         "jason.kayembe.ulb.test@gmail.com",
-    #     ],   
-    #     PROVIDER: OUTLOOK,
-    #     BROWSER: CHROME,
-    #     ADBLOCK:"false",
-    #     UNTRACKED:"false",
-    #     TIME_LIMIT: 100,
-    #     LOGIN: 0,
-        # N_MAIL_SENT: { # for each attachment size
-        #     0: 1,     # no attachment
-        #     5: 1, 
-        #     10: 0,
-        #     15: 0, 
-        #     20: 0,  
-        #     25: 0 
-        # },
-    #    N_MAIL_READ_AND_ANSWER: 0,
-    #    N_MAIL_READ_AND_DELETE: 0
-    # }
-    # "scenario 3": {
-    #     USER: "Jason Kayembe",
-    #     USER_PASSWORD: "Azerty.123",
-    #     DOMAIN : ".ulb.test@gmail.com",
-    #     CONTACTS: [
-    #         "jason.kayembe.ulb.test3@outlook.com",
-    #         "jason.kayembe@hotmail.com"
-    #     ],   
-    #     PROVIDER: GMAIL,
-    #     BROWSER: CHROME,
-    #     ADBLOCK:"true",
-    #     UNTRACKED:"true",   
-    #     TIME_LIMIT: 2,
-    #     LOGIN: 0,
-    #     N_MAIL_SENT: { # for each attachment size
-    #         0: 0,   # no attachment
-    #         5: 0, 
-    #         10: 0,  
-    #         15: 0,  
-    #         20: 0,  
-    #         25: 0   
-    #     },
-    #     N_MAIL_READ_AND_ANSWER: 3,
-    #     N_MAIL_READ_AND_DELETE: 0
-    # }
 }
 
 # Check if the script is run from a container :
@@ -136,7 +88,6 @@ IS_CONTAINER = os.environ.get("IS_CONTAINER", "false").lower() == "true"
 IS_MEASURED = os.environ.get("IS_MEASURED", "false").lower() == "true"
 
 # Files :
-LOG_FOLDER = "../logs/"
 EMAILS_FOLDER = "../emails_answers/"
 ATTACHED_FILES = "../attached_files/"
 ADBLOCK_FOLDER = "../ublock/"
@@ -159,20 +110,4 @@ TEMPERATURE = 0.7
 CONTENT_LENGTH = 300
 NUM_EMAILS_PER_INTEREST = 20
 
-# Colors for the output of 
-# ANSI color escape codes
-# Add more colors if more than 10 threads
-COLORS = {
-    0: "\033[91m",  # thread 0 --> Red
-    1: "\033[92m",  # thread 1 --> Green
-    2: "\033[93m",  # thread 2 --> Yellow
-    3: "\033[94m",  # thread 3 --> Blue
-    4: "\033[95m",  # thread 4 --> Magenta
-    5: "\033[96m",  # thread 5 --> Cyan
-    6: "\033[97m",  # thread 6 --> White
-    7: "\033[98m",  # thread 7 --> Bright black
-    8: "\033[99m",  # thread 8 --> Bright red
-    9: "\033[90m",  # thread 9 --> Dark gray
-}
-    
 

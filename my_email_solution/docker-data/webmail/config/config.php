@@ -33,5 +33,5 @@
     $config['sql_debug'] = false;
 
     // Enable detailed error logs (for debugging purposes)
-    $config['debug_level'] = 4; // 1 = errors only, 4 = all debugging information
+    $config['debug_level'] = 1; // 1 = errors only, 4 = all debugging information
 

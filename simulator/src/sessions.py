@@ -17,7 +17,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 
 
 # local imports
@@ -92,36 +92,37 @@ class WebDriver():
 #========================================================================================================================
 class Session:
               
-    def __init__(self, user_address, psw, browser_name, adblock, untracked, time_limit=TIME_LIMIT, no_time_limit=False):
+    def __init__(self,
+                 user_address,
+                 psw, browser_name,
+                 adblock,
+                 untracked,
+                 pgp=False,
+                 time_limit=TIME_LIMIT,
+                 no_time_limit=False):
         self.user_address = user_address
         self.psw = psw
+        self.pgp = pgp
         self.start = time.time()
         self.time_limit = time_limit
         self.no_time_limit = no_time_limit
         self.driver = WebDriver(browser_name, adblock, untracked).driver
 
-        
-        # Prepare log file name and directories : 
-        timestamp = str(datetime.today().replace(microsecond=0)).replace(" ","_").replace(":", "-")
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        relative_path = LOG_FOLDER + self.user_address + timestamp
-        self.log_file_path = os.path.join(script_dir, relative_path)
-        # Create the directories if they don't exist
-        os.makedirs(os.path.dirname(self.log_file_path), exist_ok=True)
 
-        self.first = True
-        self.stats = {"sent_mails" : {
-                                0: 0,
-                                5: 0,
-                                10: 0,
-                                15: 0,
-                                20: 0,
-                                25: 0
-                            },
-                      "read_mails" : 0,
-                      "answered_mails" : 0,
-                      "deleted_mails" : 0,
-                      "refresh" : 0}
+        self.stats = {  "login" : 0,
+                        "logout" : 0,
+                        "sent_mails" : {
+                                    0: 0,
+                                    5: 0,
+                                    10: 0,
+                                    15: 0,
+                                    20: 0,
+                                    25: 0
+                                },
+                        "read_mails" : 0,
+                        "answered_mails" : 0,
+                        "deleted_mails" : 0,
+                        "refresh" : 0}
     
     
     def log_event(func):
@@ -130,25 +131,15 @@ class Session:
         '''
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs):
-            # We deactivate this function when measurements are performed since mounted volumes (in containers used by GMT) are read only.
-            if not IS_MEASURED :
 
-                output = func(self, *args, **kwargs)
-                
-                # If function didn't raise error we assume everything went fine and log execution timing
-                with open(self.log_file_path + ".log", 'a', newline='', encoding='utf-8') as log:
-                    log_writer = csv.writer(log)
-                    if self.first:
-                        self.first = False
-                        log_writer.writerow(["Timestamp", "Event", "Description"])
-                    log_writer.writerow([datetime.now(), func.__name__, func.__doc__])
 
-            # Here we print the exact time when the function is called and when it ends so we can extract the energy associated with each function
-            # With the Green Metric Tool
-            else:
-                print(f"START: {func.__name__}")
-                output = func(self, *args, **kwargs)
-                print(f"END: {func.__name__}")
+            action = func.__name__
+            if 'attached_file_size' in kwargs:
+                action += f"_{kwargs['attached_file_size']}MB"
+
+            print(f"START: {action}")
+            output = func(self, *args, **kwargs)
+            print(f"END: {action}")
 
             return output
             
@@ -213,7 +204,7 @@ class Session:
     
     def pause(self, delay=None):
         if delay is None:
-            time.sleep(TIME_BETWEEN_ACTIONS)
+            time.sleep(DEFAULT_PAUSE_DELAY)
         else: time.sleep(delay)
         
     def close_browser(self):
@@ -226,48 +217,120 @@ class Session:
         """
         Use the selector (selector type, target) to grab an html element
         """
-        return WebDriverWait(self.driver, WAIT_LIMIT).until(
+
+        element = WebDriverWait(self.driver, WAIT_LIMIT).until(
             EC.visibility_of_element_located(selector),
             f"Couldn't find HTML element using selector '{selector[1]}' after {WAIT_LIMIT} seconds"
             )
+        # # Store the original border style of the element
+        # original_border = element.value_of_css_property("border")
+
+        # # Highlight the element by applying a border using JavaScript
+        # self.driver.execute_script("arguments[0].style.border='3px solid red'", element)
+
+        # # You can add a pause to see the highlighted element for a few seconds
+        # time.sleep(1)
+
+        # # Restore the original border style to the element
+        # self.driver.execute_script(f"arguments[0].style.border='{original_border}'", element)
+        return element
     
     def click(self, selector):
         """
-        Use the selector (selector type, target) to click on an html element
+        Use the selector (selector type, target) to click on an html element.
+        This method handles stale element reference exceptions and retries clicking.
         """
-        target = self.find(selector)
-        WebDriverWait(self.driver, WAIT_LIMIT).until(
-            EC.element_to_be_clickable(target),
-            f"HTML element not clickable using selector '{selector[1]}' after {WAIT_LIMIT} seconds"
-            )
-        target.click()
+        retries = 2  # Number of retries for a stale element reference exception
+        while retries > 0:
+            try:
+                # Find the element
+                target = self.find(selector)
+                
+                # Wait for the element to be clickable
+                WebDriverWait(self.driver, WAIT_LIMIT).until(
+                    EC.element_to_be_clickable(target),
+                    f"HTML element not clickable using selector '{selector[1]}' after {WAIT_LIMIT} seconds"
+                )
+                
+                # Click the element
+                target.click()
+                return  # Exit if successful
+
+            except StaleElementReferenceException:
+                # If a StaleElementReferenceException occurs, retry
+                print(f"[DEBUG] : Stale element encountered. Retrying... ({retries} attempts left)")
+                retries -= 1
+                if retries == 0:
+                    raise  # Re-raise the exception if we've run out of retries
 
     def type(self, selector, input, hit_enter=False):
         """
         Use the selector (selector type, target) to type in an input html element
         """
-        target = self.find(selector)
-        target.clear()
-        for char in input:
-            target.send_keys(char)
-        if hit_enter:
-            target.send_keys(Keys.ENTER)
+
+        retries = 2  # Number of retries for a stale element reference exception
+        while retries > 0:
+            try:
+                target = self.find(selector)
+                target.clear()
+                for char in input:
+                    target.send_keys(char)
+                # target.send_keys(input)
+                if hit_enter:
+                    target.send_keys(Keys.ENTER)
+                return
+
+            except StaleElementReferenceException:
+                # If a StaleElementReferenceException occurs, retry
+                print(f"[DEBUG] : Stale element encountered. Retrying... ({retries} attempts left)")
+                retries -= 1
+                if retries == 0:
+                    raise  # Re-raise the exception if we've run out of retries
+
 
     def file_input(self, selector, absolute_data_path):
         """
         Feed the local path of file to upload to the file input HTML element pointed by selector.
         """
-        input_target = WebDriverWait(self.driver, WAIT_LIMIT).until(
-            EC.presence_of_element_located(selector),
-            f"Couldn't find file_input HTML element using selector '{selector[1]}' after {WAIT_LIMIT} seconds"
-            )
-        input_target.send_keys(absolute_data_path)
+        
+        retries = 2  # Number of retries for a stale element reference exception
+        while retries > 0:
+            try:
+                input_target = WebDriverWait(self.driver, WAIT_LIMIT).until(
+                EC.presence_of_element_located(selector),
+                f"Couldn't find file_input HTML element using selector '{selector[1]}' after {WAIT_LIMIT} seconds"
+                )
+                input_target.send_keys(absolute_data_path)
+                return
+
+
+            except StaleElementReferenceException:
+                # If a StaleElementReferenceException occurs, retry
+                print(f"[DEBUG] : Stale element encountered. Retrying... ({retries} attempts left)")
+                retries -= 1
+                if retries == 0:
+                    raise  # Re-raise the exception if we've run out of retries
+
     
     def move_mouse_to(self, selector):
-        target = self.find(selector)
-        actions = ActionChains(self.driver)
-        actions.move_to_element(target).perform()
-        self.pause(1)
+
+        retries = 2  # Number of retries for a stale element reference exception
+        while retries > 0:
+            try:
+                target = self.find(selector)
+                actions = ActionChains(self.driver)
+                actions.move_to_element(target).perform()
+                self.pause(1)
+                return
+
+
+            except StaleElementReferenceException:
+                # If a StaleElementReferenceException occurs, retry
+                print(f"[DEBUG] : Stale element encountered. Retrying... ({retries} attempts left)")
+                retries -= 1
+                if retries == 0:
+                    raise  # Re-raise the exception if we've run out of retries
+
 
     def switch_frame(self, frame_number = None, frame_name = None, iframe_element = None, alert = False):
         
@@ -277,11 +340,11 @@ class Session:
                 'Timed out waiting for popup to appear.'
             )
             return self.driver.switch_to.alert
-        elif frame_number:
+        elif frame_number is not None:
             self.driver.switch_to.frame(frame_number)
-        elif frame_name:
+        elif frame_name is not None:
             self.driver.switch_to.frame(frame_name)
-        elif iframe_element:
+        elif iframe_element is not None:
             iframe = self.find(iframe_element)
             self.driver.switch_to.frame(iframe)
         else:
@@ -298,15 +361,26 @@ class Session:
         start = time.time()
         wait_limit = MAX_PAGE_LOAD_TIME
 
+
         if url_to_be_loaded:
 
-            # Wait for the URL to change to the expected one
-            WebDriverWait(self.driver, wait_limit).until(
-                lambda driver: fnmatch.fnmatch(driver.current_url, url_to_be_loaded), #compare both address bu allow wildcards like */?
-                f"URL didn't change to '{url_to_be_loaded}' after {MAX_PAGE_LOAD_TIME}s." 
-            )
+            while True:
 
+                try:
+                    wait_limit = max(MAX_PAGE_LOAD_TIME - (time.time() - start), 0) 
+                    # Wait for the URL to change to the expected one
+                    WebDriverWait(self.driver, wait_limit).until(
+                        EC.url_contains(url_to_be_loaded), # compare current url with expected one and allows wildcards like */?
+                        f"URL didn't change to '{url_to_be_loaded}' after {MAX_PAGE_LOAD_TIME}s." 
+                    )
+                    break # If previous wait passes we quit the loop
+                except TimeoutException as toe:
+                    raise toe
 
+                except Exception as e:
+                    self.pause(0.5)                
+
+        
         wait_limit = max(MAX_PAGE_LOAD_TIME - (time.time() - start), 0)
 
         # Wait for the page to finish loading and rendering, checking the performance data
@@ -318,7 +392,8 @@ class Session:
             f"Window.performance.timing.loadEventEnd <= 0 OR \
             Window.performance.timing.domContentLoadedEventEnd <= 0 after {MAX_PAGE_LOAD_TIME}s."
         )
-
+            
+        
         wait_limit = max(MAX_PAGE_LOAD_TIME - (time.time() - start), 0)
 
         # Wait until there is no ongoings layout shifts
@@ -329,3 +404,5 @@ class Session:
                 """),
                 f"There are still ongoing layout shifts after {MAX_PAGE_LOAD_TIME}s."
         )
+
+        self.pause(WAIT_AFTER_PAGE_LOADED)

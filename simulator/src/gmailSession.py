@@ -49,8 +49,8 @@ SEND_BUTTON = (By.XPATH, "//div[4]/table/tbody/tr/td/div/div[2]/div")
 
 class GmailSession(Session):
 
-    def __init__(self, user_address, user_psw, browser_name, adblock, untracked, time_limit=TIME_LIMIT, no_time_limit=False):
-        super().__init__(user_address, user_psw, browser_name, adblock, untracked, time_limit, no_time_limit)
+    def __init__(self, user_address, user_psw, browser_name, adblock, untracked, pgp, time_limit=TIME_LIMIT, no_time_limit=False):
+        super().__init__(user_address, user_psw, browser_name, adblock, untracked, pgp, time_limit, no_time_limit)
 
     @Session.time_limited_execution
     @Session.retry_on_failure(MAX_ATTEMPTS,
@@ -64,6 +64,7 @@ class GmailSession(Session):
         self.type(PASSWORD_INPUT, self.psw)
         self.click(NEXT_BUTTON)
         self.wait_page_loaded(LOGGED_IN_URL)
+        self.stats["login"] += 1
         print("[INFO] : Logged in.")
 
 
@@ -76,6 +77,7 @@ class GmailSession(Session):
         self.switch_frame(frame_name = ACCOUNT_FRAME)
         self.click(LOGOUT_BUTTON)
         self.wait_page_loaded()
+        self.stats["logout"] += 1
         print("[INFO] : Logged out.")
 
 
@@ -97,6 +99,7 @@ class GmailSession(Session):
             relative_path = ATTACHED_FILES + f"{attached_file_size}MiB.txt"
             attached_file_path = os.path.normpath(os.path.join(script_dir, relative_path))
             self.file_input(ATTACH_FILE_INPUT, attached_file_path)
+            self.pause(TIME_PER_MB * attached_file_size)
 
         self.click(SEND_BUTTON)
         self.stats["sent_mails"][attached_file_size] += 1
@@ -147,7 +150,6 @@ class GmailSession(Session):
                 self.move_mouse_to(BODY_ELEMENT)
 
                 self.stats["refresh"] += 1
-                print("[INFO] : Navigated to homepage.")
 
             except Exception as e:
                 print("[DEBUG] : Failed to click mailbox link. Trying force refresh.")

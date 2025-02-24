@@ -10,7 +10,7 @@ from sessions import *
 # Constants for URLs
 MY_SOLUTION_URL = "https://account.proton.me/fr/mail"
 HOME_PAGE_URL = "https://account.proton.me/fr/mail"
-LOGGED_IN_URL = "https://mail.proton.me/u/*/inbox"
+LOGGED_IN_URL = "https://mail.proton.me/u/"
 LOGGED_OUT_URL = "https://account.proton.me/mail"
 
 # Constants for selectors
@@ -40,8 +40,8 @@ SEND_BUTTON_REPLY = (By.XPATH, "//footer/div/div/button/span")
 
 class ProtonSession(Session):
 
-    def __init__(self, user_address, user_psw, browser_name, adblock, untracked, time_limit=TIME_LIMIT, no_time_limit=False):
-        super().__init__(user_address, user_psw, browser_name, adblock, untracked, time_limit, no_time_limit)
+    def __init__(self, user_address, user_psw, browser_name, adblock, untracked, pgp, time_limit=TIME_LIMIT, no_time_limit=False):
+        super().__init__(user_address, user_psw, browser_name, adblock, untracked, pgp, time_limit, no_time_limit)
 
     @Session.time_limited_execution
     @Session.retry_on_failure(MAX_ATTEMPTS,
@@ -62,6 +62,7 @@ class ProtonSession(Session):
         self.click(LOGIN_BUTTON)
         # Wait for the page to load
         self.wait_page_loaded(LOGGED_IN_URL)
+        self.stats["login"] += 1
         print("[INFO] : Logged in")
 
     @Session.retry_on_failure(MAX_ATTEMPTS,
@@ -79,6 +80,7 @@ class ProtonSession(Session):
         self.click(LOGOUT_BUTTON)
         # Wait for the page to load
         self.wait_page_loaded()
+        self.stats["logout"] += 1
         print("[INFO] : Logged out")
         
 

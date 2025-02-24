@@ -1,6 +1,6 @@
 name: Email Session Test
 author: Jason Kayembe
-description: This test launches an email session scenario with adblock
+description: This test launches an email session scenario
 
 services:
     automated-session:
@@ -12,6 +12,18 @@ services:
           SEED: 123
         shell: "bash"
         setup-commands:
+
+            # Add host ip for my-solution.com and as the dns server (to use pihole adblocker as dns)
+             # Extract the hexadecimal gateway IP
+            - "GATEWAY_HEX=$(awk '$2 == \"00000000\" { print $3 }' /proc/net/route) ;
+               GATEWAY_IP=$(printf \"%d.%d.%d.%d\n\"
+               $((0x${GATEWAY_HEX:6:2}))
+               $((0x${GATEWAY_HEX:4:2}))
+               $((0x${GATEWAY_HEX:2:2}))
+               $((0x${GATEWAY_HEX:0:2}))) ;
+               echo \"$GATEWAY_IP my-solution.com\" >> /etc/hosts ;
+               echo \"nameserver $GATEWAY_IP\" > /etc/resolv.conf "
+
             - cp -R /app/chrome_profiles_backup /chrome_profiles # Does this since we cannot write in /app which is a mounted volume (See Green Metric Tool doc)
             - Xvfb :0 -screen 0 1296x736x16 & # X Server : simulate graphic card in memory. (The html pages are unpredictable in headless mode)
             #- x11vnc -forever -create -display :0 -rfbport 5900 -bg -nopw # VNC server : It connects to the X server and send the GUI on port 5900. Use for Debbugging
@@ -23,8 +35,7 @@ flow:
       container: automated-session
       commands:
         - type: console
-          command: python src/scenario.py scenarios_2025/2025_proton_delete_adblock.json
+          command: python src/scenario.py scenarios_2025/2025_proton_session_adblock.json
           note: Starting the Python Scenario Script
           log-stdout: true
           read-notes-stdout: true
-          log-stderr: true

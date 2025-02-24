@@ -18,7 +18,6 @@ from utils import (
     select_evenly_spaced_moments,
     handle_arguments,
     extract_unique_id,
-    THREAD_LOCAL_STORAGE
 )
 
 
@@ -26,8 +25,8 @@ class Scenario:
     
     id = 0
     
-    def __init__(self, user, user_address, user_psw, contacts, provider, browser, adblock, untracked,
-                 time_limit, login, n_mail_to_send, n_mail_to_read_and_answer, n_mail_to_read_and_delete):
+    def __init__(self, user, user_address, user_psw, contacts, provider, browser, adblock, untracked, pgp,
+                 time_limit, n_session, n_mail_to_send, n_mail_to_read_and_answer, n_mail_to_read_and_delete):
         # Identifier
         self.id == Scenario.id
         Scenario.id += 1
@@ -42,8 +41,9 @@ class Scenario:
         self.browser = browser
         self.adblock = adblock
         self.untracked = untracked
+        self.pgp = pgp
         self.time_limit = time_limit # in seconds
-        self.login = login
+        self.n_session = n_session
         self.n_mail_to_send = n_mail_to_send
         self.n_mail_to_read_and_answer = n_mail_to_read_and_answer
         self.n_mail_to_read_and_delete = n_mail_to_read_and_delete
@@ -64,8 +64,9 @@ class Scenario:
             f"Browser: {self.browser}\n"
             f"Tracking: {"limited" if self.untracked else "allowed"}\n"
             f"Adblock: {"activated" if self.adblock else "not used"}\n"
+            f"PGP Encryption: {"activated" if self.pgp else "not used"}\n"
             f"Duration: {self.time_limit} seconds\n"
-            f"Number of login/logout sequence: {self.login}\n"
+            f"Number of repeated session: {self.n_session}\n"
             "Number of emails to send with:\n"
             f"\t No attachment: {self.n_mail_to_send[0]}\n"
             f"\t 5 MB attachment: {self.n_mail_to_send[5]}\n"
@@ -78,7 +79,9 @@ class Scenario:
         )
         if self.finished:
             output += (
-                "**** Final Stat of the Session ****\n\n"
+                "**** Final Stat of the Session(s) ****\n\n"
+                f"Login: {self.stats['login']}\n"
+                f"Logout: {self.stats['logout']}\n"
                 f"Sent emails with: \n"
                 f"\t No attachment: {self.stats['sent_mails'][0]}\n"
                 f"\t 5 MB attachment: {self.stats['sent_mails'][5]}\n"
@@ -100,13 +103,13 @@ class Scenario:
         This function opens a session on the email service provider's website
         '''
         if self.provider == OUTLOOK:
-            session = OutlookSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit, no_time_limit)
+            session = OutlookSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.pgp, self.time_limit, no_time_limit)
         elif self.provider == PROTON:
-            session = ProtonSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit, no_time_limit)
+            session = ProtonSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.pgp, self.time_limit, no_time_limit)
         elif self.provider == GMAIL:
-            session = GmailSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit, no_time_limit)
+            session = GmailSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.pgp, self.time_limit, no_time_limit)
         elif self.provider == MY_SOLUTION:
-            session = MySolutionSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.time_limit, no_time_limit)
+            session = MySolutionSession(self.user_address, self.user_psw, self.browser, self.adblock, self.untracked, self.pgp, self.time_limit, no_time_limit)
         return session
     
     def get_email_file_path(self, firstname=None, surname=None):
@@ -198,10 +201,6 @@ class Scenario:
         to a random point in the time range [start, start + time_limit]
         '''
         
-        # Customize the output printing
-        THREAD_LOCAL_STORAGE.color = COLORS[self.id]
-        THREAD_LOCAL_STORAGE.name = self.name
-        
         # Print current scenario objective
         print(self)
 
@@ -254,14 +253,6 @@ class Scenario:
         self.duration = self.end - self.start
         self.finished = True
         print(self)
-
-        # Save summary
-        # We deactivate this function when measurements are performed since mounted volumes (in containers used by GMT) are read only.
-        if not IS_MEASURED:
-            summary_file_path = session.log_file_path + ".summary"
-            os.makedirs(os.path.dirname(summary_file_path), exist_ok=True)
-            with open(summary_file_path, 'a') as summary_file:
-                print(self, file=summary_file)
             
         return 0
     
@@ -272,10 +263,6 @@ class Scenario:
         It executes each action as soon as the previous is done.
         '''
         
-        # Customize the output printing
-        THREAD_LOCAL_STORAGE.color = COLORS[self.id]
-        THREAD_LOCAL_STORAGE.name = self.name
-        
         # Print current scenario objective
         print(self)
 
@@ -283,84 +270,65 @@ class Scenario:
         session = self.get_session(no_time_limit=True)
         self.start = time.time()
         
-        # Login/logout the account as many times as asked
-        if self.login > 1:
-            for _ in range(self.login - 1 ):
-                session.login()
-                session.pause(PAUSE_BTW_RUN)
-                session.logout()
-                session.pause(PAUSE_BTW_RUN)
+        for _ in range(self.n_session):
+            
+            print(f"START: session")
 
-        session.login()
-        session.pause(PAUSE_BTW_RUN)
+            session.login()
+            session.pause(PAUSE_BTW_RUN)
 
-        # Open the CSV file containing email subjects and bodies
-        file_path = self.get_email_file_path()[0]
-        with open(file_path, newline='') as csvfile:
-            reader = csv.DictReader(csvfile)
-            mails = list(reader)
+            # Open the CSV file containing email subjects and bodies
+            file_path = self.get_email_file_path()[0]
+            with open(file_path, newline='') as csvfile:
+                reader = csv.DictReader(csvfile)
+                mails = list(reader)
 
-            # Send the specified number of emails with different attachment sizes
-            for attachment_size, count in self.n_mail_to_send.items():
-                for _ in range(count):
-                    mail = random.choice(mails)
-                    subject = mail[SUBJECT_COL]
-                    content = mail[CONTENT_COL]
-                    session.send_mail(self.contacts[0], subject, content, attachment_size)
+                # Send the specified number of emails with different attachment sizes
+                for attachment_size, count in self.n_mail_to_send.items():
+                    for _ in range(count):
+                        mail = random.choice(mails)
+                        subject = mail[SUBJECT_COL]
+                        content = mail[CONTENT_COL]
+                        session.send_mail(self.contacts[0], subject, content, attached_file_size=attachment_size)
+                        session.home_page()
+                        session.pause(PAUSE_BTW_RUN)
+
+                # Read and Answer the specified number of emails     
+                for _ in range(self.n_mail_to_read_and_answer):
+                    self.read_and_answer(session)
                     session.home_page()
                     session.pause(PAUSE_BTW_RUN)
 
-            # Read and Answer the specified number of emails     
-            for _ in range(self.n_mail_to_read_and_answer):
-                self.read_and_answer(session)
-                session.home_page()
-                session.pause(PAUSE_BTW_RUN)
+                # Read and Delete the specified number of emails    
+                for _ in range(self.n_mail_to_read_and_delete):
+                    self.read_and_delete(session)
+                    session.home_page()
+                    session.pause(PAUSE_BTW_RUN)
 
-            # Read and Delete the specified number of emails    
-            for _ in range(self.n_mail_to_read_and_delete):
-                self.read_and_delete(session)
-                session.home_page()
-                session.pause(PAUSE_BTW_RUN)
+            # Logout
+            session.logout()
+            print(f"END: session")
+            session.pause(PAUSE_BTW_RUN)
 
-        # Logout, close browser, collect final stats and print summary
 
-        session.logout()
+        #close browser, collect final stats and print summary
         session.close_browser()
         self.stats = session.stats
         self.end = time.time()
         self.duration = self.end - self.start
         self.finished = True
         print(self)
-
-        # Save summary
-        # We deactivate this function when measurements are performed since mounted volumes (in containers used by GMT) are read only.
-        if not IS_MEASURED:
-            summary_file_path = session.log_file_path + ".summary"
-            os.makedirs(os.path.dirname(summary_file_path), exist_ok=True)
-            with open(summary_file_path, 'a') as summary_file:
-                print(self, file=summary_file)
             
         return 0
-
 
 def main():
 
     random.seed(SEED)
-    
-    threads = []
-    scenarios_parameters = handle_arguments()
-    
-    for sp in scenarios_parameters:
-        scenario = Scenario(*sp)
-        thread = threading.Thread(target=scenario.run_sequential)
-        threads.append(thread)
-        thread.start()
+    scenario_parameter = handle_arguments()
+    scenario = Scenario(*scenario_parameter)
+    scenario.run_sequential()
 
-    # Wait for all threads to complete
-    for thread in threads:
-        thread.join()
        
-
 if __name__ == "__main__":   
     main()
     

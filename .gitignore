@@ -7,6 +7,7 @@ simulator/log/
 simulator/logs/
 simulator/test/
 simulator/scenarios_2025_done/
+simulator/scenarios_2025_TODO/
 simulator/src/__pycache__
 simulator/chrome_profiles/*
 !simulator/chrome_profiles/tracked_profile/History

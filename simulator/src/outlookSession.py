@@ -31,25 +31,25 @@ UNREAD_FILTER_OPTION = (By.CSS_SELECTOR, ".fui-MenuItem:nth-child(3) .UagSo")
 HOME_PAGE_LINK = (By.XPATH, "//div[2]/div/div/div/span")
 DRAFT_COUNT = (By.XPATH, "//div[3]/div/span[2]/span/span[1]")
 DRAFTS_FOLDER = (By.XPATH, "//div[2]/div/div/div[3]/div/span[1]")
-EMPTY_FOLDER_BUTTON = (By.XPATH, "(//button[@type='button'])[24]")
-CONFIRM_EMPTY_FOLDER = (By.XPATH, "//div[3]/button[1]")
+EMPTY_FOLDER_BUTTON = (By.XPATH, "//button[@aria-label='Empty folder']")
+CONFIRM_EMPTY_FOLDER = (By.XPATH, "//button[text()='Delete all']")
 FIRST_SENDER_SPAN = (By.XPATH, "//div[2]/div[2]/div/div/span")
 SECOND_SENDER_SPAN = (By.XPATH, "//div[2]/div/div/div/div/div[2]/div[2]/div/div/span[2]")
 FIRST_EMAIL_ITEM = (By.XPATH, "//div[3]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div/div/div[2]")
-EMAIL_SUBJECT = (By.XPATH, "//*[@id='ConversationReadingPaneContainer']/div/div/div[1]/div/div/div/div/div/div/div/div/span[1]")
-FIRST_EMAIL_ITEM = (By.XPATH, "//div[3]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div/div/div[2]")
+EMAIL_SUBJECT = (By.XPATH, "//div[@data-app-section='ConversationContainer']/div[1]/div/div/div/div/div/div/div/div/span[1]")
+
 DELETE_BANNER = (By.XPATH, "//div/div[3]/div/div/div[1]/div[3]/div/div/div/div/div/div/div/div[2]/div/div/div")
 DELETE_ICON = (By.XPATH, "//div/div/div[1]/div[3]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div/div/div[3]/div")
 REPLY_BUTTON = (By.CSS_SELECTOR, ".Yk9K4 .Q0K3G")
-EDITOR_INPUT = (By.XPATH, "//*[@id='editorParent_1']/div")
+EDITOR_INPUT = (By.XPATH, '//*[contains(@id, "editorParent_")]/div')
 SEND_BUTTON = (By.XPATH, "//button[@title='Send (Ctrl+Enter)']")
 MORE_OPTIONS_BUTTON = (By.XPATH, "//div[2]/div/div/div[3]/div/button/span/i/span/i")
 MARK_AS_READ_BUTTON = (By.XPATH, "//li[6]/button/div/span")
 
 class OutlookSession(Session):
 
-    def __init__(self, user_address, user_psw, browser_name, adblock, untracked, time_limit=TIME_LIMIT, no_time_limit=False):
-        super().__init__(user_address, user_psw, browser_name, adblock, untracked, time_limit, no_time_limit)
+    def __init__(self, user_address, user_psw, browser_name, adblock, untracked, pgp, time_limit=TIME_LIMIT, no_time_limit=False):
+        super().__init__(user_address, user_psw, browser_name, adblock, untracked, pgp, time_limit, no_time_limit)
 
     @Session.time_limited_execution
     @Session.retry_on_failure(MAX_ATTEMPTS,
@@ -73,6 +73,7 @@ class OutlookSession(Session):
         self.click(DECLINE_BUTTON)
         # Wait for the page to load
         self.wait_page_loaded(LOGGED_IN_URL)
+        self.stats["login"] += 1
         print("[INFO] : Logged in.")
     
 
@@ -91,9 +92,9 @@ class OutlookSession(Session):
         self.click(LOGOUT_BUTTON)
         # Wait until disconnected
         self.wait_page_loaded()
+        self.stats["logout"] += 1
         print("[INFO] : Logged out.")
-
-        
+  
 
 
     @Session.time_limited_execution
@@ -234,6 +235,7 @@ class OutlookSession(Session):
         Retrieve the subject of the currently opened email.
         '''
         # Locate the subject element
+
         subject_element = self.find(EMAIL_SUBJECT).text
         print(f"[INFO] : Found the email subject: {subject_element}.")
         return subject_element
@@ -297,10 +299,10 @@ class OutlookSession(Session):
         self.type(EDITOR_INPUT, answer)
         # Click the send button
         self.click(SEND_BUTTON)
-        # Click on more option
-        self.click(MORE_OPTIONS_BUTTON)
-        # Mark as read
-        self.click(MARK_AS_READ_BUTTON)
+        # # Click on more option
+        # self.click(MORE_OPTIONS_BUTTON)
+        # # Mark as read
+        # self.click(MARK_AS_READ_BUTTON)
 
         self.stats["answered_mails"] += 1
         print("[INFO] : Response sent.")
