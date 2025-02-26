@@ -31,11 +31,19 @@ services:
         command: "bash"
 
 flow:
+    # - name: Run the scenario
+    #   container: automated-session
+    #   commands:
+    #     - type: console
+    #       command: python src/scenario.py scenarios_2025/2025_proton_session_adblock.json
+    #       note: Starting the Python Scenario Script
+    #       log-stdout: true
+    #       read-notes-stdout: true
     - name: Run the scenario
       container: automated-session
       commands:
         - type: console
-          command: python src/scenario.py scenarios_2025/2025_proton_session_adblock.json
+          command: python src/topnews.py noadblock
           note: Starting the Python Scenario Script
           log-stdout: true
           read-notes-stdout: true
