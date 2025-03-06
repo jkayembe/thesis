@@ -1,0 +1,453 @@
+\documentclass[sigconf,9pt,usenames,dvipsnames,table]{acmart}
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+\setcopyright{rightsretained}
+\copyrightyear{2024}
+\acmYear{2024}
+\acmDOI{xxx}
+\acmConference[LOCO '24]{LOCO '24: 1st International Workshop on Low Carbon
+Computing}{December 03, 2024}{Glasgow, UK}
+\acmBooktitle{LOCO '24: 1st International Workshop on Low Carbon 
+Computing, December 03, 2024}
+\acmISBN{}
+
+\usepackage{balance}
+\usepackage{verbatim}
+\usepackage[textsize=footnotesize, textwidth=15mm]{todonotes}
+\presetkeys{todonotes}{fancyline}{}
+\setlength{\marginparwidth}{15mm}
+
+\usepackage[english=american,babel=false]{csquotes}
+\usepackage{nth}
+
+\usepackage{acronym}
+\input{acros.tex}
+
+%\usepackage[usenames,dvipsnames]{color}
+%\usepackage[table,dvipsnames]{xcolor}
+
+% Bang Wong Palette for accessibility
+% #0072b2 
+\definecolor{bw1}{RGB}{0,114,178}
+% #e69f00 
+\definecolor{bw2}{RGB}{230,159,0}
+% #56b4e9 
+\definecolor{bw3}{RGB}{86,180,233}
+% #009e73 
+\definecolor{bw4}{RGB}{0,158,115}
+% #f0e442
+\definecolor{bw5}{RGB}{240,228,66}
+
+\newcommand{\new}[1]{{\color{blue}#1}}
+
+% Text rotation and symbols
+\newcommand{\rot}[1]{\rotatebox{#1}}
+\newcommand{\rh}[1]{\rot{45}{\textbf{#1}}}
+\newcommand{\pie}[1]{%
+\begin{tikzpicture}
+ \draw (0,0) circle (1ex);\fill (1ex,0) arc (0:#1:1ex) -- (0,0) -- cycle;
+\end{tikzpicture}%
+}
+
+\newcommand{\CIRCLE}{\pie{360}}
+\newcommand{\Circle}{\pie{0}}
+\newcommand{\LEFTcircle}{\pie{180}}
+
+\newcommand{\yes}{\CIRCLE}
+\newcommand{\pa}{\LEFTcircle}
+\newcommand{\no}{\Circle}
+\newcommand{\na}{\makebox[8pt][c]{\textbf{--}}}
+
+
+
+\makeatletter
+\newcommand*\bigcdot{\mathpalette\bigcdot@{2}}
+\newcommand*\bigcdot@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+
+\settopmatter{printacmref=true, printccs=false, printfolios=true}
+
+\begin{document}
+
+\title[Exploring Privacy and Security
+  as Drivers for Environmental
+  Sustainability in Cloud-Based
+  Office Solutions]{Exploring Privacy and Security
+  as Drivers for Environmental
+  Sustainability in Cloud-Based
+  Office Solutions}
+
+
+\author{Jason Kayembe}
+\email{jason.kayembe@ulb.be}
+%\orcid{xxx}
+\affiliation{%
+  \institution{Universit\'e Libre de Bruxelles}
+  \city{Brussels}
+  \country{Belgium}
+  \postcode{1050}
+}
+
+\author{Iness Ben Guirat}
+\email{iness.ben.guirat@ulb.be}
+%\orcid{xxx}
+\affiliation{%
+  \institution{Universit\'e Libre de Bruxelles}
+  \city{Brussels}
+  \country{Belgium}
+  \postcode{1050}
+}
+
+\author{Jan Tobias M\"uhlberg}
+\email{jan.tobias.muehlberg@ulb.be}
+\orcid{0000-0001-5035-0576}
+\affiliation{%
+  \institution{Universit\'e Libre de Bruxelles}
+  \city{Brussels}
+  \country{Belgium}
+  \postcode{1050}
+}
+
+\begin{abstract}
+  \input{abstract.tex}
+\end{abstract}
+
+\keywords{privacy, security, environmental impacts}
+
+\maketitle
+\renewcommand{\shortauthors}{Kayembe et al.}
+
+%\todo{Fix typos and grammar stuff.}
+%\todo{Expand citations a bit to make the text more self-contained.}
+%\todo{Read and discuss \cite{pearce2020energy}}
+
+% ----------------------------------------------------------------------------
+\todo[inline]{Post-proceeding version, deadline is 2025-02-28 \\
+Additions and new contributions: \\
+- more samples, more reliable evaluation \\
+- measure impact of PGP encryption \\
+- DNS-based ad blocker \\
+- pages display faster without ads? \\
+- difference in login phase \\
+- duration and energy per session (login + read n mails, send n mails, log
+out) \\
+- generally include data/tables/figures and provide a more thorough
+discussion \\
+- add to discussion, ... \\
+}
+
+% ----------------------------------------------------------------------------
+\section{Introduction}
+
+Following growing concerns over the environmental impacts of human
+activities across all sectors, this paper investigates the intersection of
+privacy, security, and the environmental consequences of ICT services, with
+a particular focus on web-based email services as an example of commonly
+used
+office solutions. We explore how to define and evaluate
+these services, examine the architecture and business models they rely on,
+and envision a framework that can measure the energy consumption associated
+with specific email services. Our research hypothesis is that \emph{online
+  services that emphasise privacy and security are typically
+  \enquote{greener,}} and
+we take web mailers as a case study to test this hypothesis.
+
+Sending an email might seem like a trivial task; however the scale at which
+large email services operate makes their environmental impact significant.
+For instance,
+%\todo{Addresses R1 in todo.md}
+according to Statista, a web platform for markets statistics, an estimated
+333 billion emails were sent and received daily worldwide in 2022~\cite{statistaemails2024}.
+Perhaps even more important, beyond the data volume, is that the infrastructure supporting email services requires many components of the internet network to remain operational which, in return consumes energy and requires maintenance continuously.
+%\todo{Addresses R1 in todo.md}
+This is illustrated in~\cite{parssinen_environmental_2018} where P\"arssinen et al. take inventory of common internet network devices
+to derive the overall environmental impact of the online-advertising
+industry.
+%
+An important factor influencing the environmental impacts of the different
+services is the business model behind the services. We identify six key
+models: 1. subscription-based, 2. transaction-based, 3.  freemium, 4.
+donation-based, 5. advertisement-based, and 6. monetisation through data
+collection and reselling. Specifically, services that rely on advertising and
+data collection often deploy additional technologies that go beyond
+email
+functionalities, leading to increased energy consumption: user tracking,
+training of personalised models, and further advertising
+technologies that require large-scale infrastructure for storage and data
+processing, thereby compounding their environmental footprint.
+%\todo{Addresses R3: introduces~\cite{pearce2020energy}}
+Additionally, the
+sending and rendering of advertisements monopolises resources. In a study
+assessing the environmental cost of online advertising, P\"arssinen et al.~\cite{parssinen_environmental_2018} describe the mechanism: when a user visits a web page, it often initiates thousands of connections to data centres on the user’s behalf. Some of these data centres keep the connections open to deliver advertisements as long as the user remains on the page, thereby monopolising network, data centre, and user device resources. Pearce et al.~\cite{pearce2020energy} quantify this waste for user devices in their initiative to estimate the energy savings achievable through the use of ad-blockers, showing that page load times can decrease by up to 28\% with ad-blockers. This represents potential energy savings of 13.5 billion kWh per year for internet users worldwide.
+
+Thus, business models centred on data collection raise not only privacy and
+security concerns but also exacerbate environmental costs. Validating the
+relationship between business models and energy consumption can guide the
+design of more secure, privacy friendly and also more sustainable online
+services.
+This paper compares the environmental burdens of three email service providers:
+Microsoft Outlook and Gmail, both of which rely heavily on advertising and tracking technologies, and Proton Mail, which operates on a privacy-preserving and end-to-end secure freemium model without the use of advertisements or trackers.
+To understand the environmental cost of processing advertisements on the user side, we evaluate the effect of using a DNS-based ad-blocker on the energy consumption of the email services.
+Additionally, we set up our own email server with two objectives in mind: 
+Comparing the environmental impact of self-hosted email services to those of the major providers, and assessing the impact of PGP encryption on energy consumption.
+Lastly, we validate our framework against the study by Pearce et al.~\cite{pearce2020energy}, which evaluates the energy savings from reduced page loading times due to ad-blockers on advertisement-heavy websites. Comparing their results helps us confirm our tool's capability to measure the energy impact of ad-blockers.
+We aim to provide a comprehensive evaluation of the environmental impact of email services, and to explore the potential of privacy and security as drivers for environmental sustainability in cloud-based office solutions.
+% \todo{one sentence on results or outlook?}
+
+% ----------------------------------------------------------------------------
+\section{Methodology}
+
+We propose an approach that builds upon, and extends the work of Pesari et
+al.~\cite{pesari2023client} who examine the power usage of a computer visiting global news websites when using ad-blockers.
+Our approach is designed to assess the energy consumption of a web service by breaking
+it down into distinct, measurable functional units. Our framework aims to (i) facilitate the
+comparison of similar services based on their energy consumption and (ii)
+highlight the connection between data collection, processing, and the
+associated environmental costs. We identify three key components in the
+assessment: (1) user side, (2) network and server side, and (3) embodied
+and end-of-life (EoL) emissions.
+
+
+\subsection{User-Side Assessment}
+
+To evaluate the emissions released by a user device when accessing
+the service, and to identify the attributable share for tracking and
+advertising, our framework involves six steps:
+
+\begin{enumerate}
+  %
+  \item Select Comparable Services: The framework is designed to compare
+        different implementations of online services. Different implementations may
+        reveal differences in consumption profiles, which could be attributed to
+        various factors distinguishing the implementations. However, in our case,
+        the aim is not only to identify the greener solution, but also to assess the impact
+        of advertising mechanisms on device energy consumption. Hence we run the same
+        service multiple times, both with and without the ad-blocker activated.
+        Additionally we configure the browser to allow the blocking of cookies
+        and the restriction of certain website tracking capabilities in order to
+        account for the impact of tracking mechanisms.
+        %
+  \item Define Functional Units: We identify the common scenarios that
+        users typically engage in when using the service such as logging into the
+        account, reading and sending an email, replying to, and logging out.
+        %
+  \item Automate the identified scenarios for repeated execution without
+        manual intervention.
+        %
+  \item Monitor the Scenarios: This step involves executing the scripts
+        developed in the previous step and monitoring (i) machine power or energy
+        consumption (in Watts or Joules) and (ii) data traffic on the network (in
+        Bytes). % \todo{Addresses R5 in Todo.md}
+        This is achieved using metric
+        tool APIs relying on modern computers' embedded sensors to track their components power consumption.
+        %
+  \item Convert Energy to Greenhouse Gas (GHG) Emissions: This is typically done using an
+        average grid energy mix, which translates to the environmental cost of
+        electricity production (expressed in kgCO2-equivalent per kWh).
+        %
+  \item Assess the User Side Use-Phase Emissions: Perform tasks 1 to 6 for both services and compute the differences in their GHG emissions.
+        Additionally, compute the differences in the network data traffic they
+        generated.
+        %
+\end{enumerate}
+
+\subsection{Network and Server-Side Assessment} \label{network-server}
+
+%\todo{Edited this whole paragraph to address R1, R2 and R6 in todo.md. Also provided more appropriate sources which also advocate for the need of more transparency}
+
+Estimating server-side emissions is challenging due to the lack of
+transparency from companies regarding environmental impacts and data
+processing and storage. This is highlighted, for example, by the European Data
+Protection Supervisor (EDPS) who found that the European Commission’s use
+of Microsoft 365 does not comply with EU data protection regulations due to
+unclarity regarding the collection, purpose, and processing location of
+personal data~\cite{EuropeanCommissionsUse2024}.
+Therefore, previous studies assessing the environmental impact of the ICT sector~\cite{malmodin2024ict,freitag_real_2021} often rely on global market and industry statistics for estimates. This leads to significant uncertainty across
+different studies. In particular, the impact of training and maintaining advertising models is assumed to have
+high impacts that are hard to assess: training AI models is not only known to be a computationally intensive task but also often requires extra hardware accumulating thereby more embodied emissions. As underlined in a review on different estimates of ICT climate impact~\cite{freitag_real_2021}, the rising trend in AI and data science can be regarded as a threat to the future of the ICT climate impact as it drives a steep growth in data storage and processing. Additionally, models are eventually used to target ads more effectively, leveraging the relationship, studied in ~\cite{frick_online_2021}, between perceived consumption-promoting online content and consumption levels. Both kind of impact, i.e., direct and indirect, make it difficult to derive precise estimates of server-side energy consumption for any specific service.
+Nevertheless, we include this step to emphasise the importance of
+recognising and maintaining awareness of the substantial energy consumption
+and associated GHG emissions linked to data processing:
+
+\begin{enumerate}
+  %
+  \item Collect Data from ICT Sector: We rely on the estimations provided
+        in~\cite{malmodin2024ict}, as it contains the most recent data available.
+        Specifically, we use the study’s estimates of network and server-side
+        emissions per GB of data handled.
+        %
+  \item Estimate Network and Server-Side Emissions: Multiply the difference
+        in data traffic (calculated in step 6) by the respective ratios identified
+        in the previous step to estimate the share of attributable network and server emissions.
+        %
+\end{enumerate}
+
+\subsection{Embodied and End-of-Life Assessment}
+
+Similarly to the previous evaluation, this step involves gathering data
+from prior studies that assess the ICT sector~\cite{malmodin2024ict}.
+Specifically, we need the ratios of the estimated embodied and End-of-Life
+(EoL) emissions for the network and server sides per GB of data handled.
+
+
+% ----------------------------------------------------------------------------
+
+\section{Experimental Setup}
+
+\subsection{Software Tools}
+
+In our experiments, we used several software tools to create the scenario environment, automate user interactions, and monitor the functional units.
+
+\begin{itemize}
+  \item \textbf{Chromium}: Chromium is an open-source web browser project that serves as the foundation for browsers like Google Chrome. Among its many features, it provides options to block cookies and limit website tracking capabilities.
+  \item \textbf{Selenium}: Selenium is a powerful tool for automating web browsers. We used it to simulate user interactions with the online services, such as accessing a webpage, logging in and out, reading, sending, and deleting emails. This allowed us to perform repeated and consistent tests across different service providers.
+  \item \textbf{Pi-Hole}: Pi-Hole is a DNS-based ad blocker that blocks ads at the network level by providing non-routable DNS entries for ad servers. We used Pi-Hole to evaluate the impact of ad-blocking on the energy consumption of the online services.
+  \item \textbf{Green Metric Tool (GMT)}: GMT is specifically designed to monitor the power consumption of software. To achieve this, it uses containers, which are small, lightweight virtual environments that contain the necessary dependencies for programs to run. By isolating the program in a container, GMT creates a controlled environment that accurately evaluates the specific energy consumption and data transfer attributable to the container. Additionally, GMT can automatically convert the data traffic exchanged by the program on the network into the corresponding shares of the network's emissions, which corresponds to the network assessment in our framework.
+\end{itemize}
+For the self-hosted email solution, we used the following components:
+\begin{itemize}
+  \item \textbf{Roundcube}: Roundcube is a web-based email client that provides a simple user interface for accessing emails. It was used as the webmail client in our self-hosted solution.
+  \item \textbf{Dovecot and Postfix}: These are included in the docker-mailserver package, which provides a complete mail server solution. Dovecot is used for IMAP and POP3 services, while Postfix handles the SMTP services.
+  \item \textbf{Mailvelope}: Mailvelope is a browser extension that provides PGP encryption for webmail. It integrates with Roundcube to enable secure email communication.
+  \item \textbf{TLS}: All traffic in our self-hosted solution is encrypted using TLS to ensure (i) secure communication between the client and the servers and (ii) consistency with the other email providers.
+\end{itemize}
+
+\subsection{Data Collection}
+
+To accurately assess the environmental impact of the email  services, we collected various metrics during the execution of the functional units. The data collection process involved the following steps:
+
+\begin{itemize}
+  \item \textbf{Functional Unit Duration}: The Selenium script logs the start and end times of each functional unit, allowing us to measure the time taken to complete each task.
+  \item \textbf{Energy Consumption and Network Traffic}: We used the Green Metric Tool (GMT)~\cite{greencoding} to monitor the energy consumption of the CPU, memory, and the entire machine. GMT also tracks the data traffic generated.
+  \item \textbf{Power Consumption}: The energy consumption and duration metrics are used to compute the mean power consumption over the same period.
+\end{itemize}
+
+Collecting data involves mapping each period of execution of the corresponding functional unit to the corresponding energy and traffic data. We achieve this using a Jupyter notebook (\texttt{2025\_data\_analysis.ipynb}), which fetches the data from the database filled by the GMT. This step includes verifying that no errors occurred during the execution of the functional units to validate each test. We also remove outliers to ensure that we are left with at least 100 valid samples for each test we perform.
+
+The notebook processes the raw data, performs statistical analysis, and generates visualizations to help interpret the results. Specifically, it includes the following steps:
+
+\begin{enumerate}
+  \item \textbf{Library Imports and Setup}: Import necessary libraries such as pandas, numpy, requests, seaborn, and matplotlib for data manipulation, HTTP requests, and visualization.
+  \item \textbf{API Interaction}: Define functions to interact with the Green Metric Tool API to fetch run IDs, test names, notes, and measurements.
+  \item \textbf{Metadata Collection}: Collect metadata related to energy measurements for different providers and functional units, including start and end timestamps.
+  \item \textbf{Sample Counting}: Count the number of valid samples based on unique start and end timestamps to ensure data reliability.
+  \item \textbf{Data Processing}: Process the raw data to compute metrics such as CPU energy, memory energy, estimated machine energy, and network IO.
+  \item \textbf{Outlier Removal}: Remove outliers using the IQR method to ensure the accuracy of the data.
+  \item \textbf{Power Data Calculation}: Calculate power data by dividing energy consumption by the duration of the functional units.
+  \item \textbf{Visualization}: Generate visualizations to help interpret the results and provide insights into the environmental impact of the email services.
+\end{enumerate}
+
+This comprehensive approach ensures that our data is accurate and reliable, providing a solid foundation for our conclusions.
+
+
+\section{Experimental Results}
+
+\subsection{Validation of the Tool}\label{sec:validation}
+
+To validate our framework, we replicated the experiments conducted by Pearce et al.~\cite{pearce2020energy}, which compare page loading times of various websites with and without ad-blockers enabled as the basis for energy savings estimation. Our objective was to determine if our tool could detect similar savings. 
+We selected the same set of popular websites and defined a unique functional unit consisting of the user visiting the website and waiting for the page to load. We then automated the process using Selenium~\cite{selenium} and ran the experiments with and without an ad-blocker enabled for a hundred iterations each. We chose to use Pi-Hole as this is a DNS-based ad-blocker.
+Our framework reports the following metrics:
+\begin{itemize}
+  \item \textbf{Duration of the functional unit}: The Selenium script logs the start and end time of the functional unit.
+  \item \textbf{Energy consumption and Network IO}: We used the Green Metric Tool (GMT)~\cite{greencoding} to monitor the energy consumption of the CPU, memory, and the entire machine, along with the data traffic generated during the corresponding period.
+  \item \textbf{Power consumption}: The two previous metrics are used to compute the respective mean power consumption over the same period.
+\end{itemize}
+For each metric and for each website, we performed a statistical analysis to determine whether there is a significant difference between the two conditions, i.e., with and without the ad-blocker enabled. The results are presented in Figure~\ref{fig:topnews_effect_of_using_adblock}. The figure shows that the page loading times are significantly reduced when using Pi-Hole, with a mean reduction of 1.2 seconds across all websites. This corresponds to a 10.66\% reduction, while the reductions reported by Pearce et al.~\cite{pearce2020energy} are 11.0\% for AdBlock, 22.2\% for Badger Percent, and 28.5\% for uBlock Origin. Our framework allows us to go even further and observe that the mean power consumption of the entire machine is reduced by 0.72W on average, which corresponds to a 2.97\% reduction. Compounded with the page loading time reduction, this represents a significant energy saving of 29.66J, corresponding to 11.36\% per visit on average. Additionally, the network IO is reduced by 2.48MB on average, which corresponds to a 16.94\% reduction. This last result can serve as the basis for estimating the network and server-side emissions, as described in Section~\ref{network-server}. Our results align with those presented in the work of Pearce et al.~\cite{pearce2020energy} confirming the validity of our tool for measuring the impact of ad-blockers on web page performance, thereby supporting its reliability for assessing the environmental impact of online services.
+
+
+\begin{figure*}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{graphics/topnews_effect_of_using_adblock.png}
+  \caption{Ad-block effect on page loading times for popular news websites.}
+  \Description{This figure shows the effect of using an ad-blocker on the page loading times for popular news websites.}
+  \label{fig:topnews_effect_of_using_adblock}
+\end{figure*}
+
+\subsection{Comparison of Email Services}
+
+We present a first application of our framework to estimate and
+compare the environmental footprint of three major email providers and a self-hosted email solution:
+Microsoft Outlook~\cite{outlook}, Gmail~\cite{gmail}, Proton Mail~\cite{proton} and MySolution. We aim to provide the user-side emission profile of these services and assess the impact of (i) using a given provider with respect to another, (ii) browsing with and without an ad-blocker, and (iii) using Pretty Good Privacy (PGP) encryption, thus currently focusing on the user side.
+
+\subsubsection{Functional Units and Simulation Tool}
+
+We first created different email accounts with each provider. Seven fundamental functional units were defined: \texttt{Login}, \texttt{Logout}, \texttt{No attachment}, \texttt{Attachment}, \texttt{Read}, \texttt{Reply}, and \texttt{Delete}. The idea is to provide a profile of energy expense which in turn allows to estimate consumption for more complex functional units by aggregating the performance of basic ones. Additionally, we explicitly define a functional unit \texttt{Session} as the composition of \texttt{Login} + \texttt{No attachment} + \texttt{Attachment} + \texttt{Read} and \texttt{Reply} + \texttt{Read} and \texttt{Delete} + \texttt{Logout}. This functional unit is used to assess the energy consumption of a complete email session.
+
+\subsection{Green Metric Tool}
+
+We then developed a simulation tool using Selenium~\cite{selenium} in order to automate scenarios such as mouse clicks, user interactions, logging in, etc. This tool is available~\cite{artifact-jason}.
+For our evaluation we use the Green Metric Tool (GMT)~\cite{greencoding} which is specifically designed to monitor the power consumption of software. To achieve this, it uses containers which are small, lightweight virtual environments that contain the necessary dependencies for programs to run. By isolating the program in a container, the GMT creates a controlled environment that accurately evaluate the specific energy consumption and data transfer attributable to the container. As an indicator, the tool can automatically convert the data traffic exchanged by the program on the network into the corresponding shares of the network's and server's emissions, which corresponds to the network and server-side assessment[\ref{network-server}] in our framework.
+Finally, it can also accept relevant parameters describing the machine on which it runs to estimate the monitored program’s share of embodied emissions. This allows an assessment of the user side embodied emissions.
+We conducted a hundred runs for each functional unit, with and without the ad-blocker enabled, and with and without PGP encryption for the self-hosted email solution. As for the validation phase [\ref{sec:validation}], the Selenium script keeps track of the time during which a functional unit is executed. The GMT records data on (i) CPU, memory and machine energy and (ii) network IO. We can From these we compute the mean CPU, memory and machine power consumption for each functional unit and perform a statistical analysis to determine if there is a significant difference between two conditions, (i.e. two different providers, the same provider with and without the ad-blocker or with and without PGP encryption).
+
+\subsubsection{Comparison of Email Services}
+
+
+
+While no
+significant differences were found, suggesting that ad-blockers did not
+notably affect energy consumption, comparison among providers showed some
+differences, with Gmail being slightly more energy-efficient and Proton
+consuming more energy, particularly in memory usage. We then provide
+estimates for emissions based on energy consumption. An objective is to extend these measurements and contribute to the Energy ID project~\cite{greencoding:energyid} consisting in developing impact-based score cards for different software services.
+%
+% We explore
+% the network and server-side emissions which reveals the potential for
+% substantial environmental impact from simple actions like sending an email.
+
+%------------------------------------------------------------------------------
+\subsection{Limitations and Future Directions}
+
+The primary limitation of this work, as previously mentioned, is the lack of data transparency from companies handling user information. While monitoring network exchanges can provide an estimate of the data collected by these platforms, there is no reliable way to assess the environmental impact of the data processing happening behind the scenes—simply because we don’t know what is that processing. Enhancing our framework could involve listing the various data storage and processing technologies we are aware of, along with approximate estimates of their carbon cost per gigabyte. This might help us gauge how far a given provider's practices deviate from our current estimates. However, such insights would remain indicative at best and could not serve as a basis for direct comparison. Our view is that, without regulations requiring stakeholders in this industry to disclose
+much more detailed information about their activities, it will remain challenging to achieve a
+comprehensive and accurate estimate.
+
+In terms of network consumption, we believe our estimates are closer to reality. However, as Freitag et al. discuss in their comparative analysis of ICT climate impact estimates~\cite{freitag_real_2021}, there is ongoing debate in the field regarding this issue. We recognise that network consumption is not elastic, which challenges the validity of our emission allocation. Networks are designed to handle peak activity, consuming a constant amount of energy regardless of data traffic levels. It is only when growing data demand requires infrastructure expansion that emissions increase. Nevertheless, since higher data transfer eventually results in higher emissions, we maintain that allocating responsibility for network emissions is necessary, with the volume of data exchanged serving as a suitable criterion.
+
+On the user side, for which we have the most reliable estimates, several
+limitations need to be addressed. First, our tool currently does not
+account for the impact of the ad-blocker itself. This limitation could
+potentially be addressed by incorporating an external ad-blocker such as
+Pi-hole~\cite{OverviewPiholePihole} which blocks ads at the network level
+by supplying non-routable DNS entries for ad servers. Additionally, to ensure a fair comparison among providers, functional units have been standardised to operate for the same duration across different providers using wait statements. While this approach helps maintain consistency, it reduces the click rate and may hide the time savings achieved by the ad-blocker, as highlighted by Pearce et al.~\cite{pearce2020energy}. To cross-validate our findings, we could re-run the tests without these wait statements and place greater focus on the time savings aspect.
+Another reason for not observing significant differences between runs with
+and without ad-blockers could be that web-mail services typically display
+fewer ads, relying instead on data collection and reselling as their
+business model. Ad-blockers are less effective against such mechanisms as
+most processing happens server-side. This could explain the lack of
+variation in our current results. We are also critically aware of
+projections claiming that between 50\% and 90\% of all email traffic is
+spam~\cite{statistaspam2024,fu2014detecting}, the management
+of which might have a measurable impact on sustainability metrics of a mail
+service. We leave assessment and evaluation of these aspects for future
+work.
+
+%------------------------------------------------------------------------------
+\section{Conclusions}
+
+Our work offers insights into the environmental impact of online
+services. We proposed an approach and framework for the impact
+assessment of software systems and partially apply this to evaluate
+services such as web mailers. Our approach not
+only facilitates comparison between similar services based on energy
+consumption, but also highlights the connection between data collection,
+processing, and their environmental costs. Ongoing research focuses on
+expanding sample sizes, incorporating more diverse scenarios for functional
+units, and including server-side data for greater accuracy, and to make the
+results more accessible to decision makers.
+
+\begin{acks}
+  \input{acks.tex}
+\end{acks}
+\balance
+
+% \clearpage
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{sustainable-ict.bib,tools.bib}
+\balance
+
+\end{document}
+
